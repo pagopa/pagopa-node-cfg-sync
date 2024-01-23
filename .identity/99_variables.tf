@@ -1,11 +1,11 @@
 locals {
   github = {
     org        = "pagopa"
-    repository = "TODO" #TODO
+    repository = "pagopa-node-cfg-job-manager"
   }
 
   prefix         = "pagopa"
-  domain         = "TODO" #TODO
+  domain         = "nodo"
   location_short = "weu"
   product        = "${var.prefix}-${var.env_short}"
 
@@ -20,6 +20,10 @@ locals {
     name           = "${local.prefix}-${var.env_short}-${local.location_short}-github-runner-cae",
     resource_group = "${local.prefix}-${var.env_short}-${local.location_short}-github-runner-rg",
   }
+}
+
+variable "location" {
+  type = string
 }
 
 variable "env" {
@@ -52,5 +56,16 @@ variable "github_repository_environment" {
     protected_branches     = false
     custom_branch_policies = true
     reviewers_teams        = ["pagopa-team-core"]
+  }
+}
+
+variable "tags" {
+  type = map(any)
+  default = {
+    CreatedBy   = "Terraform"
+    Environment = "PROD"
+    Owner       = "pagoPA"
+    Source      = "https://github.com/pagopa/pagopa-node-cfg-job-manager"
+    CostCenter  = "TS310 - PAGAMENTI & SERVIZI"
   }
 }
