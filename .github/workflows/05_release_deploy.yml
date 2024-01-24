@@ -1,0 +1,167 @@
+name: Release And Deploy
+
+# Controls when the workflow will run
+on:
+  pull_request:
+    types: [ closed ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        description: Select the Environment
+        options:
+          - dev
+          - uat
+          - prod
+      semver:
+        required: false
+        type: choice
+        description: Select the version
+        options:
+          - ''
+          - skip
+          - promote
+          - patch
+          - new_release
+          - breaking_change
+      beta:
+        required: false
+        type: boolean
+        description: deploy beta version on AKS
+        default: false
+  #      skip_release:
+  #        required: false
+  #        type: boolean
+  #        description: skip the release. Only deploy
+  #        default: false
+
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      semver:
+        required: true
+        type: string
+        default: skip
+
+permissions:
+  packages: write
+  contents: write
+  issues: write
+  id-token: write
+  actions: read
+
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.semver_setup.outputs.semver }}
+      environment: ${{ steps.semver_setup.outputs.environment }}
+    steps:
+      - name: Semver setup
+        id: semver_setup
+        uses: pagopa/github-actions-template/nodo5-semver-setup@ce252c8501c9242bd6045f7cdd650736b2f38777
+        with:
+          semver: ${{ inputs.semver }}
+
+  release:
+    needs: [setup]
+    name: Create a New Release
+    runs-on: ubuntu-latest
+    if: ${{ needs.setup.outputs.semver != 'skip' }}
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Make Release
+        id: release
+        uses: pagopa/github-actions-template/maven-release@v1.5.4
+        with:
+          semver: ${{ needs.setup.outputs.semver }}
+          github_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          beta: ${{ inputs.beta }}
+          skip_ci: false
+
+  image:
+    needs: [ setup, release ]
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    if: ${{ needs.setup.outputs.semver != 'skip' }}
+    steps:
+#      - name: Build and Push
+#        id: semver
+#        uses: pagopa/github-actions-template/ghcr-build-push@v1.5.4
+#        with:
+#          branch: ${{ github.ref_name}}
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          tag: ${{ needs.release.outputs.version }}
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4.3.0
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            latest
+            ${{ needs.release.outputs.version }}
+            type=ref,event=branch
+            type=sha
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          secrets: |
+            GH_TOKEN=${{ secrets.READ_PACKAGES_TOKEN }}
+
+  deploy_aks:
+    name: Deploy on AKS
+    needs: [ setup, release, image ]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    strategy:
+      matrix:
+        environment: [ dev, uat, prod ]
+    uses: ./.github/workflows/05h_deploy_with_github_runner.yml
+    with:
+      environment: ${{ matrix.environment }}
+      target: ${{ needs.setup.outputs.environment }}
+    secrets: inherit
+
+  notify:
+    name: Notify
+    needs: [ setup, release, deploy_aks ]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Report Status
+        if: always()
+        uses: ravsamhq/notify-slack-action@v2
+        with:
+          status: ${{ needs.deploy_aks.result }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          notification_title: 'New Release on ${{ needs.setup.outputs.environment }} for ${{ needs.release.outputs.version }} has {status_message}'
+          message_format: '{emoji} <{run_url}|{workflow}> {status_message} in <{repo_url}|{repo}>'
+          footer: 'Linked to <{workflow_url}| workflow file>'
+          icon_success: ':white_check_mark:'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,0 +1,60 @@
+name: Add PATCH default label
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  pull_request_target:
+    branches:
+      - main
+    types: [ opened, reopened ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  add_patch_label:
+    runs-on: ubuntu-latest
+    name: Add default label
+    steps:
+      - name: Check user labels
+        id: check_user_labels
+        uses: actions/github-script@v6.3.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            var addPatch = "true";
+            // retrieve label list
+            let labels = await github.rest.issues.listLabelsOnIssue({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo
+            });
+            
+            // verify if user have already added IGNORE-FOR-RELEASE, then skip add PATCH
+            // note: GitHub labels are added in .identity/03_github_environment.tf as github_issue_label resource
+            if (labels.data.find(label => label.name === 'ignore-for-release')){
+              addPatch = "false";
+            }
+            return addPatch;
+          result-encoding: string
+
+      - name: Add PATCH label
+        if: ${{ steps.check_user_labels.outputs.result == 'true' }}
+        uses: pagopa/github-actions-template/default-label@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          label: 'patch'
+
+      - name: Add comment
+        if: ${{ steps.check_user_labels.outputs.result == 'true' }}
+        uses: actions/github-script@v6.3.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: 'The default action is to increase the `PATCH` number of `SEMVER`. Set `IGNORE-FOR-RELEASE` if you want to skip `SEMVER` bump. `BREAKING-CHANGE` and `NEW-RELEASE` must be run from GH Actions section manually.'
+              });
