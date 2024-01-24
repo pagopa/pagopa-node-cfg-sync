@@ -10,13 +10,16 @@
     <version>2.7.3</version>
   </parent>
 
-  <groupId>it.gov.pagopa</groupId>
-  <artifactId>microservice</artifactId> <!--TODO: set your artifactId-->
+  <groupId>it.gov.pagopa.node-cfg</groupId>
+  <artifactId>job-manager</artifactId>
   <version>0.0.0</version>
-  <description>Your description</description> <!--TODO: set your description-->
+  <description>Microservice to update configuration schema of Nodo dei Pagamenti</description>
 
   <properties>
-    <java.version>11</java.version>
+    <java.version>17</java.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <dependencies>
