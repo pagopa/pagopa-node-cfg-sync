@@ -1,1 +1,24 @@
-{}
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "job-manager",
+    "description" : "Microservice to update configuration schema of Nodo dei Pagamenti",
+    "termsOfService" : "https://www.pagopa.gov.it/",
+    "version" : "0.0.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost",
+    "description" : "Generated server url"
+  } ],
+  "paths" : { },
+  "components" : {
+    "securitySchemes" : {
+      "ApiKey" : {
+        "type" : "apiKey",
+        "description" : "The API key to access this function app.",
+        "name" : "Ocp-Apim-Subscription-Key",
+        "in" : "header"
+      }
+    }
+  }
+}
