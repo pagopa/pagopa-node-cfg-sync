@@ -152,10 +152,9 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
       final DataIntegrityViolationException ex, final WebRequest request) {
     ProblemJson errorResponse = null;
 
-    if (ex.getCause() instanceof ConstraintViolationException) {
-      String sqlState = ((ConstraintViolationException) ex.getCause()).getSQLState();
-      var errorCode = ((ConstraintViolationException) ex.getCause()).getSQLException()
-          .getErrorCode();
+    if (ex.getCause() instanceof ConstraintViolationException constraintViolationException) {
+      String sqlState = constraintViolationException.getSQLState();
+      var errorCode = constraintViolationException.getSQLException().getErrorCode();
       // check the reason of ConstraintViolationException: is true if the object is referenced by a foreign key
       // more info: https://docs.oracle.com/javadb/10.8.3.0/ref/rrefexcept71493.html
       if (sqlState.equals(FOREIGN_KEY_VIOLATION)) {
