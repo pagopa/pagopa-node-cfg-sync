@@ -10,8 +10,8 @@
     <version>2.7.3</version>
   </parent>
 
-  <groupId>it.gov.pagopa.node-cfg</groupId>
-  <artifactId>job-manager</artifactId>
+  <groupId>it.gov.pagopa.node</groupId>
+  <artifactId>cfg-sync</artifactId>
   <version>0.0.0</version>
   <description>Microservice to update configuration schema of Nodo dei Pagamenti</description>
 

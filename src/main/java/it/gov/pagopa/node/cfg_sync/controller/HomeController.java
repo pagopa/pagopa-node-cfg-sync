@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.controller;
+package it.gov.pagopa.node.cfg_sync.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Value;

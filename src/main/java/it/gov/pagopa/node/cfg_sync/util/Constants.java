@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.util;
+package it.gov.pagopa.node.cfg_sync.util;
 
 import lombok.experimental.UtilityClass;
 

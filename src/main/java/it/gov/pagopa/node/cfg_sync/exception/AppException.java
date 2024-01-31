@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.exception;
+package it.gov.pagopa.node.cfg_sync.exception;
 
 import java.util.Formatter;
 import javax.validation.constraints.NotNull;

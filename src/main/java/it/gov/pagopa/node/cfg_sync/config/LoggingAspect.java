@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.node.cfg_sync.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;

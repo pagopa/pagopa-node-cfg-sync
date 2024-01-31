@@ -1,7 +1,6 @@
-package it.gov.pagopa.microservice.model;
+package it.gov.pagopa.node.cfg_sync.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,10 +13,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AppCorsConfiguration {
+public class AppInfo {
 
-  private String[] origins;
-  private String[] methods;
+  private String name;
+  private String version;
+  private String environment;
 }

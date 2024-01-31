@@ -1,9 +1,9 @@
 microservice-chart:
-  namespace: "your-namespace" # TODO: set your AKS namespace
+  namespace: "node-cfg-sync"
   nameOverride: ""
   fullnameOverride: ""
   image:
-    repository: ghcr.io/pagopa/yourname # TODO
+    repository: ghcr.io/pagopa/pagopa-node-cfg-sync
     tag: "0.0.0"
     pullPolicy: Always
   livenessProbe:
@@ -29,8 +29,8 @@ microservice-chart:
       - 8080
   ingress:
     create: true
-    host: "your.host" # TODO: set the host
-    path: /your-path-here/(.*) # TODO: set your path
+    host: "weudev.nodo.internal.dev.platform.pagopa.it"
+    path: /node-cfg-sync/(.*)
     servicePort: 8080
   serviceAccount:
     create: false
@@ -48,11 +48,11 @@ microservice-chart:
       cpu: "0.25"
     limits:
       memory: "512Mi"
-      cpu: "0.25"
+      cpu: "0.5"
   autoscaling:
     enable: true
     minReplica: 1
-    maxReplica: 10
+    maxReplica: 1
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
     triggers:
@@ -62,14 +62,13 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    # TODO: set your name
-    WEBSITE_SITE_NAME: 'yourProjectName' # required to show cloud role name in application insights
+    WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync' # required to show cloud role name in application insights
     ENV: 'azure-dev'
     APP_LOGGING_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
 
-    OTEL_SERVICE_NAME: # TODO
+    OTEL_SERVICE_NAME: "pagopa-node-cfg-sync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_TRACES_EXPORTER: otlp
@@ -81,7 +80,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
     OTEL_EXPORTER_OTLP_HEADERS: elastic-apm-secret-token
   keyvault:
-    name: "pagopa-d-name-kv" #TODO
+    name: "pagopa-d-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   nodeSelector: { }
   tolerations: [ ]
@@ -108,7 +107,7 @@ microservice-chart:
     deployment:
       create: true
       image:
-        repository: ghcr.io/pagopa/yourname # TODO
+        repository: ghcr.io/pagopa/pagopa-node-cfg-sync
         tag: "0.0.0"
         pullPolicy: Always
       envConfig: { }

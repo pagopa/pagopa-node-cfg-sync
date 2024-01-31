@@ -1,6 +1,4 @@
-package it.gov.pagopa.microservice.config;
-
-import static it.gov.pagopa.microservice.util.Constants.HEADER_REQUEST_ID;
+package it.gov.pagopa.node.cfg_sync.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -15,6 +13,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import it.gov.pagopa.node.cfg_sync.util.Constants;
 import org.springdoc.core.customizers.OpenApiCustomiser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -97,12 +97,12 @@ public class OpenApiConfig {
                           .orElse(Collections.emptyList())
                           .parallelStream()
                           .filter(Objects::nonNull)
-                          .anyMatch(elem -> HEADER_REQUEST_ID.equals(elem.getName()));
+                          .anyMatch(elem -> Constants.HEADER_REQUEST_ID.equals(elem.getName()));
                   if (!header) {
                     value.addParametersItem(
                         new Parameter()
                             .in("header")
-                            .name(HEADER_REQUEST_ID)
+                            .name(Constants.HEADER_REQUEST_ID)
                             .schema(new StringSchema())
                             .description(
                                 "This header identifies the call, if not passed it is self-generated. This ID is returned in the response."));
@@ -119,7 +119,7 @@ public class OpenApiConfig {
                                   .forEach(
                                       response ->
                                           response.addHeaderObject(
-                                              HEADER_REQUEST_ID,
+                                              Constants.HEADER_REQUEST_ID,
                                               new Header()
                                                   .schema(new StringSchema())
                                                   .description(

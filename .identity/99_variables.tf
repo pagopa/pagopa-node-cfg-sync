@@ -1,7 +1,7 @@
 locals {
   github = {
     org        = "pagopa"
-    repository = "pagopa-node-cfg-job-manager"
+    repository = "pagopa-node-cfg-sync"
   }
 
   prefix         = "pagopa"
@@ -65,7 +65,7 @@ variable "tags" {
     CreatedBy   = "Terraform"
     Environment = "PROD"
     Owner       = "pagoPA"
-    Source      = "https://github.com/pagopa/pagopa-node-cfg-job-manager"
+    Source      = "https://github.com/pagopa/pagopa-node-cfg-sync"
     CostCenter  = "TS310 - PAGAMENTI & SERVIZI"
   }
 }

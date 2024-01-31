@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice; // TODO: refactor the package
+package it.gov.pagopa.node.cfg_sync;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

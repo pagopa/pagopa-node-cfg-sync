@@ -1,6 +1,4 @@
-package it.gov.pagopa.microservice.config;
-
-import static it.gov.pagopa.microservice.util.Constants.HEADER_REQUEST_ID;
+package it.gov.pagopa.node.cfg_sync.config;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -11,6 +9,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import it.gov.pagopa.node.cfg_sync.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
@@ -39,7 +39,7 @@ public class RequestFilter implements Filter {
       HttpServletRequest httRequest = (HttpServletRequest) request;
 
       // get requestId from header or generate one
-      String requestId = httRequest.getHeader(HEADER_REQUEST_ID);
+      String requestId = httRequest.getHeader(Constants.HEADER_REQUEST_ID);
       if (requestId == null || requestId.isEmpty()) {
         requestId = UUID.randomUUID().toString();
       }
@@ -48,7 +48,7 @@ public class RequestFilter implements Filter {
       MDC.put("requestId", requestId);
 
       // set requestId in the response header
-      ((HttpServletResponse) response).setHeader(HEADER_REQUEST_ID, requestId);
+      ((HttpServletResponse) response).setHeader(Constants.HEADER_REQUEST_ID, requestId);
       chain.doFilter(request, response);
     } finally {
       MDC.clear();

@@ -1,6 +1,6 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.node.cfg_sync.config;
 
-import it.gov.pagopa.microservice.exception.AppException;
+import it.gov.pagopa.node.cfg_sync.exception.AppException;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
