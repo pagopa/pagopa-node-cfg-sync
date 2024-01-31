@@ -1,31 +1,25 @@
 # Template for Java Spring Microservice project
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=TODO-set-your-id&metric=alert_status)](https://sonarcloud.io/dashboard?id=TODO-set-your-id)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-node-cfg-sync&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa_pagopa-node-cfg-sync)
 [![Integration Tests](https://github.com/pagopa/<TODO-repo>/actions/workflows/integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/<TODO-repo>/actions/workflows/integration_test.yml)
 
-TODO: add a description
-
-TODO: generate a index with this tool: https://ecotrust-canada.github.io/markdown-toc/
-
-TODO: resolve all the TODOs in this template
+Microservice to update configuration schema of Nodo dei Pagamenti
 
 ---
 
-## Api Documentation 📖
+## API Documentation 📖
 
-See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/<TODO-repo>/main/openapi/openapi.json)
+See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-node-cfg-sync/main/openapi/openapi.json)
 
 ---
 
 ## Technology Stack
 
-- Java 11
+- Java 17
 - Spring Boot
 - Spring Web
 - Hibernate
 - JPA
-- ...
-- TODO
 
 ---
 
@@ -51,7 +45,7 @@ from `./docker` directory
 
 - git
 - maven
-- jdk-11
+- jdk-17
 
 ### Run the project
 
