@@ -108,7 +108,7 @@ public class LoggingAspect {
                                     || prop.toLowerCase().contains("key")
                                     || prop.toLowerCase().contains("secret")
                             ))
-            .forEach(prop -> log.debug("{}: {}", prop, env.getProperty(prop)));
+            .forEach(prop -> log.debug("{}: {}", prop, ""));//env.getProperty(prop)));
   }
 
   @Around(value = "restController()")
