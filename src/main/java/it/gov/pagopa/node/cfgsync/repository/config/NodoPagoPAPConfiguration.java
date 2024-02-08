@@ -19,7 +19,7 @@ import java.util.HashMap;
         @PropertySource(value = "classpath:/application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
 })
 @EnableJpaRepositories(
-        basePackages = "it.gov.pagopa.node.cfg_sync.repository.pagopa",
+        basePackages = "it.gov.pagopa.node.cfgsync.repository.pagopa",
         entityManagerFactoryRef = "nodoPagoPAPEntityManager",
         transactionManagerRef = "nodoPagoPAPTransactionManager"
 )
@@ -34,7 +34,7 @@ public class NodoPagoPAPConfiguration {
         LocalContainerEntityManagerFactoryBean em
                 = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(nodoPagoPAPDataSource());
-        em.setPackagesToScan("it.gov.pagopa.node.cfg_sync.repository.model.pagopa");
+        em.setPackagesToScan("it.gov.pagopa.node.cfgsync.repository.model.pagopa");
 
         HibernateJpaVendorAdapter vendorAdapter
                 = new HibernateJpaVendorAdapter();

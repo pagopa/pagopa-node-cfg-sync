@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 public class EventHubClientConfiguration {
 
     private static final String CONSUMER_GROUP = "$Default";
-    private static final String STORAGE_ACCOUNT_ENDPOINT = "";
+    private static final String STORAGE_ACCOUNT_CONNECTION_STRING = "";
     private static final String STORAGE_CONTAINER_NAME = "prova";
 
     @Value("${nodo-dei-pagamenti-cache-rx-connection-string}")
@@ -29,16 +29,12 @@ public class EventHubClientConfiguration {
 
     @Bean
     EventHubClientBuilder eventHubClientBuilder() {
-        return new EventHubClientBuilder().credential(nodoCacheRxConnectionString, nodoCacheRxName,
-                new DefaultAzureCredentialBuilder()
-                        .build());
+        return new EventHubClientBuilder().connectionString(nodoCacheRxConnectionString);
     }
 
     @Bean
     BlobContainerClientBuilder blobContainerClientBuilder() {
-        return new BlobContainerClientBuilder().credential(new DefaultAzureCredentialBuilder()
-                        .build())
-                .endpoint(STORAGE_ACCOUNT_ENDPOINT)
+        return new BlobContainerClientBuilder().connectionString(STORAGE_ACCOUNT_CONNECTION_STRING)
                 .containerName(STORAGE_CONTAINER_NAME);
     }
 
@@ -49,24 +45,11 @@ public class EventHubClientConfiguration {
 
     @Bean
     EventProcessorClientBuilder eventProcessorClientBuilder(BlobContainerAsyncClient blobContainerAsyncClient) {
-        return new EventProcessorClientBuilder().credential(nodoCacheRxConnectionString, nodoCacheRxName,
-                        new DefaultAzureCredentialBuilder()
-                                .build())
+        return new EventProcessorClientBuilder().connectionString(nodoCacheRxConnectionString)
                 .consumerGroup(CONSUMER_GROUP)
                 .checkpointStore(new BlobCheckpointStore(blobContainerAsyncClient))
                 .processEvent(EventHubClientConfiguration::processEvent)
                 .processError(EventHubClientConfiguration::processError);
-    }
-
-//    @Bean
-//    EventHubProducerClient eventHubProducerClient(EventHubClientBuilder eventHubClientBuilder) {
-//        return eventHubClientBuilder.buildProducerClient();
-//
-//    }
-
-    @Bean
-    EventProcessorClient eventProcessorClient(EventProcessorClientBuilder eventProcessorClientBuilder) {
-        return eventProcessorClientBuilder.buildEventProcessorClient();
     }
 
     public static void processEvent(EventContext eventContext) {
