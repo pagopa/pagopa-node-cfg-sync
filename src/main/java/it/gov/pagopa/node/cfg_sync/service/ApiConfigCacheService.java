@@ -7,9 +7,9 @@ import it.gov.pagopa.node.cfg_sync.client.ApiConfigCacheClient;
 import it.gov.pagopa.node.cfg_sync.exception.AppError;
 import it.gov.pagopa.node.cfg_sync.exception.AppException;
 import it.gov.pagopa.node.cfg_sync.model.TargetRefreshEnum;
-import it.gov.pagopa.node.cfg_sync.repository.CacheNodoPagoPAPRepository;
 import it.gov.pagopa.node.cfg_sync.repository.model.Cache;
-import it.gov.pagopa.node.cfg_sync.repository.model.CachePagoPAP;
+import it.gov.pagopa.node.cfg_sync.repository.model.pagopa.CachePagoPA;
+import it.gov.pagopa.node.cfg_sync.repository.pagopa.CacheNodoPagoPAPRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,13 +72,14 @@ public class ApiConfigCacheService extends CommonCacheService implements CacheSe
             String cacheTimestamp = (String) getHeaderParameter(getType(), headers, HEADER_CACHE_TIMESTAMP);
             String cacheVersion = (String) getHeaderParameter(getType(), headers, HEADER_CACHE_VERSION);
 
-            CachePagoPAP cache = (CachePagoPAP) composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp).toLocalDateTime(), cacheVersion, response.body().asInputStream().readAllBytes());
+            CachePagoPA cache = (CachePagoPA) composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp).toLocalDateTime(), cacheVersion, response.body().asInputStream().readAllBytes());
             cacheNodoPagoPAPRepository.save(cache);
 
         } catch (FeignException.GatewayTimeout e) {
             log.error("SyncService api-config-cache get cache error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             log.error("SyncService api-config-cache get cache error", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }

@@ -24,12 +24,7 @@ public class CommonCacheService {
         String version = trimCacheColumn ?
                 (String) Utils.trimValueColumn(Cache.class, "version", cacheVersion) : cacheVersion;
 
-        return Cache
-                .builder()
-                .id(cacheId)
-                .time(timestamp)
-                .version(version)
-                .cache(Utils.zipContent(cache)).build();
+        return new Cache(cacheId, timestamp, Utils.zipContent(cache), version);
     }
 
     protected Object getHeaderParameter(TargetRefreshEnum target, Map<String, Collection<String>> headers, String key) {

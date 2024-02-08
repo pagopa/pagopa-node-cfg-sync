@@ -67,6 +67,7 @@ microservice-chart:
     APP_LOGGING_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
+    CACHET_TX_NAME: "nodo-dei-pagamenti-cache"
 
     OTEL_SERVICE_NAME: "pagopa-node-cfg-sync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=uat"
@@ -78,6 +79,7 @@ microservice-chart:
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-u-connection-string'
+    CACHE_TX_CONNECTION_STRING: "nodo-dei-pagamenti-cache-tx-connection-string-key"
     OTEL_EXPORTER_OTLP_HEADERS: elastic-apm-secret-token
   keyvault:
     name: "pagopa-d-nodo-kv"

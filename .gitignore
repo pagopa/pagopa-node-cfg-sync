@@ -38,3 +38,6 @@ hs_err_pid*
 # Helm
 /helm/charts/*
 **/.terraform/
+
+# Others
+**/.DS_Store

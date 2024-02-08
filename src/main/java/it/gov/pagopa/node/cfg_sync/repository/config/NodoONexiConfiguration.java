@@ -19,7 +19,7 @@ import java.util.HashMap;
         @PropertySource(value = "classpath:/application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
 })
 @EnableJpaRepositories(
-        basePackages = "it.gov.pagopa.node.cfg_sync.repository.CacheNodoONexiRepository",
+        basePackages = "it.gov.pagopa.node.cfg_sync.repository.nexi",
         entityManagerFactoryRef = "nodoNexiOEntityManager",
         transactionManagerRef = "nodoNexiOTransactionManager"
 )
@@ -32,7 +32,7 @@ public class NodoONexiConfiguration {
         LocalContainerEntityManagerFactoryBean em
                 = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(nodoNexiODataSource());
-        em.setPackagesToScan("it.gov.pagopa.node.cfg_sync.repository.model.CacheNexiO");
+        em.setPackagesToScan("it.gov.pagopa.node.cfg_sync.repository.model.nexi");
 
         HibernateJpaVendorAdapter vendorAdapter
                 = new HibernateJpaVendorAdapter();

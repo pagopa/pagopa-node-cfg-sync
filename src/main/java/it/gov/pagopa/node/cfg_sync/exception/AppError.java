@@ -7,7 +7,11 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum AppError {
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
-      "Something was wrong");
+      "Something was wrong"),
+  SERVICE_DISABLED(
+          HttpStatus.BAD_REQUEST,
+      "Target service disabled",
+              "Target service %s disabled");
 
   public final HttpStatus httpStatus;
   public final String title;
