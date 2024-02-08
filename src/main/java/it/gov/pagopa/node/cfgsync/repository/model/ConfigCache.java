@@ -3,17 +3,16 @@ package it.gov.pagopa.node.cfgsync.repository.model;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
 @NoArgsConstructor
 @AllArgsConstructor
-@MappedSuperclass
-public class Cache implements Serializable {
+@Entity
+@Table(name = "cache")
+public class ConfigCache implements Serializable {
 
     @Id
     @Column(name="ID", columnDefinition = "VARCHAR", length = 20)

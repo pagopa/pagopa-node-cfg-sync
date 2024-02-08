@@ -83,7 +83,7 @@ public class SyncCacheController {
   public ResponseEntity<RefreshResponse> cache(@PathVariable TargetRefreshEnum target) {
 
       log.debug("Sync {} configuration", target.label);
-      CacheServiceFactory.getService(target).syncCache();
+      CacheServiceFactory.getService(target).sync();
 
       String requestId = UUID.randomUUID().toString();
       ZonedDateTime timestamp = ZonedDateTime.now();

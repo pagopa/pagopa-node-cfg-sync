@@ -3,7 +3,7 @@ package it.gov.pagopa.node.cfgsync.service;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
-import it.gov.pagopa.node.cfgsync.repository.model.Cache;
+import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,11 +20,11 @@ public class CommonCacheService {
     @Value("${app.trimCacheColumn}")
     private boolean trimCacheColumn;
 
-    protected Cache composeCache(String cacheId, LocalDateTime timestamp, String cacheVersion, byte[] cache) throws IOException {
+    protected ConfigCache composeCache(String cacheId, LocalDateTime timestamp, String cacheVersion, byte[] cache) throws IOException {
         String version = trimCacheColumn ?
-                (String) Utils.trimValueColumn(Cache.class, "version", cacheVersion) : cacheVersion;
+                (String) Utils.trimValueColumn(ConfigCache.class, "version", cacheVersion) : cacheVersion;
 
-        return new Cache(cacheId, timestamp, Utils.zipContent(cache), version);
+        return new ConfigCache(cacheId, timestamp, Utils.zipContent(cache), version);
     }
 
     protected Object getHeaderParameter(TargetRefreshEnum target, Map<String, Collection<String>> headers, String key) {

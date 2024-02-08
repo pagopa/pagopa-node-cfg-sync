@@ -9,11 +9,10 @@ import org.springframework.stereotype.Service;
 @Service
 public interface StandInManagerClient {
 
-  @RequestLine("GET /cache/refresh")
+  @RequestLine("GET /stations")
   @Headers({
-          "Content-Type: application/json",
           "Ocp-Apim-Subscription-Key: {subscriptionKey}"
   })
-  Response refresh(@Param String subscriptionKey);
+  Response getCache(@Param String subscriptionKey);
 
 }

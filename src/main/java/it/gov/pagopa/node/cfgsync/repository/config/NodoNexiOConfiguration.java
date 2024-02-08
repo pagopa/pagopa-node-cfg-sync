@@ -19,21 +19,19 @@ import java.util.HashMap;
         @PropertySource(value = "classpath:/application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
 })
 @EnableJpaRepositories(
-        basePackages = "it.gov.pagopa.node.cfgsync.repository.pagopa",
-        entityManagerFactoryRef = "nodoPagoPAPEntityManager",
-        transactionManagerRef = "nodoPagoPAPTransactionManager"
+        basePackages = "it.gov.pagopa.node.cfgsync.repository.nexioracle",
+        entityManagerFactoryRef = "nodoNexiOEntityManager",
+        transactionManagerRef = "nodoNexiOTransactionManager"
 )
-public class NodoPagoPAPConfiguration {
-
+public class NodoNexiOConfiguration {
     @Autowired
     private Environment env;
 
     @Bean
-    @Primary
-    public LocalContainerEntityManagerFactoryBean nodoPagoPAPEntityManager() {
+    public LocalContainerEntityManagerFactoryBean nodoNexiOEntityManager() {
         LocalContainerEntityManagerFactoryBean em
                 = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(nodoPagoPAPDataSource());
+        em.setDataSource(nodoNexiODataSource());
         em.setPackagesToScan("it.gov.pagopa.node.cfgsync.repository.model");
 
         HibernateJpaVendorAdapter vendorAdapter
@@ -49,27 +47,25 @@ public class NodoPagoPAPConfiguration {
         return em;
     }
 
-    @Primary
     @Bean
-    public DataSource nodoPagoPAPDataSource() {
+    public DataSource nodoNexiODataSource() {
         DriverManagerDataSource dataSource
                 = new DriverManagerDataSource();
         dataSource.setDriverClassName(
-                env.getProperty("db.nodo.pagopa.postgre.datasource.driverClassName"));
-        dataSource.setUrl(env.getProperty("db.nodo.pagopa.postgre.datasource.url"));
-        dataSource.setUsername(env.getProperty("db.nodo.pagopa.postgre.datasource.username"));
-        dataSource.setPassword(env.getProperty("db.nodo.pagopa.postgre.datasource.password"));
+                env.getProperty("db.nodo.nexi.oracle.datasource.driverClassName"));
+        dataSource.setUrl(env.getProperty("db.nodo.nexi.oracle.datasource.url"));
+        dataSource.setUsername(env.getProperty("db.nodo.nexi.oracle.datasource.username"));
+        dataSource.setPassword(env.getProperty("db.nodo.nexi.oracle.datasource.password"));
 
         return dataSource;
     }
 
-    @Primary
     @Bean
-    public PlatformTransactionManager nodoPagoPAPTransactionManager() {
+    public PlatformTransactionManager nodoNexiOTransactionManager() {
         JpaTransactionManager transactionManager
                 = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(
-                nodoPagoPAPEntityManager().getObject());
+                nodoNexiOEntityManager().getObject());
 
         return transactionManager;
     }
