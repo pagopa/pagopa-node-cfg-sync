@@ -19,13 +19,15 @@ import org.springframework.context.annotation.Configuration;
 public class EventHubClientConfiguration {
 
     private static final String CONSUMER_GROUP = "$Default";
-    private static final String STORAGE_ACCOUNT_CONNECTION_STRING = "";
-    private static final String STORAGE_CONTAINER_NAME = "prova";
 
     @Value("${nodo-dei-pagamenti-cache-rx-connection-string}")
     private String nodoCacheRxConnectionString;
     @Value("${nodo-dei-pagamenti-cache-rx-name}")
     private String nodoCacheRxName;
+    @Value("${nodo-dei-pagamenti-cache-sa-connection-string}")
+    private String nodoCacheSaConnectionString;
+    @Value("${nodo-dei-pagamenti-cache-sa-name}")
+    private String nodoCacheSaContainerName;
 
     @Bean
     EventHubClientBuilder eventHubClientBuilder() {
@@ -34,8 +36,8 @@ public class EventHubClientConfiguration {
 
     @Bean
     BlobContainerClientBuilder blobContainerClientBuilder() {
-        return new BlobContainerClientBuilder().connectionString(STORAGE_ACCOUNT_CONNECTION_STRING)
-                .containerName(STORAGE_CONTAINER_NAME);
+        return new BlobContainerClientBuilder().connectionString(nodoCacheSaConnectionString)
+                .containerName(nodoCacheSaContainerName);
     }
 
     @Bean
@@ -50,6 +52,11 @@ public class EventHubClientConfiguration {
                 .checkpointStore(new BlobCheckpointStore(blobContainerAsyncClient))
                 .processEvent(EventHubClientConfiguration::processEvent)
                 .processError(EventHubClientConfiguration::processError);
+    }
+
+    @Bean
+    EventProcessorClient eventProcessorClient(EventProcessorClientBuilder eventProcessorClientBuilder) {
+        return eventProcessorClientBuilder.buildEventProcessorClient();
     }
 
     public static void processEvent(EventContext eventContext) {
