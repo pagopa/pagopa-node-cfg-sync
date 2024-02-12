@@ -8,8 +8,8 @@ import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
-import it.gov.pagopa.node.cfgsync.repository.nexioracle.CacheNodoNexiPRepository;
-import it.gov.pagopa.node.cfgsync.repository.pagopa.CacheNodoPagoPAPRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexipostgre.NexiCachePostgreRepository;
+import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgreRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -36,41 +35,21 @@ public class ApiConfigCacheService extends CommonCacheService implements CacheSe
     private static final String HEADER_CACHE_TIMESTAMP = "X-CACHE-TIMESTAMP";
     private static final String HEADER_CACHE_VERSION = "X-CACHE-VERSION";
 
-    @Value("${service.api-config-cache.enabled}")
+    @Value("${api-config-cache.service.enabled}")
     private boolean enabled;
-    @Value("${service.api-config-cache.subscriptionKey}")
+    @Value("${api-config-cache.service.subscriptionKey}")
     private String subscriptionKey;
-    @Value("${nodo-dei-pagamenti-cache-rx-connection-string}")
-    private String nodoCacheRxConnectionString;
-    @Value("${nodo-dei-pagamenti-cache-rx-name}")
-    private String nodoCacheRxName;
-    @Value("${nodo-dei-pagamenti-cache-sa-connection-string}")
-    private String nodoCacheSaConnectionString;
-    @Value("${nodo-dei-pagamenti-cache-sa-name}")
-    private String nodoCacheSaContainerName;
-    @Value("${nodo-dei-pagamenti-cache-consumer-group}")
-    private String nodoCacheConsumerGroup;
 
     private final ApiConfigCacheClient apiConfigCacheClient;
 
     @Autowired
-    private CacheNodoPagoPAPRepository cacheNodoPagoPAPRepository;
+    private PagoPACachePostgreRepository pagoPACachePostgreRepository;
     @Autowired
-    private CacheNodoNexiPRepository cacheNodoNexiPRepository;
-//    @Autowired
-//    private TransactionTemplate transactionTemplate;
-//
-//    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-//        @Override
-//        public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-//            cacheNodoPagoPAPRepository.save(configCache);
-//            cacheNodoNexiPRepository.save(configCache);
-//        }
-//    });
+    private NexiCachePostgreRepository nexiCachePostgreRepository;
 
     private final TransactionTemplate transactionTemplate;
 
-    public ApiConfigCacheService(@Value("${service.api-config-cache.host}") String apiConfigCacheUrl, PlatformTransactionManager transactionManager) {
+    public ApiConfigCacheService(@Value("${api-config-cache.service.host}") String apiConfigCacheUrl, PlatformTransactionManager transactionManager) {
         apiConfigCacheClient = Feign.builder().target(ApiConfigCacheClient.class, apiConfigCacheUrl);
         transactionTemplate = new TransactionTemplate(transactionManager);
     }
@@ -110,8 +89,8 @@ public class ApiConfigCacheService extends CommonCacheService implements CacheSe
             this.transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 public void doInTransactionWithoutResult(TransactionStatus status) {
                     try {
-                        cacheNodoPagoPAPRepository.save(configCache);
-                        cacheNodoNexiPRepository.save(configCache);
+                        pagoPACachePostgreRepository.save(configCache);
+                        nexiCachePostgreRepository.save(configCache);
                     } catch(NoSuchElementException ex) {
                         status.setRollbackOnly();
                     }
@@ -121,6 +100,9 @@ public class ApiConfigCacheService extends CommonCacheService implements CacheSe
             log.error("SyncService api-config-cache get cache error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         } catch (IOException e) {
+            log.error("SyncService api-config-cache get cache error", e);
+            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
             log.error("SyncService api-config-cache get cache error", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }

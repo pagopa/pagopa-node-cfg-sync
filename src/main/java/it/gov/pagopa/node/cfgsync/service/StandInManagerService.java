@@ -12,7 +12,6 @@ import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,26 +20,26 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class StandInManagerCacheService extends CommonCacheService implements CacheService {
+public class StandInManagerService extends CommonCacheService implements CacheService {
 
-    @Value("${service.stand-in-manager.enabled}")
+    @Value("${stand-in-manager.service.enabled}")
     private boolean enabled;
-    @Value("${service.stand-in-manager.subscriptionKey}")
+    @Value("${stand-in-manager.service.subscriptionKey}")
     private String subscriptionKey;
-    @Value("${stand-in-rx-connection-string}")
+    @Value("${stand-in-manager.rx-connection-string}")
     private String standInRxConnectionString;
-    @Value("${stand-in-rx-name}")
+    @Value("${stand-in-manager.rx-name}")
     private String standInRxName;
-    @Value("${stand-in-sa-connection-string}")
+    @Value("${stand-in-manager.sa-connection-string}")
     private String standInSaConnectionString;
-    @Value("${stand-in-sa-name}")
+    @Value("${stand-in-manager.sa-name}")
     private String standInSaContainerName;
-    @Value("${stand-in-consumer-group}")
+    @Value("${stand-in-manager.consumer-group}")
     private String standInConsumerGroup;
 
     private final StandInManagerClient standInManagerClient;
 
-    public StandInManagerCacheService(@Value("${service.stand-in-manager.host}") String standInManagerUrl) {
+    public StandInManagerService(@Value("${stand-in-manager.service.host}") String standInManagerUrl) {
         standInManagerClient = Feign.builder().target(StandInManagerClient.class, standInManagerUrl);
     }
 
