@@ -65,7 +65,7 @@ variable "tags" {
     CreatedBy   = "Terraform"
     Environment = "PROD"
     Owner       = "pagoPA"
-    Source      = "https://github.com/pagopa/pagopa-node-cfg-sync"
+    Source      = "https://github.com/pagopa/pagopa-node-cfg-sync.git"
     CostCenter  = "TS310 - PAGAMENTI & SERVIZI"
   }
 }
