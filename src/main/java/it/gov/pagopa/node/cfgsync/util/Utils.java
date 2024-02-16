@@ -4,24 +4,18 @@ import javax.persistence.Column;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.Deflater;
+import java.util.zip.GZIPOutputStream;
 
 public class Utils {
 
     public static byte[] zipContent(byte[] input) throws IOException {
-        Deflater compressor = new Deflater();
-        compressor.setLevel(Deflater.BEST_COMPRESSION);
-        compressor.setInput(input);
-        compressor.finish();
-
         ByteArrayOutputStream bos = new ByteArrayOutputStream(input.length);
-
-        byte[] buf = new byte[1024];
-        while (!compressor.finished()) {
-            int count = compressor.deflate(buf);
-            bos.write(buf, 0, count);
-        }
+        GZIPOutputStream gzip = new GZIPOutputStream(bos);
+        gzip.write(input);
+        gzip.close();
+        byte[] compressed = bos.toByteArray();
         bos.close();
-        return bos.toByteArray();
+        return compressed;
     }
 
     public static Object trimValueColumn(Class clazz, String columnName, String value) {

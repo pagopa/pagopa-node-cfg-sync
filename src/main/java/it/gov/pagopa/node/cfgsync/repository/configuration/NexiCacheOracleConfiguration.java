@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
@@ -24,10 +25,11 @@ import javax.sql.DataSource;
 })
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "it.gov.pagopa.node.cfgsync.repository.nexioracle",
+        basePackages = "it.gov.pagopa.node.cfgsync.repository.nexioracle.cache",
         entityManagerFactoryRef = "nexiCacheOracleEntityManagerFactory",
         transactionManagerRef = "nexiCacheOracleTransactionManager"
 )
+@ConditionalOnProperty(prefix = "spring.datasource.nexi.oracle.cache", name = "enabled")
 public class NexiCacheOracleConfiguration {
 
     @Autowired

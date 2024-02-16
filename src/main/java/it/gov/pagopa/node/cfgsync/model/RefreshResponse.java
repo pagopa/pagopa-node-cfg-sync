@@ -14,7 +14,6 @@ import java.time.ZonedDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RefreshResponse {
 
-  @NotNull private String id;
-//  @NotNull private String version;
-  @NotNull private ZonedDateTime timestamp;
+  @NotNull private String serviceIdentifier;
+  @NotNull private String status;
 }

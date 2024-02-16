@@ -8,8 +8,9 @@ import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
-import it.gov.pagopa.node.cfgsync.repository.nexipostgre.NexiCachePostgreRepository;
-import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgreRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexioracle.cache.NexiCacheOracleRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexipostgre.cache.NexiCachePostgreRepository;
+import it.gov.pagopa.node.cfgsync.repository.pagopa.cache.PagoPACachePostgreRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +30,7 @@ import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
-public class ApiConfigCacheService extends CommonCacheService implements CacheService {
+public class ApiConfigCacheService extends CommonCacheService {
 
     private static final String HEADER_CACHE_ID = "X-CACHE-ID";
     private static final String HEADER_CACHE_TIMESTAMP = "X-CACHE-TIMESTAMP";
@@ -44,8 +45,19 @@ public class ApiConfigCacheService extends CommonCacheService implements CacheSe
 
     @Autowired
     private PagoPACachePostgreRepository pagoPACachePostgreRepository;
-    @Autowired
-    private NexiCachePostgreRepository nexiCachePostgreRepository;
+//    @Autowired
+//    private NexiCachePostgreRepository nexiCachePostgreRepository;
+//    @Autowired
+//    private NexiCacheOracleRepository nexiCacheOracleRepository;
+
+    @Value("${spring.datasource.pagopa.postgre.cache.enabled}")
+    private Boolean pagopaPostgreCacheEnabled;
+
+    @Value("${spring.datasource.nexi.postgre.cache.enabled}")
+    private Boolean nexiPostgreCacheEnabled;
+
+    @Value("${spring.datasource.nexi.oracle.cache.enabled}")
+    private Boolean nexiOracleCacheEnabled;
 
     private final TransactionTemplate transactionTemplate;
 
@@ -54,17 +66,11 @@ public class ApiConfigCacheService extends CommonCacheService implements CacheSe
         transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
-    @Override
-    public TargetRefreshEnum getType() {
-        return TargetRefreshEnum.config;
-    }
-
-    @Override
     @Transactional
-    public void sync() {
+    public void forceCacheUpdate() {
         try {
             if( !enabled ) {
-                throw new AppException(AppError.SERVICE_DISABLED, getType());
+                throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.config);
             }
             log.debug("SyncService api-config-cache get cache");
             Response response = apiConfigCacheClient.getCache(subscriptionKey);
@@ -80,17 +86,18 @@ public class ApiConfigCacheService extends CommonCacheService implements CacheSe
                 log.error("SyncService api-config-cache get cache error - empty header");
                 throw new AppException(AppError.INTERNAL_SERVER_ERROR);
             }
-            String cacheId = (String) getHeaderParameter(getType(), headers, HEADER_CACHE_ID);
-            String cacheTimestamp = (String) getHeaderParameter(getType(), headers, HEADER_CACHE_TIMESTAMP);
-            String cacheVersion = (String) getHeaderParameter(getType(), headers, HEADER_CACHE_VERSION);
+            String cacheId = (String) getHeaderParameter(TargetRefreshEnum.config, headers, HEADER_CACHE_ID);
+            String cacheTimestamp = (String) getHeaderParameter(TargetRefreshEnum.config, headers, HEADER_CACHE_TIMESTAMP);
+            String cacheVersion = (String) getHeaderParameter(TargetRefreshEnum.config, headers, HEADER_CACHE_VERSION);
 
             ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp).toLocalDateTime(), cacheVersion, response.body().asInputStream().readAllBytes());
 
             this.transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 public void doInTransactionWithoutResult(TransactionStatus status) {
                     try {
-                        pagoPACachePostgreRepository.save(configCache);
-                        nexiCachePostgreRepository.save(configCache);
+                        if( pagopaPostgreCacheEnabled ) pagoPACachePostgreRepository.save(configCache);
+//                        if( nexiPostgreCacheEnabled ) nexiCachePostgreRepository.save(configCache);
+//                        if( nexiOracleCacheEnabled ) nexiCacheOracleRepository.save(configCache);
                     } catch(NoSuchElementException ex) {
                         status.setRollbackOnly();
                     }

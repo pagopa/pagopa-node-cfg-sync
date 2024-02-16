@@ -3,6 +3,7 @@ package it.gov.pagopa.node.cfgsync.repository.configuration;
 import com.zaxxer.hikari.HikariDataSource;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
@@ -22,10 +23,11 @@ import javax.sql.DataSource;
 })
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "it.gov.pagopa.node.cfgsync.repository.pagopa",
+        basePackages = "it.gov.pagopa.node.cfgsync.repository.pagopa.cache",
         entityManagerFactoryRef = "pagoPACachePostgreEntityManagerFactory",
         transactionManagerRef = "pagoPACachePostgreTransactionManager"
 )
+@ConditionalOnProperty(prefix = "spring.datasource.pagopa.postgre.cache", name = "enabled")
 public class PagoPACachePostgreConfiguration {
 
     @Bean

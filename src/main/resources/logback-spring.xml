@@ -13,6 +13,8 @@
             </layout>
         </appender>
 
+        <logger name="com.azure" level="ERROR" />
+
         <root level="INFO">
             <appender-ref ref="stdout"/>
         </root>
@@ -27,6 +29,8 @@
                 <serviceEnvironment>${ENV}</serviceEnvironment>
             </encoder>
         </appender>
+
+        <logger name="com.azure" level="ERROR" />
 
         <root level="INFO">
             <appender-ref ref="ECS_JSON_CONSOLE"/>

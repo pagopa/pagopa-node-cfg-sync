@@ -8,6 +8,7 @@ import com.azure.messaging.eventhubs.models.EventContext;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "stand-in-manager.consumer", name = "enabled")
 public class StandInManagerEhConsumer {
 
@@ -31,8 +33,7 @@ public class StandInManagerEhConsumer {
     @Value("${stand-in-manager.consumer-group}")
     private String standInManagerConsumerGroup;
 
-    @Autowired
-    private CacheServiceFactory cacheServiceFactory;
+    private final StandInManagerService standInManagerService;
 
     @Bean
     BlobContainerAsyncClient blobContainerStandInAsyncClient() {
@@ -45,19 +46,19 @@ public class StandInManagerEhConsumer {
         return new EventProcessorClientBuilder().connectionString(standInManagerRxConnectionString)
                 .consumerGroup(standInManagerConsumerGroup)
                 .checkpointStore(new BlobCheckpointStore(blobContainerAsyncClient))
-                .processEvent(StandInManagerEhConsumer::processEvent)
-                .processError(StandInManagerEhConsumer::processError).buildEventProcessorClient();
+                .processEvent(this::processEvent)
+                .processError(this::processError).buildEventProcessorClient();
     }
 
-    public static void processEvent(EventContext eventContext) {
+    public void processEvent(EventContext eventContext) {
         log.info("Processing event {} from partition {} with sequence number {} with body: {}",
                 TargetRefreshEnum.standin.label,
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
-        CacheServiceFactory.getService(TargetRefreshEnum.config).sync();
+        standInManagerService.forceStandIn();
     }
 
-    public static void processError(ErrorContext errorContext) {
+    public void processError(ErrorContext errorContext) {
         log.error("Error occurred in partition processor {} for partition {}, {}",
                 TargetRefreshEnum.standin.label,
                 errorContext.getPartitionContext().getPartitionId(),

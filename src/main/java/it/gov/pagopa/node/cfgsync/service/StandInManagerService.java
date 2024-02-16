@@ -5,22 +5,31 @@ import feign.Feign;
 import feign.FeignException;
 import feign.Response;
 import it.gov.pagopa.node.cfgsync.client.StandInManagerClient;
-import it.gov.pagopa.node.cfgsync.client.model.StandInManagerResponse;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
+import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;
+import it.gov.pagopa.node.cfgsync.repository.nexioracle.standin.NexiStandInOracleRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexipostgre.standin.NexiStandInPostgreRepository;
+import it.gov.pagopa.node.cfgsync.repository.pagopa.standin.PagoPAStandInPostgreRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
-public class StandInManagerService extends CommonCacheService implements CacheService {
+public class StandInManagerService extends CommonCacheService {
 
     @Value("${stand-in-manager.service.enabled}")
     private boolean enabled;
@@ -38,23 +47,39 @@ public class StandInManagerService extends CommonCacheService implements CacheSe
     private String standInConsumerGroup;
 
     private final StandInManagerClient standInManagerClient;
+    private final ObjectMapper objectMapper;
 
-    public StandInManagerService(@Value("${stand-in-manager.service.host}") String standInManagerUrl) {
+    @Autowired
+    private PagoPAStandInPostgreRepository pagoPAStandInPostgreRepository;
+//    @Autowired
+//    private NexiStandInPostgreRepository nexiStandInPostgreRepository;
+//    @Autowired
+//    private NexiStandInOracleRepository nexiStandInOracleRepository;
+
+    @Value("${spring.datasource.pagopa.postgre.standin.enabled}")
+    private Boolean pagopaPostgreStandInEnabled;
+
+    @Value("${spring.datasource.nexi.postgre.standin.enabled}")
+    private Boolean nexiPostgreStandInEnabled;
+
+    @Value("${spring.datasource.nexi.oracle.standin.enabled}")
+    private Boolean nexiOracleStandInEnabled;
+
+    private final TransactionTemplate transactionTemplate;
+
+    public StandInManagerService(@Value("${stand-in-manager.service.host}") String standInManagerUrl, ObjectMapper objectMapper, PlatformTransactionManager transactionManager) {
         standInManagerClient = Feign.builder().target(StandInManagerClient.class, standInManagerUrl);
+        transactionTemplate = new TransactionTemplate(transactionManager);
+        this.objectMapper = objectMapper;
     }
 
-    @Override
-    public TargetRefreshEnum getType() {
-        return TargetRefreshEnum.standin;
-    }
-
-    @Override
-    public void sync() {
+    @Transactional
+    public void forceStandIn() {
         try {
             if( !enabled ) {
-                throw new AppException(AppError.SERVICE_DISABLED, getType());
+                throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.standin);
             }
-            log.debug("SyncService stand-in-manager get cache");
+            log.debug("SyncService api-config-cache get stations");
             Response response = standInManagerClient.getCache(subscriptionKey);
             int httpResponseCode = response.status();
             if (httpResponseCode != HttpStatus.OK.value()) {
@@ -63,19 +88,24 @@ public class StandInManagerService extends CommonCacheService implements CacheSe
             }
             log.info("SyncService stand-in-manager get stations successful");
 
-            Map<String, Collection<String>> headers = response.headers();
-            if( headers.isEmpty() ) {
-                log.error("SyncService api-config-cache get cache error - empty header");
-                throw new AppException(AppError.INTERNAL_SERVER_ERROR);
-            }
+            List<StandInStations> stations = (List<StandInStations>) objectMapper.readValue(response.body().asInputStream().readAllBytes(), List.class);
 
-            StandInManagerResponse standInManagerResponse = new ObjectMapper().readValue(response.body().asInputStream(), StandInManagerResponse.class);
-            //TODO: chiamare repository per salvare le stazioni
+            this.transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                public void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        if( pagopaPostgreStandInEnabled ) pagoPAStandInPostgreRepository.saveAll(stations);
+//                        if( nexiPostgreStandInEnabled ) nexiStandInPostgreRepository.saveAll(stations);
+//                        if( nexiOracleStandInEnabled ) nexiStandInOracleRepository.saveAll(stations);
+                    } catch(NoSuchElementException ex) {
+                        status.setRollbackOnly();
+                    }
+                }
+            });
         } catch (FeignException.GatewayTimeout e) {
-            log.error("SyncService stand-in-manager get cache error: Gateway timeout", e);
+            log.error("SyncService stand-in-manager get stations error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         } catch (FeignException | IOException e) {
-            log.error("SyncService api-config-cache get cache error", e);
+            log.error("SyncService stand-in-manager get stations error", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
     }

@@ -8,38 +8,35 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.gov.pagopa.node.cfgsync.model.ProblemJson;
 import it.gov.pagopa.node.cfgsync.model.RefreshResponse;
-import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
-import it.gov.pagopa.node.cfgsync.service.CacheServiceFactory;
+import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
+import it.gov.pagopa.node.cfgsync.service.StandInManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
-
 @Slf4j
 @RestController
-@RequestMapping("/sync")
+@RequestMapping("/ndp")
 @Validated
 public class SyncCacheController {
 
     @Autowired
-    private CacheServiceFactory cacheServiceFactory;
+    private ApiConfigCacheService apiConfigCacheService;
+    @Autowired
+    private StandInManagerService standInManagerService;
 
 
   @Operation(
-      summary = "Sync target v1 config",
+      summary = "Force stand-in configuration update",
       security = {@SecurityRequirement(name = "ApiKey")},
       tags = {
-        "Cache",
+        "StandIn",
       })
   @ApiResponses(
       value = {
@@ -62,10 +59,6 @@ public class SyncCacheController {
             description = "Unauthorized",
             content = @Content(schema = @Schema())),
         @ApiResponse(
-            responseCode = "403",
-            description = "Forbidden",
-            content = @Content(schema = @Schema())),
-        @ApiResponse(
             responseCode = "429",
             description = "Too many requests",
             content = @Content(schema = @Schema())),
@@ -77,24 +70,68 @@ public class SyncCacheController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ProblemJson.class)))
       })
-  @GetMapping(
-      value = "/v1/{target}",
-      produces = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<RefreshResponse> cache(@PathVariable TargetRefreshEnum target) {
+  @PostMapping(
+          value = "/stand-in",
+          consumes = MediaType.APPLICATION_JSON_VALUE,
+          produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<RefreshResponse> standin() {
 
-      log.debug("Sync {} configuration", target.label);
-      CacheServiceFactory.getService(target).sync();
-
-      String requestId = UUID.randomUUID().toString();
-      ZonedDateTime timestamp = ZonedDateTime.now();
-
-      HttpHeaders responseHeaders = new HttpHeaders();
-      responseHeaders.set("X-REQUEST-ID", requestId);
-      responseHeaders.set("X-CACHE-TIMESTAMP", DateTimeFormatter.ISO_DATE_TIME.format(timestamp));
+      log.debug("Force stand-in configuration update");
+      standInManagerService.forceStandIn();
 
       return ResponseEntity.ok()
-              .headers(responseHeaders)
-              .body(RefreshResponse.builder().timestamp(timestamp).id(requestId).build());
+              .body(RefreshResponse.builder().serviceIdentifier("").status("done").build());
   }
+
+    @Operation(
+            summary = "Force cache configuration update",
+            security = {@SecurityRequirement(name = "ApiKey")},
+            tags = {
+                    "Cache",
+            })
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK",
+                            content =
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request",
+                            content =
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ProblemJson.class))),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())),
+                    @ApiResponse(
+                            responseCode = "429",
+                            description = "Too many requests",
+                            content = @Content(schema = @Schema())),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Service unavailable",
+                            content =
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ProblemJson.class)))
+            })
+    @PostMapping(
+            value = "/cache",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RefreshResponse> cache() {
+
+        log.debug("Force cache configuration update");
+        apiConfigCacheService.forceCacheUpdate();
+
+        return ResponseEntity.ok()
+                .body(RefreshResponse.builder().serviceIdentifier("").status("done").build());
+    }
 
 }
