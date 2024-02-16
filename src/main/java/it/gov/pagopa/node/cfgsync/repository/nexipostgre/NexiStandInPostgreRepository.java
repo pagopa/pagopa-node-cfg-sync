@@ -1,4 +1,4 @@
-package it.gov.pagopa.node.cfgsync.repository.nexipostgre.standin;
+package it.gov.pagopa.node.cfgsync.repository.nexipostgre;
 
 import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;
 import org.springframework.data.jpa.repository.JpaRepository;

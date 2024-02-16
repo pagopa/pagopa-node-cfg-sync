@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
-import java.time.ZonedDateTime;
 
 @Data
 @Builder(toBuilder = true)
@@ -12,8 +11,9 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RefreshResponse {
+public class SyncStatus {
 
-  @NotNull private String serviceIdentifier;
-  @NotNull private String status;
+    @NotNull
+    private String serviceIdentifier;
+    @NotNull private SyncStatusEnum status;
 }

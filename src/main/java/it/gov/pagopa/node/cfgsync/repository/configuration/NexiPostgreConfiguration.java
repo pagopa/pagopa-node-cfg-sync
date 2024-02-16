@@ -23,38 +23,38 @@ import javax.sql.DataSource;
 })
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "it.gov.pagopa.node.cfgsync.repository.nexipostgre.cache",
+        basePackages = "it.gov.pagopa.node.cfgsync.repository.nexipostgre",
         entityManagerFactoryRef = "nexiCachePostgreEntityManagerFactory",
         transactionManagerRef = "nexiCachePostgreTransactionManager"
 )
-@ConditionalOnProperty(prefix = "spring.datasource.nexi.postgre.cache", name = "enabled")
-public class NexiCachePostgreConfiguration {
+@ConditionalOnProperty(prefix = "spring.datasource.nexi.postgre", name = "enabled")
+public class NexiPostgreConfiguration {
 
     @Bean
-    @ConfigurationProperties("spring.datasource.nexi.postgre.cache")
-    public DataSourceProperties nexiCachePostgreDatasourceProperties() {
+    @ConfigurationProperties("spring.datasource.nexi.postgre")
+    public DataSourceProperties nexiPostgreDatasourceProperties() {
         return new DataSourceProperties();
     }
 
     @Bean
-    @ConfigurationProperties("spring.datasource.nexi.postgre.cache.configuration")
-    public DataSource nexiCachePostgreDataSource() {
-        return nexiCachePostgreDatasourceProperties().initializeDataSourceBuilder()
+    @ConfigurationProperties("spring.datasource.nexi.postgre.configuration")
+    public DataSource nexiPostgreDataSource() {
+        return nexiPostgreDatasourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();
     }
 
-    @Bean(name = "nexiCachePostgreEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean nexiCachePostgreEntityManagerFactory(EntityManagerFactoryBuilder builder) {
+    @Bean(name = "nexiPostgreEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean nexiPostgreEntityManagerFactory(EntityManagerFactoryBuilder builder) {
         return builder
-                .dataSource(nexiCachePostgreDataSource())
+                .dataSource(nexiPostgreDataSource())
                 .packages(ConfigCache.class)
                 .build();
     }
 
     @Bean
-    public PlatformTransactionManager nexiCachePostgreTransactionManager(
-            final @Qualifier("nexiCachePostgreEntityManagerFactory") LocalContainerEntityManagerFactoryBean nexiCachePostgreEntityManagerFactory) {
-        return new JpaTransactionManager(nexiCachePostgreEntityManagerFactory.getObject());
+    public PlatformTransactionManager nexiPostgreTransactionManager(
+            final @Qualifier("nexiPostgreEntityManagerFactory") LocalContainerEntityManagerFactoryBean nexiPostgreEntityManagerFactory) {
+        return new JpaTransactionManager(nexiPostgreEntityManagerFactory.getObject());
     }
 
 }

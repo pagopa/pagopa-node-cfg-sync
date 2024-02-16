@@ -6,6 +6,7 @@ import feign.Response;
 import it.gov.pagopa.node.cfgsync.client.ApiConfigCacheClient;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
+import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgreRepository;
@@ -15,16 +16,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
@@ -50,22 +50,26 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     @Value("${pagopa.postgre.cache.write.enabled}")
     private Boolean pagopaPostgreCacheEnabled;
+    @Value("${pagopa.postgre.serviceIdentifier}")
+    private String pagopaPostgreServiceIdentifier;
 
     @Value("${nexi.postgre.cache.write.enabled}")
     private Boolean nexiPostgreCacheEnabled;
+    @Value("${nexi.postgre.serviceIdentifier}")
+    private String nexiPostgreServiceIdentifier;
 
     @Value("${nexi.oracle.cache.write.enabled}")
     private Boolean nexiOracleCacheEnabled;
+    @Value("${nexi.oracle.serviceIdentifier}")
+    private String nexiOracleServiceIdentifier;
 
-    private final TransactionTemplate transactionTemplate;
-
-    public ApiConfigCacheService(@Value("${api-config-cache.service.host}") String apiConfigCacheUrl, PlatformTransactionManager transactionManager) {
+    public ApiConfigCacheService(@Value("${api-config-cache.service.host}") String apiConfigCacheUrl) {
         apiConfigCacheClient = Feign.builder().target(ApiConfigCacheClient.class, apiConfigCacheUrl);
-        transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
     @Transactional
-    public void forceCacheUpdate() {
+    public Map<String, SyncStatusEnum> forceCacheUpdate() {
+        Map<String, SyncStatusEnum> syncStatusMap = new HashMap<>();
         try {
             if( !enabled ) {
                 throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.config);
@@ -88,19 +92,38 @@ public class ApiConfigCacheService extends CommonCacheService {
             String cacheTimestamp = (String) getHeaderParameter(TargetRefreshEnum.config, headers, HEADER_CACHE_TIMESTAMP);
             String cacheVersion = (String) getHeaderParameter(TargetRefreshEnum.config, headers, HEADER_CACHE_VERSION);
 
+            log.info("SyncService cacheId:[{}], cacheTimestamp:[{}], cacheVersion:[{}]", cacheId, Instant.from(ZonedDateTime.parse(cacheTimestamp)), cacheVersion);
+
             ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp).toLocalDateTime(), cacheVersion, response.body().asInputStream().readAllBytes());
 
-            this.transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                public void doInTransactionWithoutResult(TransactionStatus status) {
-                    try {
-                        if( pagopaPostgreCacheEnabled ) pagoPACachePostgreRepository.save(configCache);
-//                        if( nexiPostgreCacheEnabled ) nexiCachePostgreRepository.save(configCache);
-//                        if( nexiOracleCacheEnabled ) nexiCacheOracleRepository.save(configCache);
-                    } catch(NoSuchElementException ex) {
-                        status.setRollbackOnly();
-                    }
+            try {
+                if( pagopaPostgreCacheEnabled ) {
+                    pagoPACachePostgreRepository.save(configCache);
+                    syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.done);
+                } else {
+                    syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.disabled);
                 }
-            });
+            } catch(Exception ex) {
+                syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.error);
+            }
+//            try {
+//                if (nexiPostgreCacheEnabled) {
+//                    nexiCachePostgreRepository.save(configCache);
+//                } else {
+//                    syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.disabled);
+//                }
+//            } catch(Exception ex) {
+//                syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.error);
+//            }
+//            try {
+//                if( nexiOracleCacheEnabled ) {
+//                    nexiCacheOracleRepository.save(configCache);
+//                } else {
+//                    syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
+//                }
+//            } catch(Exception ex) {
+//                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
+//            }
         } catch (FeignException.GatewayTimeout e) {
             log.error("SyncService api-config-cache get cache error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
@@ -111,5 +134,6 @@ public class ApiConfigCacheService extends CommonCacheService {
             log.error("SyncService api-config-cache get cache error", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
+        return syncStatusMap;
     }
 }

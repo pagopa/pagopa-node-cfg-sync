@@ -1,4 +1,4 @@
-package it.gov.pagopa.node.cfgsync.repository.nexioracle.standin;
+package it.gov.pagopa.node.cfgsync.repository.nexioracle;
 
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;

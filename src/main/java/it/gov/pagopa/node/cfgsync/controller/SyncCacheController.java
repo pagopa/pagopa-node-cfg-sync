@@ -7,7 +7,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.gov.pagopa.node.cfgsync.model.ProblemJson;
-import it.gov.pagopa.node.cfgsync.model.RefreshResponse;
+import it.gov.pagopa.node.cfgsync.model.SyncStatus;
+import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
+import it.gov.pagopa.node.cfgsync.model.SyncStatusResponse;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
 import it.gov.pagopa.node.cfgsync.service.StandInManagerService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -74,13 +79,18 @@ public class SyncCacheController {
           value = "/stand-in",
           consumes = MediaType.APPLICATION_JSON_VALUE,
           produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<RefreshResponse> standin() {
+  public ResponseEntity<List<SyncStatusResponse>> standin() {
 
       log.debug("Force stand-in configuration update");
-      standInManagerService.forceStandIn();
+      Map<String, SyncStatusEnum> syncStatusEnumMap = standInManagerService.forceStandIn();
+
+      List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
+              .stream()
+              .map(e -> SyncStatusResponse.builder().serviceIdentifier(e.getKey()).status(e.getValue()).build())
+              .collect(Collectors.toList());
 
       return ResponseEntity.ok()
-              .body(RefreshResponse.builder().serviceIdentifier("").status("done").build());
+              .body(syncStatusResponseList);
   }
 
     @Operation(
@@ -94,10 +104,9 @@ public class SyncCacheController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "OK",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )),
+                            content =@Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = List.class))),
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad Request",
@@ -125,13 +134,17 @@ public class SyncCacheController {
             value = "/cache",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RefreshResponse> cache() {
-
+    public ResponseEntity<List<SyncStatusResponse>> cache() {
         log.debug("Force cache configuration update");
-        apiConfigCacheService.forceCacheUpdate();
+        Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.forceCacheUpdate();
+
+        List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
+                .stream()
+                .map(e -> SyncStatusResponse.builder().serviceIdentifier(e.getKey()).status(e.getValue()).build())
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok()
-                .body(RefreshResponse.builder().serviceIdentifier("").status("done").build());
+                .body(syncStatusResponseList);
     }
 
 }

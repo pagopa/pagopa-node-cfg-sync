@@ -25,40 +25,40 @@ import javax.sql.DataSource;
 })
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "it.gov.pagopa.node.cfgsync.repository.nexioracle.cache",
-        entityManagerFactoryRef = "nexiCacheOracleEntityManagerFactory",
-        transactionManagerRef = "nexiCacheOracleTransactionManager"
+        basePackages = "it.gov.pagopa.node.cfgsync.repository.nexioracle",
+        entityManagerFactoryRef = "nexiOracleEntityManagerFactory",
+        transactionManagerRef = "nexiOracleTransactionManager"
 )
-@ConditionalOnProperty(prefix = "spring.datasource.nexi.oracle.cache", name = "enabled")
-public class NexiCacheOracleConfiguration {
+@ConditionalOnProperty(prefix = "spring.datasource.nexi.oracle", name = "enabled")
+public class NexiOracleConfiguration {
 
     @Autowired
     private Environment env;
 
     @Bean
-    @ConfigurationProperties("spring.datasource.nexi.oracle.cache")
-    public DataSourceProperties nexiCacheOracleDatasourceProperties() {
+    @ConfigurationProperties("spring.datasource.nexi.oracle")
+    public DataSourceProperties nexiOracleDatasourceProperties() {
         return new DataSourceProperties();
     }
 
     @Bean
-    @ConfigurationProperties("spring.datasource.nexi.oracle.cache.configuration")
-    public DataSource nexiCacheOracleDataSource() {
-        return nexiCacheOracleDatasourceProperties().initializeDataSourceBuilder()
+    @ConfigurationProperties("spring.datasource.nexi.oracle.configuration")
+    public DataSource nexiOracleDataSource() {
+        return nexiOracleDatasourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();
     }
 
-    @Bean(name = "nexiCacheOracleEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean nexiCacheOracleEntityManagerFactory(EntityManagerFactoryBuilder builder) {
+    @Bean(name = "nexiOracleEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean nexiOracleEntityManagerFactory(EntityManagerFactoryBuilder builder) {
         return builder
-                .dataSource(nexiCacheOracleDataSource())
+                .dataSource(nexiOracleDataSource())
                 .packages(ConfigCache.class)
                 .build();
     }
 
     @Bean
-    public PlatformTransactionManager nexiCacheOracleTransactionManager(
-            final @Qualifier("nexiCacheOracleEntityManagerFactory") LocalContainerEntityManagerFactoryBean nexiCacheOracleEntityManagerFactory) {
-        return new JpaTransactionManager(nexiCacheOracleEntityManagerFactory.getObject());
+    public PlatformTransactionManager nexiOracleTransactionManager(
+            final @Qualifier("nexiOracleEntityManagerFactory") LocalContainerEntityManagerFactoryBean nexiOracleEntityManagerFactory) {
+        return new JpaTransactionManager(nexiOracleEntityManagerFactory.getObject());
     }
 }

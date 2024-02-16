@@ -1,4 +1,4 @@
-package it.gov.pagopa.node.cfgsync.repository.nexioracle.cache;
+package it.gov.pagopa.node.cfgsync.repository.nexioracle;
 
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import org.springframework.data.jpa.repository.JpaRepository;

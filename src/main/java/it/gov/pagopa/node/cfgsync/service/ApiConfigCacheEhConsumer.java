@@ -7,6 +7,7 @@ import com.azure.messaging.eventhubs.models.ErrorContext;
 import com.azure.messaging.eventhubs.models.EventContext;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
+import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,14 +48,16 @@ public class ApiConfigCacheEhConsumer {
     }
 
     public void processEvent(EventContext eventContext) {
-        log.info("Processing event from partition {} with sequence number {} with body: {}",
+        log.info("Processing event {} from partition {} with sequence number {} with body: {}",
+                TargetRefreshEnum.config.label,
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
         apiConfigCacheService.forceCacheUpdate();
     }
 
     public void processError(ErrorContext errorContext) {
-        log.error("Error occurred in partition processor for partition {}, {}",
+        log.error("Error occurred for {} from partition {}: {}",
+                TargetRefreshEnum.config.label,
                 errorContext.getPartitionContext().getPartitionId(),
                 errorContext.getThrowable().getMessage(),
                 errorContext.getThrowable());

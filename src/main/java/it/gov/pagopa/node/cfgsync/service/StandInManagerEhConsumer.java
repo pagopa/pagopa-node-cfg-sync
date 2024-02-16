@@ -56,7 +56,7 @@ public class StandInManagerEhConsumer {
     }
 
     public void processError(ErrorContext errorContext) {
-        log.error("Error occurred in partition processor {} for partition {}, {}",
+        log.error("Error occurred for {} from partition {}: {}",
                 TargetRefreshEnum.standin.label,
                 errorContext.getPartitionContext().getPartitionId(),
                 errorContext.getThrowable().getMessage(),

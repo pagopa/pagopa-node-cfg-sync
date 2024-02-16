@@ -24,41 +24,41 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 @EnableJpaRepositories(
         basePackages = "it.gov.pagopa.node.cfgsync.repository.pagopa",
-        entityManagerFactoryRef = "pagoPACachePostgreEntityManagerFactory",
-        transactionManagerRef = "pagoPACachePostgreTransactionManager"
+        entityManagerFactoryRef = "pagoPAPostgreEntityManagerFactory",
+        transactionManagerRef = "pagoPAPostgreTransactionManager"
 )
 @ConditionalOnProperty(prefix = "spring.datasource.pagopa.postgre", name = "enabled")
 public class PagoPAPostgreConfiguration {
 
-    @Bean
     @Primary
+    @Bean
     @ConfigurationProperties("spring.datasource.pagopa.postgre")
-    public DataSourceProperties pagoPACachePostgreDatasourceProperties() {
+    public DataSourceProperties pagoPAPostgreDatasourceProperties() {
         return new DataSourceProperties();
     }
 
-    @Bean
     @Primary
+    @Bean
     @ConfigurationProperties("spring.datasource.pagopa.postgre.configuration")
-    public DataSource pagoPACachePostgreDataSource() {
-        return pagoPACachePostgreDatasourceProperties().initializeDataSourceBuilder()
+    public DataSource pagoPAPostgreDataSource() {
+        return pagoPAPostgreDatasourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();
     }
 
     @Primary
-    @Bean(name = "pagoPACachePostgreEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean pagoPACachePostgreEntityManagerFactory(EntityManagerFactoryBuilder builder) {
+    @Bean(name = "pagoPAPostgreEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean pagoPAPostgreEntityManagerFactory(EntityManagerFactoryBuilder builder) {
         return builder
-                .dataSource(pagoPACachePostgreDataSource())
+                .dataSource(pagoPAPostgreDataSource())
                 .packages(ConfigCache.class)
                 .build();
     }
 
     @Primary
     @Bean
-    public PlatformTransactionManager pagoPACachePostgreTransactionManager(
-            final @Qualifier("pagoPACachePostgreEntityManagerFactory") LocalContainerEntityManagerFactoryBean pagoPACachePostgreEntityManagerFactory) {
-        return new JpaTransactionManager(pagoPACachePostgreEntityManagerFactory.getObject());
+    public PlatformTransactionManager pagoPAPostgreTransactionManager(
+            final @Qualifier("pagoPAPostgreEntityManagerFactory") LocalContainerEntityManagerFactoryBean pagoPAPostgreEntityManagerFactory) {
+        return new JpaTransactionManager(pagoPAPostgreEntityManagerFactory.getObject());
     }
 
 }

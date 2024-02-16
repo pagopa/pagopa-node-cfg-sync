@@ -8,6 +8,7 @@ import it.gov.pagopa.node.cfgsync.client.StandInManagerClient;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.StationsResponse;
+import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgreRepository;
@@ -16,15 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,28 +45,32 @@ public class StandInManagerService extends CommonCacheService {
 
     @Value("${pagopa.postgre.standin.write.enabled}")
     private Boolean pagopaPostgreStandInEnabled;
+    @Value("${pagopa.postgre.serviceIdentifier}")
+    private String pagopaPostgreServiceIdentifier;
 
     @Value("${nexi.postgre.standin.write.enabled}")
     private Boolean nexiPostgreStandInEnabled;
+    @Value("${nexi.postgre.serviceIdentifier}")
+    private String nexiPostgreServiceIdentifier;
 
     @Value("${nexi.oracle.standin.write.enabled}")
     private Boolean nexiOracleStandInEnabled;
+    @Value("${nexi.oracle.serviceIdentifier}")
+    private String nexiOracleServiceIdentifier;
 
-    private final TransactionTemplate transactionTemplate;
-
-    public StandInManagerService(@Value("${stand-in-manager.service.host}") String standInManagerUrl, ObjectMapper objectMapper, PlatformTransactionManager transactionManager) {
+    public StandInManagerService(@Value("${stand-in-manager.service.host}") String standInManagerUrl, ObjectMapper objectMapper) {
         standInManagerClient = Feign.builder().target(StandInManagerClient.class, standInManagerUrl);
-        transactionTemplate = new TransactionTemplate(transactionManager);
         this.objectMapper = objectMapper;
     }
 
     @Transactional
-    public void forceStandIn() {
+    public Map<String, SyncStatusEnum> forceStandIn() {
+        Map<String, SyncStatusEnum> syncStatusMap = new HashMap<>();
         try {
             if( !enabled ) {
                 throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.standin);
             }
-            log.debug("SyncService api-config-cache get stations");
+            log.debug("SyncService stand-in-manager get stations");
             Response response = standInManagerClient.getCache(subscriptionKey);
             int httpResponseCode = response.status();
             if (httpResponseCode != HttpStatus.OK.value()) {
@@ -78,21 +80,42 @@ public class StandInManagerService extends CommonCacheService {
             log.info("SyncService stand-in-manager get stations successful");
 
             StationsResponse stations = objectMapper.readValue(response.body().asInputStream().readAllBytes(), StationsResponse.class);
-            List<StandInStations> stationsEntities = stations.getStations().stream().map(s -> new StandInStations(s)).collect(Collectors.toList());
-            this.transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                public void doInTransactionWithoutResult(TransactionStatus status) {
-                    try {
-                        if( pagopaPostgreStandInEnabled ) {
-                            pagoPAStandInPostgreRepository.deleteAll();
-                            pagoPAStandInPostgreRepository.saveAll(stationsEntities);
-                        }
-//                        if( nexiPostgreStandInEnabled ) nexiStandInPostgreRepository.saveAll(stationsEntities);
-//                        if( nexiOracleStandInEnabled ) nexiStandInOracleRepository.saveAll(stationsEntities);
-                    } catch(NoSuchElementException ex) {
-                        status.setRollbackOnly();
-                    }
+            log.info("SyncService {} stations found", stations.getStations().size());
+            List<StandInStations> stationsEntities = stations.getStations().stream().map(StandInStations::new).collect(Collectors.toList());
+
+            try {
+                if (pagopaPostgreStandInEnabled) {
+                    pagoPAStandInPostgreRepository.deleteAll();
+                    pagoPAStandInPostgreRepository.saveAll(stationsEntities);
+                    syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.done);
+                } else {
+                    syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.disabled);
                 }
-            });
+            } catch(Exception ex) {
+                syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.error);
+            }
+//            try {
+//                if (nexiPostgreStandInEnabled) {
+//                    nexiStandInPostgreRepository.deleteAll();
+//                    nexiStandInPostgreRepository.saveAll(stationsEntities);
+//                    syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.done);
+//                } else {
+//                    syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.disabled);
+//                }
+//            } catch(Exception ex) {
+//                syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.error);
+//            }
+//            try {
+//                if( nexiOracleStandInEnabled ) {
+//                    nexiStandInOracleRepository.deleteAll();
+//                    nexiStandInOracleRepository.saveAll(stationsEntities);
+//                    syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.done);
+//                } else {
+//                    syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
+//                }
+//            } catch(Exception ex) {
+//                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
+//            }
         } catch (FeignException.GatewayTimeout e) {
             log.error("SyncService stand-in-manager get stations error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
@@ -100,5 +123,6 @@ public class StandInManagerService extends CommonCacheService {
             log.error("SyncService stand-in-manager get stations error", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
+        return syncStatusMap;
     }
 }
