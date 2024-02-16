@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.0.0"
+    tag: "0.0.0-1-NOD-690-config-cache-nodo-cfg-sync-implementazione-microservizio"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -34,9 +34,9 @@ microservice-chart:
     servicePort: 8080
   serviceAccount:
     create: false
-    annotations: { }
+    annotations: {}
     name: ""
-  podAnnotations: { }
+  podAnnotations: {}
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -68,19 +68,15 @@ microservice-chart:
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     CACHET_TX_NAME: "nodo-dei-pagamenti-cache"
-
     NODO_ORACLE_NEXI_DB_CONFIG_URL: "jdbc:postgresql://ndp.d.db-nodo-pagamenti.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
     NODO_ORACLE_NEXI_DB_CONFIG_USER: "cfg"
     NODO_ORACLE_NEXI_DB_CONFIG_DRIVER: "org.postgresql.Driver"
-
     NODO_POSTGRE_NEXI_DB_CONFIG_URL: "jdbc:postgresql://ndp.d.db-nodo-pagamenti.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
     NODO_POSTGRE_NEXI_DB_CONFIG_USER: "cfg"
     NODO_POSTGRE_NEXI_DB_CONFIG_DRIVER: "org.postgresql.Driver"
-
     NODO_POSTGRE_PAGOPA_DB_CONFIG_URL: "jdbc:postgresql://ndp.d.db-nodo-pagamenti.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
     NODO_POSTGRE_PAGOPA_DB_CONFIG_USER: "cfg"
     NODO_POSTGRE_PAGOPA_DB_CONFIG_DRIVER: "org.postgresql.Driver"
-
     OTEL_SERVICE_NAME: "pagopa-node-cfg-sync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
@@ -99,8 +95,8 @@ microservice-chart:
   keyvault:
     name: "pagopa-d-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: { }
-  tolerations: [ ]
+  nodeSelector: {}
+  tolerations: []
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -111,7 +107,7 @@ microservice-chart:
                 values:
                   - user
   canaryDelivery:
-    create: true
+    create: false
     ingress:
       create: true
       canary:
@@ -127,6 +123,5 @@ microservice-chart:
         repository: ghcr.io/pagopa/pagopa-node-cfg-sync
         tag: "0.0.0"
         pullPolicy: Always
-      envConfig: { }
-      envSecret: { }
-
+      envConfig: {}
+      envSecret: {}
