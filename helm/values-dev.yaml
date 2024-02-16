@@ -90,7 +90,7 @@ microservice-chart:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
     DB_PAGOPA_POSTGRES_PASSWORD: "db-cfg-password"
-    DB_NEXI_POSTGRES_PASSWORD: "postgresql-db-cfg-password"
+    DB_NEXI_POSTGRES_PASSWORD: "oracle-db-cfg-password" #TODO mettere secret giusta
     DB_NEXI_ORACLE_PASSWORD: "oracle-db-cfg-password"
     API_CONFIG_CACHE_RX_CONNECTION_STRING: "nodo-dei-pagamenti-cache-sync-rx-connection-string-key"
     API_CONFIG_CACHE_SA_CONNECTION_STRING: "nodo-dei-pagamenti-cache-sync-sa-connection-string-key"
