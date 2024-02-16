@@ -1,0 +1,78 @@
+info:
+  properties:
+    environment: local
+cors:
+  configuration: '{"origins": ["*"], "methods": ["*"]}'
+
+app:
+  trimCacheColumn: 'true'
+  identifiers:
+    pagopa-postgres: ${DB_PAGOPA_POSTGRE_SERVICE_IDENTIFIER}
+    nexi-postgres: ${DB_NEXI_POSTGRE_SERVICE_IDENTIFIER}
+    nexi-oracle: ${DB_NEXI_ORACLE_SERVICE_IDENTIFIER}
+  write:
+    cache:
+      pagopa-postgres: 'true'
+      nexi-postgres: 'false'
+      nexi-oracle: 'false'
+    standin:
+      pagopa-postgres: 'true'
+      nexi-postgres: 'false'
+      nexi-oracle: 'false'
+
+spring:
+  datasource:
+    pagopa:
+      postgres:
+        url: jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg
+        username: cfg
+        password: ${DB_PAGOPA_POSTGRE_PASSWORD}
+        enabled: 'true'
+    nexi:
+      oracle:
+        url: jdbc:oracle:thin:@//localhost:1521/cfg
+        username: cfg
+        password: ${DB_NEXI_ORACLE_PASSWORD}
+        enabled: 'false'
+      postgres:
+        url: jdbc:postgresql://localhost:5432/nodo?currentSchema=public
+        username: cfg
+        password: ${DB_NEXI_POSTGRE_PASSWORD}
+        enabled: 'false'
+  jpa:
+    show-sql: 'false'
+
+stand-in-manager:
+  rx-connection-string: ${STAND_IN_MANAGER_RX_CONNECTION_STRING}
+  rx-name: nodo-dei-pagamenti-stand-in
+  service:
+    subscriptionKey: ${STAND_IN_MANAGER_SUBSCRIPTION_KEY}
+    enabled: 'true'
+    host: https://api.dev.platform.pagopa.it/stand-in-manager/api/v1
+  consumer:
+    enabled: 'true'
+  sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
+  consumer-group: $Default
+  sa-name: synstandinreadevent
+
+api-config-cache:
+  sa-name: synccachereadevent
+  service:
+    subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
+    host: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
+    enabled: 'true'
+  rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
+  sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
+  consumer:
+    enabled: 'true'
+  consumer-group: $Default
+  rx-name: nodo-dei-pagamenti-cache
+
+logging:
+  level:
+    it:
+      gov:
+        pagopa: DEBUG
+    root: INFO
+
+

@@ -17,21 +17,21 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySources({
-        @PropertySource("classpath:/application.properties"),
-        @PropertySource(value = "classpath:/application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
-})
+//@PropertySources({
+//        @PropertySource("classpath:/application.properties"),
+//        @PropertySource(value = "classpath:/application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
+//})
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "it.gov.pagopa.node.cfgsync.repository.nexipostgre",
+        basePackages = "it.gov.pagopa.node.cfgsync.repository.nexipostgres",
         entityManagerFactoryRef = "nexiCachePostgreEntityManagerFactory",
         transactionManagerRef = "nexiCachePostgreTransactionManager"
 )
-@ConditionalOnProperty(prefix = "spring.datasource.nexi.postgre", name = "enabled")
+@ConditionalOnProperty(prefix = "spring.datasource.nexi.postgres", name = "enabled")
 public class NexiPostgreConfiguration {
 
     @Bean
-    @ConfigurationProperties("spring.datasource.nexi.postgre")
+    @ConfigurationProperties("spring.datasource.nexi.postgres")
     public DataSourceProperties nexiPostgreDatasourceProperties() {
         return new DataSourceProperties();
     }

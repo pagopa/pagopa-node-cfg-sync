@@ -9,15 +9,15 @@ import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
+import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexipostgre.NexiCachePostgreRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgreRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -43,24 +44,24 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     @Autowired
     private PagoPACachePostgreRepository pagoPACachePostgreRepository;
-//    @Autowired
-//    private NexiCachePostgreRepository nexiCachePostgreRepository;
-//    @Autowired
-//    private NexiCacheOracleRepository nexiCacheOracleRepository;
+    @Autowired(required = false)
+    private Optional<NexiCachePostgreRepository> nexiCachePostgreRepository;
+    @Autowired(required = false)
+    private Optional<NexiCacheOracleRepository> nexiCacheOracleRepository;
 
-    @Value("${pagopa.postgre.cache.write.enabled}")
+    @Value("${app.write.cache.pagopa-postgres}")
     private Boolean pagopaPostgreCacheEnabled;
-    @Value("${pagopa.postgre.serviceIdentifier}")
+    @Value("${app.identifiers.pagopa-postgres}")
     private String pagopaPostgreServiceIdentifier;
 
-    @Value("${nexi.postgre.cache.write.enabled}")
+    @Value("${app.write.cache.nexi-postgres}")
     private Boolean nexiPostgreCacheEnabled;
-    @Value("${nexi.postgre.serviceIdentifier}")
+    @Value("${app.identifiers.nexi-postgres}")
     private String nexiPostgreServiceIdentifier;
 
-    @Value("${nexi.oracle.cache.write.enabled}")
+    @Value("${app.write.cache.nexi-oracle}")
     private Boolean nexiOracleCacheEnabled;
-    @Value("${nexi.oracle.serviceIdentifier}")
+    @Value("${app.identifiers.nexi-oracle}")
     private String nexiOracleServiceIdentifier;
 
     public ApiConfigCacheService(@Value("${api-config-cache.service.host}") String apiConfigCacheUrl) {

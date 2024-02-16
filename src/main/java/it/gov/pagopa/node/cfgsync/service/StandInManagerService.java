@@ -11,6 +11,8 @@ import it.gov.pagopa.node.cfgsync.model.StationsResponse;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;
+import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexipostgre.NexiStandInPostgreRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgreRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,26 +39,26 @@ public class StandInManagerService extends CommonCacheService {
     private final StandInManagerClient standInManagerClient;
     private final ObjectMapper objectMapper;
 
-    @Autowired
-    private PagoPAStandInPostgreRepository pagoPAStandInPostgreRepository;
-//    @Autowired
-//    private NexiStandInPostgreRepository nexiStandInPostgreRepository;
-//    @Autowired
-//    private NexiStandInOracleRepository nexiStandInOracleRepository;
+    @Autowired(required = false)
+    private Optional<PagoPAStandInPostgreRepository> pagoPAStandInPostgreRepository;
+    @Autowired(required = false)
+    private Optional<NexiStandInPostgreRepository> nexiStandInPostgreRepository;
+    @Autowired(required = false)
+    private Optional<NexiStandInOracleRepository> nexiStandInOracleRepository;
 
-    @Value("${pagopa.postgre.standin.write.enabled}")
+    @Value("${app.write.standin.pagopa-postgres}")
     private Boolean pagopaPostgreStandInEnabled;
-    @Value("${pagopa.postgre.serviceIdentifier}")
+    @Value("${app.identifiers.pagopa-postgres}")
     private String pagopaPostgreServiceIdentifier;
 
-    @Value("${nexi.postgre.standin.write.enabled}")
+    @Value("${app.write.standin.nexi-postgres}")
     private Boolean nexiPostgreStandInEnabled;
-    @Value("${nexi.postgre.serviceIdentifier}")
+    @Value("${app.identifiers.nexi-postgres}")
     private String nexiPostgreServiceIdentifier;
 
-    @Value("${nexi.oracle.standin.write.enabled}")
+    @Value("${app.write.standin.nexi-oracle}")
     private Boolean nexiOracleStandInEnabled;
-    @Value("${nexi.oracle.serviceIdentifier}")
+    @Value("${app.identifiers.nexi-oracle}")
     private String nexiOracleServiceIdentifier;
 
     public StandInManagerService(@Value("${stand-in-manager.service.host}") String standInManagerUrl, ObjectMapper objectMapper) {
@@ -85,8 +88,8 @@ public class StandInManagerService extends CommonCacheService {
 
             try {
                 if (pagopaPostgreStandInEnabled) {
-                    pagoPAStandInPostgreRepository.deleteAll();
-                    pagoPAStandInPostgreRepository.saveAll(stationsEntities);
+                    pagoPAStandInPostgreRepository.get().deleteAll();
+                    pagoPAStandInPostgreRepository.get().saveAll(stationsEntities);
                     syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.done);
                 } else {
                     syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.disabled);

@@ -1,0 +1,107 @@
+info:
+  application:
+    description: '@project.description@'
+    artifactId: '@project.artifactId@'
+    version: '@project.version@'
+    name: '@project.name@'
+  properties:
+    environment: ${ENV:azure}
+cors:
+  configuration: '${CORS_CONFIGURATION:''{"origins": ["*"], "methods": ["*"]}''}'
+server:
+  port: '8080'
+  servlet:
+    context-path: /
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+    jmx:
+      exposure:
+        include: health,info
+  info:
+    env:
+      enabled: 'true'
+  health:
+    readinessState:
+      enabled: 'true'
+    livenessState:
+      enabled: 'true'
+  endpoint:
+    health:
+      probes:
+        enabled: 'true'
+app:
+  trimCacheColumn: 'true'
+  identifiers:
+    pagopa-postgres: ${DB_PAGOPA_POSTGRE_SERVICE_IDENTIFIER}
+    nexi-postgres: ${DB_NEXI_POSTGRE_SERVICE_IDENTIFIER}
+    nexi-oracle: ${DB_NEXI_ORACLE_SERVICE_IDENTIFIER}
+  write:
+    cache:
+      pagopa-postgres: 'true'
+      nexi-postgres: 'false'
+      nexi-oracle: 'false'
+    standin:
+      pagopa-postgres: 'true'
+      nexi-postgres: 'false'
+      nexi-oracle: 'false'
+
+spring:
+  datasource:
+    pagopa:
+      postgres:
+        url: ${DB_PAGOPA_POSTGRES_URL}
+        username: ${DB_PAGOPA_POSTGRES_USER}
+        password: ${DB_PAGOPA_POSTGRES_PASSWORD}
+        enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
+    nexi:
+      oracle:
+        url: ${DB_NEXI_ORACLE_URL}
+        username: ${DB_NEXI_ORACLE_USER}
+        password: ${DB_NEXI_ORACLE_PASSWORD}
+        enabled: ${DB_NEXI_ORACLE_ENABLED:'false'}
+      postgres:
+        url: ${DB_NEXI_POSTGRES_URL}
+        username: ${DB_NEXI_POSTGRES_USER}
+        password: ${DB_NEXI_POSTGRES_PASSWORD}
+        enabled: ${DB_NEXI_POSTGRES_ENABLED:'false'}
+  jpa:
+    show-sql: 'false'
+
+stand-in-manager:
+  rx-connection-string: ${STAND_IN_MANAGER_RX_CONNECTION_STRING}
+  rx-name: nodo-dei-pagamenti-stand-in
+  service:
+    subscriptionKey: ${STAND_IN_MANAGER_SUBSCRIPTION_KEY}
+    enabled: 'true'
+    host: https://api.dev.platform.pagopa.it/stand-in-manager/api/v1
+  consumer:
+    enabled: 'true'
+  sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
+  consumer-group: $Default
+  sa-name: synstandinreadevent
+
+api-config-cache:
+  sa-name: synccachereadevent
+  service:
+    subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
+    host: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
+    enabled: 'true'
+  rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
+  sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
+  consumer:
+    enabled: 'true'
+  consumer-group: $Default
+  rx-name: nodo-dei-pagamenti-cache
+springdoc:
+  writer-with-default-pretty-printer: 'true'
+  writer-with-order-by-keys: 'true'
+
+logging:
+  level:
+    it:
+      gov:
+        pagopa: ${APP_LOGGING_LEVEL:INFO}
+    root: ${DEFAULT_LOGGING_LEVEL:INFO}

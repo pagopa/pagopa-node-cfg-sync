@@ -17,22 +17,22 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySources({
-        @PropertySource("classpath:/application.properties"),
-        @PropertySource(value = "classpath:/application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
-})
+//@PropertySources({
+//        @PropertySource("classpath:/application.properties"),
+//        @PropertySource(value = "classpath:/application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
+//})
 @EnableTransactionManagement
 @EnableJpaRepositories(
         basePackages = "it.gov.pagopa.node.cfgsync.repository.pagopa",
         entityManagerFactoryRef = "pagoPAPostgreEntityManagerFactory",
         transactionManagerRef = "pagoPAPostgreTransactionManager"
 )
-@ConditionalOnProperty(prefix = "spring.datasource.pagopa.postgre", name = "enabled")
+@ConditionalOnProperty(prefix = "spring.datasource.pagopa.postgres", name = "enabled")
 public class PagoPAPostgreConfiguration {
 
     @Primary
     @Bean
-    @ConfigurationProperties("spring.datasource.pagopa.postgre")
+    @ConfigurationProperties("spring.datasource.pagopa.postgres")
     public DataSourceProperties pagoPAPostgreDatasourceProperties() {
         return new DataSourceProperties();
     }
