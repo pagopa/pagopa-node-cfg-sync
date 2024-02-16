@@ -1,5 +1,5 @@
 microservice-chart:
-  namespace: "apiconfig"
+  namespace: "nodo"
   nameOverride: ""
   fullnameOverride: ""
   image:
@@ -101,7 +101,7 @@ microservice-chart:
             labelSelector:
               matchLabels:
                 app.kubernetes.io/instance: "pagopa-node-cfg-sync"
-            namespaces: ["apiconfig"]
+            namespaces: ["nodo"]
             topologyKey: topology.kubernetes.io/zone
   canaryDelivery:
     create: false

@@ -1,5 +1,5 @@
 microservice-chart:
-  namespace: "apiconfig"
+  namespace: "nodo"
   nameOverride: ""
   fullnameOverride: ""
   image:
