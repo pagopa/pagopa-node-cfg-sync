@@ -42,8 +42,8 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     private final ApiConfigCacheClient apiConfigCacheClient;
 
-    @Autowired
-    private PagoPACachePostgreRepository pagoPACachePostgreRepository;
+    @Autowired(required = false)
+    private Optional<PagoPACachePostgreRepository> pagoPACachePostgreRepository;
     @Autowired(required = false)
     private Optional<NexiCachePostgreRepository> nexiCachePostgreRepository;
     @Autowired(required = false)
@@ -98,8 +98,8 @@ public class ApiConfigCacheService extends CommonCacheService {
             ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp).toLocalDateTime(), cacheVersion, response.body().asInputStream().readAllBytes());
 
             try {
-                if( pagopaPostgreCacheEnabled ) {
-                    pagoPACachePostgreRepository.save(configCache);
+                if( pagopaPostgreCacheEnabled && pagoPACachePostgreRepository.isPresent() ) {
+                    pagoPACachePostgreRepository.get().save(configCache);
                     syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.done);
                 } else {
                     syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.disabled);
@@ -107,24 +107,24 @@ public class ApiConfigCacheService extends CommonCacheService {
             } catch(Exception ex) {
                 syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.error);
             }
-//            try {
-//                if (nexiPostgreCacheEnabled) {
-//                    nexiCachePostgreRepository.save(configCache);
-//                } else {
-//                    syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.disabled);
-//                }
-//            } catch(Exception ex) {
-//                syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.error);
-//            }
-//            try {
-//                if( nexiOracleCacheEnabled ) {
-//                    nexiCacheOracleRepository.save(configCache);
-//                } else {
-//                    syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
-//                }
-//            } catch(Exception ex) {
-//                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
-//            }
+            try {
+                if ( nexiPostgreCacheEnabled && nexiCachePostgreRepository.isPresent() ) {
+                    nexiCachePostgreRepository.get().save(configCache);
+                } else {
+                    syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.disabled);
+                }
+            } catch(Exception ex) {
+                syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.error);
+            }
+            try {
+                if( nexiOracleCacheEnabled && nexiCacheOracleRepository.isPresent() ) {
+                    nexiCacheOracleRepository.get().save(configCache);
+                } else {
+                    syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
+                }
+            } catch(Exception ex) {
+                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
+            }
         } catch (FeignException.GatewayTimeout e) {
             log.error("SyncService api-config-cache get cache error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);

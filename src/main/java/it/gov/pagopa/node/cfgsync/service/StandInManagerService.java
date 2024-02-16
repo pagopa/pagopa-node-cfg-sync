@@ -87,7 +87,7 @@ public class StandInManagerService extends CommonCacheService {
             List<StandInStations> stationsEntities = stations.getStations().stream().map(StandInStations::new).collect(Collectors.toList());
 
             try {
-                if (pagopaPostgreStandInEnabled) {
+                if ( pagopaPostgreStandInEnabled && pagoPAStandInPostgreRepository.isPresent() ) {
                     pagoPAStandInPostgreRepository.get().deleteAll();
                     pagoPAStandInPostgreRepository.get().saveAll(stationsEntities);
                     syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.done);
@@ -97,28 +97,28 @@ public class StandInManagerService extends CommonCacheService {
             } catch(Exception ex) {
                 syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.error);
             }
-//            try {
-//                if (nexiPostgreStandInEnabled) {
-//                    nexiStandInPostgreRepository.deleteAll();
-//                    nexiStandInPostgreRepository.saveAll(stationsEntities);
-//                    syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.done);
-//                } else {
-//                    syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.disabled);
-//                }
-//            } catch(Exception ex) {
-//                syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.error);
-//            }
-//            try {
-//                if( nexiOracleStandInEnabled ) {
-//                    nexiStandInOracleRepository.deleteAll();
-//                    nexiStandInOracleRepository.saveAll(stationsEntities);
-//                    syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.done);
-//                } else {
-//                    syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
-//                }
-//            } catch(Exception ex) {
-//                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
-//            }
+            try {
+                if ( nexiPostgreStandInEnabled && nexiStandInPostgreRepository.isPresent() ) {
+                    nexiStandInPostgreRepository.get().deleteAll();
+                    nexiStandInPostgreRepository.get().saveAll(stationsEntities);
+                    syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.done);
+                } else {
+                    syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.disabled);
+                }
+            } catch(Exception ex) {
+                syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.error);
+            }
+            try {
+                if( nexiOracleStandInEnabled && nexiStandInOracleRepository.isPresent() ) {
+                    nexiStandInOracleRepository.get().deleteAll();
+                    nexiStandInOracleRepository.get().saveAll(stationsEntities);
+                    syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.done);
+                } else {
+                    syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
+                }
+            } catch(Exception ex) {
+                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
+            }
         } catch (FeignException.GatewayTimeout e) {
             log.error("SyncService stand-in-manager get stations error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
