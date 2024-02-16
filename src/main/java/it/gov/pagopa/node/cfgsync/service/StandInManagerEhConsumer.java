@@ -10,11 +10,11 @@ import com.azure.storage.blob.BlobContainerClientBuilder;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
@@ -35,19 +35,16 @@ public class StandInManagerEhConsumer {
 
     private final StandInManagerService standInManagerService;
 
-    @Bean
-    BlobContainerAsyncClient blobContainerStandInAsyncClient() {
-        return new BlobContainerClientBuilder().connectionString(standInManagerSaConnectionString)
+    @PostConstruct
+    public void post(){
+        BlobContainerAsyncClient blobContainerAsyncClient = new BlobContainerClientBuilder().connectionString(standInManagerSaConnectionString)
                 .containerName(standInManagerSaContainerName).buildAsyncClient();
-    }
-
-    @Bean
-    EventProcessorClient eventProcessorStandInClient(BlobContainerAsyncClient blobContainerAsyncClient) {
-        return new EventProcessorClientBuilder().connectionString(standInManagerRxConnectionString)
+        EventProcessorClient eventProcessorClient = new EventProcessorClientBuilder().connectionString(standInManagerRxConnectionString)
                 .consumerGroup(standInManagerConsumerGroup)
                 .checkpointStore(new BlobCheckpointStore(blobContainerAsyncClient))
                 .processEvent(this::processEvent)
                 .processError(this::processError).buildEventProcessorClient();
+        eventProcessorClient.start();
     }
 
     public void processEvent(EventContext eventContext) {

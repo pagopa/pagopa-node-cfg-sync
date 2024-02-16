@@ -9,11 +9,11 @@ import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
@@ -34,19 +34,16 @@ public class ApiConfigCacheEhConsumer {
 
     private final ApiConfigCacheService apiConfigCacheService;
 
-    @Bean
-    BlobContainerAsyncClient blobContainerAsyncClient() {
-        return new BlobContainerClientBuilder().connectionString(configCacheSaConnectionString)
+    @PostConstruct
+    public void post(){
+        BlobContainerAsyncClient blobContainerAsyncClient = new BlobContainerClientBuilder().connectionString(configCacheSaConnectionString)
                 .containerName(configCacheSaContainerName).buildAsyncClient();
-    }
-
-    @Bean
-    EventProcessorClient eventProcessorClient(BlobContainerAsyncClient blobContainerAsyncClient) {
-        return new EventProcessorClientBuilder().connectionString(configCacheRxConnectionString)
+        EventProcessorClient eventProcessorClient = new EventProcessorClientBuilder().connectionString(configCacheRxConnectionString)
                 .consumerGroup(configCacheConsumerGroup)
                 .checkpointStore(new BlobCheckpointStore(blobContainerAsyncClient))
                 .processEvent(this::processEvent)
                 .processError(this::processError).buildEventProcessorClient();
+        eventProcessorClient.start();
     }
 
     public void processEvent(EventContext eventContext) {

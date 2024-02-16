@@ -23,23 +23,23 @@ import javax.sql.DataSource;
 })
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "it.gov.pagopa.node.cfgsync.repository.pagopa.cache",
+        basePackages = "it.gov.pagopa.node.cfgsync.repository.pagopa",
         entityManagerFactoryRef = "pagoPACachePostgreEntityManagerFactory",
         transactionManagerRef = "pagoPACachePostgreTransactionManager"
 )
-@ConditionalOnProperty(prefix = "spring.datasource.pagopa.postgre.cache", name = "enabled")
-public class PagoPACachePostgreConfiguration {
+@ConditionalOnProperty(prefix = "spring.datasource.pagopa.postgre", name = "enabled")
+public class PagoPAPostgreConfiguration {
 
     @Bean
     @Primary
-    @ConfigurationProperties("spring.datasource.pagopa.postgre.cache")
+    @ConfigurationProperties("spring.datasource.pagopa.postgre")
     public DataSourceProperties pagoPACachePostgreDatasourceProperties() {
         return new DataSourceProperties();
     }
 
     @Bean
     @Primary
-    @ConfigurationProperties("spring.datasource.pagopa.postgre.cache.configuration")
+    @ConfigurationProperties("spring.datasource.pagopa.postgre.configuration")
     public DataSource pagoPACachePostgreDataSource() {
         return pagoPACachePostgreDatasourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();

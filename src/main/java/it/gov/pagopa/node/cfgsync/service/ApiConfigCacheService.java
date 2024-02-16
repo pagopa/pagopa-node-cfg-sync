@@ -8,9 +8,7 @@ import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
-import it.gov.pagopa.node.cfgsync.repository.nexioracle.cache.NexiCacheOracleRepository;
-import it.gov.pagopa.node.cfgsync.repository.nexipostgre.cache.NexiCachePostgreRepository;
-import it.gov.pagopa.node.cfgsync.repository.pagopa.cache.PagoPACachePostgreRepository;
+import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgreRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,13 +48,13 @@ public class ApiConfigCacheService extends CommonCacheService {
 //    @Autowired
 //    private NexiCacheOracleRepository nexiCacheOracleRepository;
 
-    @Value("${spring.datasource.pagopa.postgre.cache.enabled}")
+    @Value("${pagopa.postgre.cache.write.enabled}")
     private Boolean pagopaPostgreCacheEnabled;
 
-    @Value("${spring.datasource.nexi.postgre.cache.enabled}")
+    @Value("${nexi.postgre.cache.write.enabled}")
     private Boolean nexiPostgreCacheEnabled;
 
-    @Value("${spring.datasource.nexi.oracle.cache.enabled}")
+    @Value("${nexi.oracle.cache.write.enabled}")
     private Boolean nexiOracleCacheEnabled;
 
     private final TransactionTemplate transactionTemplate;
