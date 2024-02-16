@@ -1,5 +1,5 @@
 microservice-chart:
-  namespace: "node-cfg-sync"
+  namespace: "apiconfig"
   nameOverride: ""
   fullnameOverride: ""
   image:
