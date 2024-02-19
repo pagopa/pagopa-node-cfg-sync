@@ -96,8 +96,8 @@ microservice-chart:
     API_CONFIG_CACHE_SA_CONNECTION_STRING: "nodo-dei-pagamenti-cache-sync-sa-connection-string-key"
     STAND_IN_MANAGER_RX_CONNECTION_STRING: "nodo-dei-pagamenti-stand-in-sync-rx-connection-string-key"
     STAND_IN_MANAGER_SA_CONNECTION_STRING: "nodo-dei-pagamenti-stand-in-sync-sa-connection-string-key"
-    API_CONFIG_CACHE_SUBSCRIPTION_KEY: "api-config-cache-subscription-key-string"
-    STAND_IN_MANAGER_SUBSCRIPTION_KEY: "standin-manager-subscription-key"
+    API_CONFIG_CACHE_SUBSCRIPTION_KEY: "cfg-for-node-subscription-key"
+    STAND_IN_MANAGER_SUBSCRIPTION_KEY: "cfg-for-node-subscription-key"
     OTEL_EXPORTER_OTLP_HEADERS: "elastic-apm-secret-token"
   keyvault:
     name: "pagopa-d-nodo-kv"
