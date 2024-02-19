@@ -37,7 +37,7 @@ public class NexiPostgreConfiguration {
     }
 
     @Bean
-    @ConfigurationProperties("spring.datasource.nexi.postgres.configuration")
+    @ConfigurationProperties("spring.datasource.nexi.postgres")
     public DataSource nexiPostgreDataSource() {
         return nexiPostgreDatasourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();

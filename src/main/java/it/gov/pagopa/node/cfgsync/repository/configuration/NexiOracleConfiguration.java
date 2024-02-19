@@ -42,7 +42,7 @@ public class NexiOracleConfiguration {
     }
 
     @Bean
-    @ConfigurationProperties("spring.datasource.nexi.oracle.configuration")
+    @ConfigurationProperties("spring.datasource.nexi.oracle")
     public DataSource nexiOracleDataSource() {
         return nexiOracleDatasourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();
