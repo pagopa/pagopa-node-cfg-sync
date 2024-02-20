@@ -43,24 +43,24 @@ public class ApiConfigCacheService extends CommonCacheService {
     private final ApiConfigCacheClient apiConfigCacheClient;
 
     @Autowired(required = false)
-    private Optional<PagoPACachePostgresRepository> pagoPACachePostgreRepository;
+    private Optional<PagoPACachePostgresRepository> pagoPAPostgresRepository;
     @Autowired(required = false)
-    private Optional<NexiCachePostgresRepository> nexiCachePostgreRepository;
+    private Optional<NexiCachePostgresRepository> nexiPostgresRepository;
     @Autowired(required = false)
-    private Optional<NexiCacheOracleRepository> nexiCacheOracleRepository;
+    private Optional<NexiCacheOracleRepository> nexiOracleRepository;
 
     @Value("${app.write.cache.pagopa-postgres}")
-    private Boolean pagopaPostgresCacheEnabled;
+    private Boolean pagopaPostgresEnabled;
     @Value("${app.identifiers.pagopa-postgres}")
     private String pagopaPostgresServiceIdentifier;
 
     @Value("${app.write.cache.nexi-postgres}")
-    private Boolean nexiPostgresCacheEnabled;
+    private Boolean nexiPostgresEnabled;
     @Value("${app.identifiers.nexi-postgres}")
     private String nexiPostgresServiceIdentifier;
 
     @Value("${app.write.cache.nexi-oracle}")
-    private Boolean nexiOracleCacheEnabled;
+    private Boolean nexiOracleEnabled;
     @Value("${app.identifiers.nexi-oracle}")
     private String nexiOracleServiceIdentifier;
 
@@ -68,7 +68,6 @@ public class ApiConfigCacheService extends CommonCacheService {
         apiConfigCacheClient = Feign.builder().target(ApiConfigCacheClient.class, apiConfigCacheUrl);
     }
 
-    @Transactional
     public Map<String, SyncStatusEnum> forceCacheUpdate() {
         Map<String, SyncStatusEnum> syncStatusMap = new HashMap<>();
         try {
@@ -97,34 +96,9 @@ public class ApiConfigCacheService extends CommonCacheService {
 
             ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp).toLocalDateTime(), cacheVersion, response.body().asInputStream().readAllBytes());
 
-            try {
-                if( pagopaPostgresCacheEnabled && pagoPACachePostgreRepository.isPresent() ) {
-                    pagoPACachePostgreRepository.get().save(configCache);
-                    syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.done);
-                } else {
-                    syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.disabled);
-                }
-            } catch(Exception ex) {
-                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.error);
-            }
-            try {
-                if ( nexiPostgresCacheEnabled && nexiCachePostgreRepository.isPresent() ) {
-                    nexiCachePostgreRepository.get().save(configCache);
-                } else {
-                    syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.disabled);
-                }
-            } catch(Exception ex) {
-                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.error);
-            }
-            try {
-                if( nexiOracleCacheEnabled && nexiCacheOracleRepository.isPresent() ) {
-                    nexiCacheOracleRepository.get().save(configCache);
-                } else {
-                    syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
-                }
-            } catch(Exception ex) {
-                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
-            }
+            savePagoPA(syncStatusMap, configCache);
+            saveNexiPostgres(syncStatusMap, configCache);
+            saveNexiOracle(syncStatusMap, configCache);
         } catch (FeignException.GatewayTimeout e) {
             log.error("SyncService api-config-cache get cache error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
@@ -136,5 +110,48 @@ public class ApiConfigCacheService extends CommonCacheService {
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
         return syncStatusMap;
+    }
+
+    @Transactional
+    private void savePagoPA(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {
+        try {
+            if( pagopaPostgresEnabled && pagoPAPostgresRepository.isPresent() ) {
+                pagoPAPostgresRepository.get().save(configCache);
+                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.done);
+            } else {
+                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.disabled);
+            }
+        } catch(Exception ex) {
+            log.error("SyncService api-config-cache save pagoPA error: {}", ex.getMessage(), ex);
+            syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.error);
+        }
+    }
+
+    @Transactional
+    private void saveNexiOracle(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {
+        try {
+            if( nexiOracleEnabled && nexiOracleRepository.isPresent() ) {
+                nexiOracleRepository.get().save(configCache);
+            } else {
+                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
+            }
+        } catch(Exception ex) {
+            log.error("SyncService api-config-cache save Nexi Oracle error: {}", ex.getMessage(), ex);
+            syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
+        }
+    }
+
+    @Transactional
+    private void saveNexiPostgres(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {
+        try {
+            if ( nexiPostgresEnabled && nexiPostgresRepository.isPresent() ) {
+                nexiPostgresRepository.get().save(configCache);
+            } else {
+                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.disabled);
+            }
+        } catch(Exception ex) {
+            log.error("SyncService api-config-cache save Nexi Postgres error: {}", ex.getMessage(), ex);
+            syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.error);
+        }
     }
 }
