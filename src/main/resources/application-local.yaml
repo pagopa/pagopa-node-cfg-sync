@@ -49,24 +49,24 @@ stand-in-manager:
     subscriptionKey: ${STAND_IN_MANAGER_SUBSCRIPTION_KEY}
     enabled: 'true'
     host: https://api.dev.platform.pagopa.it/stand-in-manager/api/v1
+  sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
+  sa-name: standinevents
+  consumer-group: $Default
   consumer:
     enabled: 'true'
-  sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
-  consumer-group: $Default
-  sa-name: synstandinreadevent
 
 api-config-cache:
-  sa-name: synccachereadevent
+  rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
+  rx-name: nodo-dei-pagamenti-cache
   service:
     subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
     host: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
     enabled: 'true'
-  rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
+  sa-name: cacheevents
+  consumer-group: $Default
   consumer:
     enabled: 'true'
-  consumer-group: $Default
-  rx-name: nodo-dei-pagamenti-cache
 
 logging:
   level:
@@ -74,5 +74,3 @@ logging:
       gov:
         pagopa: DEBUG
     root: INFO
-
-
