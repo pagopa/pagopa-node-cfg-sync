@@ -1,6 +1,7 @@
 package it.gov.pagopa.node.cfgsync.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
@@ -13,6 +14,14 @@ import javax.validation.constraints.NotNull;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SyncStatusResponse {
 
-  @NotNull private String serviceIdentifier;
-  @NotNull private SyncStatusEnum status;
+  @NotNull
+  @Schema(
+          example = "NDP001",
+          description = "Database service identifier")
+  private String serviceIdentifier;
+  @NotNull
+  @Schema(
+          example = "done",
+          description = "Database sync status result")
+  private SyncStatusEnum status;
 }

@@ -1,6 +1,7 @@
 package it.gov.pagopa.node.cfgsync.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -104,9 +105,11 @@ public class SyncCacheController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "OK",
-                            content =@Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = List.class))),
+                            content = {
+                                    @Content(
+                                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                            array = @ArraySchema(schema = @Schema(implementation = SyncStatusResponse.class)))
+                            }),
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad Request",

@@ -42,6 +42,7 @@ spring:
   jpa:
     show-sql: 'false'
 
+
 stand-in-manager:
   rx-connection-string: ${STAND_IN_MANAGER_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-stand-in
@@ -53,7 +54,7 @@ stand-in-manager:
   sa-name: standinevents
   consumer-group: $Default
   consumer:
-    enabled: 'true'
+    enabled: 'false'
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
@@ -66,7 +67,7 @@ api-config-cache:
   sa-name: cacheevents
   consumer-group: $Default
   consumer:
-    enabled: 'true'
+    enabled: 'false'
 
 logging:
   level:
