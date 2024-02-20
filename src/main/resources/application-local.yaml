@@ -42,7 +42,6 @@ spring:
   jpa:
     show-sql: 'false'
 
-
 stand-in-manager:
   rx-connection-string: ${STAND_IN_MANAGER_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-stand-in
