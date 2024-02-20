@@ -7,8 +7,8 @@ cors:
 app:
   trimCacheColumn: 'true'
   identifiers:
-    pagopa-postgres: ${DB_PAGOPA_POSTGRE_SERVICE_IDENTIFIER}
-    nexi-postgres: ${DB_NEXI_POSTGRE_SERVICE_IDENTIFIER}
+    pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}
+    nexi-postgres: ${DB_NEXI_POSTGRES_SERVICE_IDENTIFIER}
     nexi-oracle: ${DB_NEXI_ORACLE_SERVICE_IDENTIFIER}
   write:
     cache:
@@ -26,7 +26,7 @@ spring:
       postgres:
         url: jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg
         username: cfg
-        password: ${DB_PAGOPA_POSTGRE_PASSWORD}
+        password: ${DB_PAGOPA_POSTGRES_PASSWORD}
         enabled: 'true'
     nexi:
       oracle:
@@ -37,7 +37,7 @@ spring:
       postgres:
         url: jdbc:postgresql://localhost:5432/nodo?currentSchema=public
         username: cfg
-        password: ${DB_NEXI_POSTGRE_PASSWORD}
+        password: ${DB_NEXI_POSTGRES_PASSWORD}
         enabled: 'false'
   jpa:
     show-sql: 'false'

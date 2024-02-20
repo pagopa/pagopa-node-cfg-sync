@@ -10,8 +10,8 @@ import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepository;
-import it.gov.pagopa.node.cfgsync.repository.nexipostgre.NexiCachePostgreRepository;
-import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgreRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
+import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,21 +43,21 @@ public class ApiConfigCacheService extends CommonCacheService {
     private final ApiConfigCacheClient apiConfigCacheClient;
 
     @Autowired(required = false)
-    private Optional<PagoPACachePostgreRepository> pagoPACachePostgreRepository;
+    private Optional<PagoPACachePostgresRepository> pagoPACachePostgreRepository;
     @Autowired(required = false)
-    private Optional<NexiCachePostgreRepository> nexiCachePostgreRepository;
+    private Optional<NexiCachePostgresRepository> nexiCachePostgreRepository;
     @Autowired(required = false)
     private Optional<NexiCacheOracleRepository> nexiCacheOracleRepository;
 
     @Value("${app.write.cache.pagopa-postgres}")
-    private Boolean pagopaPostgreCacheEnabled;
+    private Boolean pagopaPostgresCacheEnabled;
     @Value("${app.identifiers.pagopa-postgres}")
-    private String pagopaPostgreServiceIdentifier;
+    private String pagopaPostgresServiceIdentifier;
 
     @Value("${app.write.cache.nexi-postgres}")
-    private Boolean nexiPostgreCacheEnabled;
+    private Boolean nexiPostgresCacheEnabled;
     @Value("${app.identifiers.nexi-postgres}")
-    private String nexiPostgreServiceIdentifier;
+    private String nexiPostgresServiceIdentifier;
 
     @Value("${app.write.cache.nexi-oracle}")
     private Boolean nexiOracleCacheEnabled;
@@ -98,23 +98,23 @@ public class ApiConfigCacheService extends CommonCacheService {
             ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp).toLocalDateTime(), cacheVersion, response.body().asInputStream().readAllBytes());
 
             try {
-                if( pagopaPostgreCacheEnabled && pagoPACachePostgreRepository.isPresent() ) {
+                if( pagopaPostgresCacheEnabled && pagoPACachePostgreRepository.isPresent() ) {
                     pagoPACachePostgreRepository.get().save(configCache);
-                    syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.done);
+                    syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.done);
                 } else {
-                    syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.disabled);
+                    syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.disabled);
                 }
             } catch(Exception ex) {
-                syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.error);
+                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.error);
             }
             try {
-                if ( nexiPostgreCacheEnabled && nexiCachePostgreRepository.isPresent() ) {
+                if ( nexiPostgresCacheEnabled && nexiCachePostgreRepository.isPresent() ) {
                     nexiCachePostgreRepository.get().save(configCache);
                 } else {
-                    syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.disabled);
+                    syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.disabled);
                 }
             } catch(Exception ex) {
-                syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.error);
+                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.error);
             }
             try {
                 if( nexiOracleCacheEnabled && nexiCacheOracleRepository.isPresent() ) {

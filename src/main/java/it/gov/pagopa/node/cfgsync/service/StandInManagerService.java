@@ -12,8 +12,8 @@ import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
-import it.gov.pagopa.node.cfgsync.repository.nexipostgre.NexiStandInPostgreRepository;
-import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgreRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
+import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,9 +40,9 @@ public class StandInManagerService extends CommonCacheService {
     private final ObjectMapper objectMapper;
 
     @Autowired(required = false)
-    private Optional<PagoPAStandInPostgreRepository> pagoPAStandInPostgreRepository;
+    private Optional<PagoPAStandInPostgresRepository> pagoPAStandInPostgreRepository;
     @Autowired(required = false)
-    private Optional<NexiStandInPostgreRepository> nexiStandInPostgreRepository;
+    private Optional<NexiStandInPostgresRepository> nexiStandInPostgreRepository;
     @Autowired(required = false)
     private Optional<NexiStandInOracleRepository> nexiStandInOracleRepository;
 

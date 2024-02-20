@@ -35,9 +35,9 @@ management:
 app:
   trimCacheColumn: 'true'
   identifiers:
-    pagopa-postgres: ${DB_PAGOPA_POSTGRE_SERVICE_IDENTIFIER}
-    nexi-postgres: ${DB_NEXI_POSTGRE_SERVICE_IDENTIFIER}
-    nexi-oracle: ${DB_NEXI_ORACLE_SERVICE_IDENTIFIER}
+    pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}
+    nexi-postgres: ${DB_NEXI_POSTGRES_SERVICE_IDENTIFIER}
+    nexi-oracle: ${DB_NEXI_ORACLES_SERVICE_IDENTIFIER}
   write:
     cache:
       pagopa-postgres: 'true'

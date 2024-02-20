@@ -7,7 +7,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -17,44 +18,40 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-//@PropertySources({
-//        @PropertySource("classpath:/application.properties"),
-//        @PropertySource(value = "classpath:/application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
-//})
 @EnableTransactionManagement
 @EnableJpaRepositories(
         basePackages = "it.gov.pagopa.node.cfgsync.repository.nexipostgres",
-        entityManagerFactoryRef = "nexiCachePostgreEntityManagerFactory",
-        transactionManagerRef = "nexiCachePostgreTransactionManager"
+        entityManagerFactoryRef = "nexiCachePostgresEntityManagerFactory",
+        transactionManagerRef = "nexiCachePostgresTransactionManager"
 )
 @ConditionalOnProperty(prefix = "spring.datasource.nexi.postgres", name = "enabled")
-public class NexiPostgreConfiguration {
+public class NexiPostgresConfiguration {
 
     @Bean
     @ConfigurationProperties("spring.datasource.nexi.postgres")
-    public DataSourceProperties nexiPostgreDatasourceProperties() {
+    public DataSourceProperties nexiPostgresDatasourceProperties() {
         return new DataSourceProperties();
     }
 
     @Bean
     @ConfigurationProperties("spring.datasource.nexi.postgres")
-    public DataSource nexiPostgreDataSource() {
-        return nexiPostgreDatasourceProperties().initializeDataSourceBuilder()
+    public DataSource nexiPostgresDataSource() {
+        return nexiPostgresDatasourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();
     }
 
-    @Bean(name = "nexiPostgreEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean nexiPostgreEntityManagerFactory(EntityManagerFactoryBuilder builder) {
+    @Bean(name = "nexiPostgresEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean nexiPostgresEntityManagerFactory(EntityManagerFactoryBuilder builder) {
         return builder
-                .dataSource(nexiPostgreDataSource())
+                .dataSource(nexiPostgresDataSource())
                 .packages(ConfigCache.class)
                 .build();
     }
 
     @Bean
     public PlatformTransactionManager nexiPostgreTransactionManager(
-            final @Qualifier("nexiPostgreEntityManagerFactory") LocalContainerEntityManagerFactoryBean nexiPostgreEntityManagerFactory) {
-        return new JpaTransactionManager(nexiPostgreEntityManagerFactory.getObject());
+            final @Qualifier("nexiPostgresEntityManagerFactory") LocalContainerEntityManagerFactoryBean nexiPostgresEntityManagerFactory) {
+        return new JpaTransactionManager(nexiPostgresEntityManagerFactory.getObject());
     }
 
 }
