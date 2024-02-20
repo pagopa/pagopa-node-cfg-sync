@@ -75,7 +75,7 @@ microservice-chart:
     DB_NEXI_ORACLE_USER: "NODO4_CFG"
     DB_NEXI_ORACLE_ENABLED: "false"
     DB_NEXI_ORACLE_SERVICE_IDENTIFIER: "NDP003DEV"
-    DB_PAGOPA_POSTGRES_URL: "jdbc:postgresql://ndp.d.db-nodo-pagamenti.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
+    DB_PAGOPA_POSTGRES_URL: "jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
     DB_PAGOPA_POSTGRES_USER: "cfg"
     DB_PAGOPA_POSTGRES_ENABLED: "true"
     DB_PAGOPA_POSTGRE_SERVICE_IDENTIFIER: "NDP001DEV"
