@@ -14,7 +14,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Entity
 @Table(name = "stand_in_stations")
-public class StandInStations implements Serializable {
+public class StandInStations {
 
     @Id
     @Column(name="STATION_CODE", columnDefinition = "VARCHAR", length = 35)
