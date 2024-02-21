@@ -42,3 +42,4 @@ hs_err_pid*
 # Others
 **/.DS_Store
 /docker/local-dbs/postgres-data/
+/Application.run/*.run.xml

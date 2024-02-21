@@ -99,22 +99,18 @@ public class ApiConfigCacheService extends CommonCacheService {
             ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp), cacheVersion, response.body().asInputStream().readAllBytes());
 
             saveAllDatabases(syncStatusMap, configCache);
+        } catch (SyncDbStatusException e) {
+            //viene usata per poter restituire in risposta la mappa degli aggiornamenti
+            return syncStatusMap;
         } catch (FeignException.GatewayTimeout e) {
             log.error("SyncService api-config-cache get cache error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
-        } catch (IOException e) {
-            log.error("SyncService api-config-cache get cache error", e);
-            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
-        } catch (SyncDbStatusException e) {
-            return syncStatusMap;
         } catch (Exception e) {
             log.error("SyncService api-config-cache get cache error", e);
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
         return syncStatusMap;
     }
-
 
     @Transactional(rollbackFor={SyncDbStatusException.class})
     void saveAllDatabases(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) throws SyncDbStatusException {
@@ -129,7 +125,7 @@ public class ApiConfigCacheService extends CommonCacheService {
                     syncStatusMap.put(k, SyncStatusEnum.rollback);
                 }
             });
-            throw new SyncDbStatusException("");
+            throw new SyncDbStatusException("Rollback sync");
         }
     }
 
