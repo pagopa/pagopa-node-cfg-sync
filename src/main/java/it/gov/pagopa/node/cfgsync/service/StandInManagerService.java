@@ -39,24 +39,24 @@ public class StandInManagerService extends CommonCacheService {
     private final ObjectMapper objectMapper;
 
     @Autowired(required = false)
-    private Optional<PagoPAStandInPostgresRepository> pagoPAPostgreRepository;
+    private Optional<PagoPAStandInPostgresRepository> pagopaPostgresRepository;
     @Autowired(required = false)
     private Optional<NexiStandInPostgresRepository> nexiPostgreRepository;
     @Autowired(required = false)
     private Optional<NexiStandInOracleRepository> nexiOracleRepository;
 
     @Value("${app.write.standin.pagopa-postgres}")
-    private Boolean pagopaPostgreEnabled;
+    private Boolean pagopaPostgreWrite;
     @Value("${app.identifiers.pagopa-postgres}")
     private String pagopaPostgreServiceIdentifier;
 
     @Value("${app.write.standin.nexi-postgres}")
-    private Boolean nexiPostgreEnabled;
+    private Boolean nexiPostgreWrite;
     @Value("${app.identifiers.nexi-postgres}")
     private String nexiPostgreServiceIdentifier;
 
     @Value("${app.write.standin.nexi-oracle}")
-    private Boolean nexiOracleEnabled;
+    private Boolean nexiOracleWrite;
     @Value("${app.identifiers.nexi-oracle}")
     private String nexiOracleServiceIdentifier;
 
@@ -100,9 +100,9 @@ public class StandInManagerService extends CommonCacheService {
     @Transactional
     private void savePagoPA(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
         try {
-            if ( pagopaPostgreEnabled && pagoPAPostgreRepository.isPresent() ) {
-                pagoPAPostgreRepository.get().deleteAll();
-                pagoPAPostgreRepository.get().saveAll(stationsEntities);
+            if ( pagopaPostgreWrite && pagopaPostgresRepository.isPresent() ) {
+                pagopaPostgresRepository.get().deleteAll();
+                pagopaPostgresRepository.get().saveAll(stationsEntities);
                 syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.done);
             } else {
                 syncStatusMap.put(pagopaPostgreServiceIdentifier, SyncStatusEnum.disabled);
@@ -116,7 +116,7 @@ public class StandInManagerService extends CommonCacheService {
     @Transactional
     private void saveNexiOracle(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
         try {
-            if( nexiOracleEnabled && nexiOracleRepository.isPresent() ) {
+            if( nexiOracleWrite && nexiOracleRepository.isPresent() ) {
                 nexiOracleRepository.get().deleteAll();
                 nexiOracleRepository.get().saveAll(stationsEntities);
                 syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.done);
@@ -132,7 +132,7 @@ public class StandInManagerService extends CommonCacheService {
     @Transactional
     private void saveNexiPostgres(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
         try {
-            if ( nexiPostgreEnabled && nexiPostgreRepository.isPresent() ) {
+            if ( nexiPostgreWrite && nexiPostgreRepository.isPresent() ) {
                 nexiPostgreRepository.get().deleteAll();
                 nexiPostgreRepository.get().saveAll(stationsEntities);
                 syncStatusMap.put(nexiPostgreServiceIdentifier, SyncStatusEnum.done);

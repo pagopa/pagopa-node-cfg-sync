@@ -19,10 +19,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-//@PropertySources({
-//        @PropertySource("classpath:/application.properties"),
-//        @PropertySource(value = "classpath:/application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
-//})
 @EnableTransactionManagement
 @EnableJpaRepositories(
         basePackages = "it.gov.pagopa.node.cfgsync.repository.nexioracle",
@@ -30,7 +26,7 @@ import javax.sql.DataSource;
         transactionManagerRef = "nexiOracleTransactionManager"
 )
 @ConditionalOnProperty(prefix = "spring.datasource.nexi.oracle", name = "enabled")
-public class NexiOracleConfiguration {
+public class NexiOracleConfig {
 
     @Autowired
     private Environment env;
@@ -56,7 +52,7 @@ public class NexiOracleConfiguration {
                 .build();
     }
 
-    @Bean
+    @Bean(name = "nexiOracleTransactionManager")
     public PlatformTransactionManager nexiOracleTransactionManager(
             final @Qualifier("nexiOracleEntityManagerFactory") LocalContainerEntityManagerFactoryBean nexiOracleEntityManagerFactory) {
         return new JpaTransactionManager(nexiOracleEntityManagerFactory.getObject());

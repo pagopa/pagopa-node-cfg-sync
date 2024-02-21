@@ -1,4 +1,4 @@
-package it.gov.pagopa.node.cfgsync.repository.configuration;
+package it.gov.pagopa.node.cfgsync.repository.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
@@ -21,11 +21,11 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 @EnableJpaRepositories(
         basePackages = "it.gov.pagopa.node.cfgsync.repository.nexipostgres",
-        entityManagerFactoryRef = "nexiCachePostgresEntityManagerFactory",
-        transactionManagerRef = "nexiCachePostgresTransactionManager"
+        entityManagerFactoryRef = "nexiPostgresEntityManagerFactory",
+        transactionManagerRef = "nexiPostgresTransactionManager"
 )
 @ConditionalOnProperty(prefix = "spring.datasource.nexi.postgres", name = "enabled")
-public class NexiPostgresConfiguration {
+public class NexiPostgresConfig {
 
     @Bean
     @ConfigurationProperties("spring.datasource.nexi.postgres")
@@ -48,8 +48,8 @@ public class NexiPostgresConfiguration {
                 .build();
     }
 
-    @Bean
-    public PlatformTransactionManager nexiPostgreTransactionManager(
+    @Bean(name = "nexiPostgresTransactionManager")
+    public PlatformTransactionManager nexiPostgresTransactionManager(
             final @Qualifier("nexiPostgresEntityManagerFactory") LocalContainerEntityManagerFactoryBean nexiPostgresEntityManagerFactory) {
         return new JpaTransactionManager(nexiPostgresEntityManagerFactory.getObject());
     }

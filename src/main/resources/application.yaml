@@ -40,10 +40,12 @@ app:
     nexi-oracle: ${DB_NEXI_ORACLE_SERVICE_IDENTIFIER}
   write:
     cache:
+      ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
       pagopa-postgres: 'true'
       nexi-postgres: 'false'
       nexi-oracle: 'false'
     standin:
+      ##permettono di abilitare/disabilitare la scrittura di standin-stations sui vari database
       pagopa-postgres: 'true'
       nexi-postgres: 'false'
       nexi-oracle: 'false'
@@ -55,17 +57,20 @@ spring:
         url: ${DB_PAGOPA_POSTGRES_URL}
         username: ${DB_PAGOPA_POSTGRES_USER}
         password: ${DB_PAGOPA_POSTGRES_PASSWORD}
+        ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
         enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
     nexi:
       oracle:
         url: ${DB_NEXI_ORACLE_URL}
         username: ${DB_NEXI_ORACLE_USER}
         password: ${DB_NEXI_ORACLE_PASSWORD}
+        ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
         enabled: ${DB_NEXI_ORACLE_ENABLED:'false'}
       postgres:
         url: ${DB_NEXI_POSTGRES_URL}
         username: ${DB_NEXI_POSTGRES_USER}
         password: ${DB_NEXI_POSTGRES_PASSWORD}
+        ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
         enabled: ${DB_NEXI_POSTGRES_ENABLED:'false'}
   jpa:
     show-sql: 'false'
@@ -74,26 +79,30 @@ stand-in-manager:
   rx-connection-string: ${STAND_IN_MANAGER_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-stand-in
   service:
-    subscriptionKey: ${STAND_IN_MANAGER_SUBSCRIPTION_KEY}
-    enabled: 'true'
     host: https://api.dev.platform.pagopa.it/stand-in-manager/api/v1
+    subscriptionKey: ${STAND_IN_MANAGER_SUBSCRIPTION_KEY}
+    ##permette di abilitare/disabilitare la chiamata al servizio tramite API
+    enabled: 'true'
   sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
   sa-name: standinevents
   consumer-group: $Default
   consumer:
+    ##permette di abilitare/disabilitare il consumer
     enabled: 'true'
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-cache
   service:
-    subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
     host: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
+    subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
+    ##permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
   sa-name: cacheevents
   consumer-group: $Default
   consumer:
+    ##permette di abilitare/disabilitare il consumer
     enabled: 'true'
 
 logging:

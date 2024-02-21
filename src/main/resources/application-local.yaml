@@ -13,7 +13,7 @@ app:
   write:
     cache:
       pagopa-postgres: 'true'
-      nexi-postgres: 'false'
+      nexi-postgres: 'true'
       nexi-oracle: 'false'
     standin:
       pagopa-postgres: 'true'
@@ -38,7 +38,7 @@ spring:
         url: jdbc:postgresql://localhost:5432/nodo?currentSchema=public
         username: cfg
         password: ${DB_NEXI_POSTGRES_PASSWORD}
-        enabled: 'false'
+        enabled: 'true'
   jpa:
     show-sql: 'false'
 
@@ -66,7 +66,7 @@ api-config-cache:
   sa-name: cacheevents
   consumer-group: $Default
   consumer:
-    enabled: 'false'
+    enabled: 'true'
 
 logging:
   level:

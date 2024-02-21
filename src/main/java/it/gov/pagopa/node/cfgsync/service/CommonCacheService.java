@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,7 @@ public class CommonCacheService {
     @Value("${app.trimCacheColumn}")
     private boolean trimCacheColumn;
 
-    protected ConfigCache composeCache(String cacheId, LocalDateTime timestamp, String cacheVersion, byte[] cache) throws IOException {
+    protected ConfigCache composeCache(String cacheId, ZonedDateTime timestamp, String cacheVersion, byte[] cache) throws IOException {
         String version = trimCacheColumn ?
                 (String) Utils.trimValueColumn(ConfigCache.class, "version", cacheVersion) : cacheVersion;
 

@@ -4,5 +4,6 @@ public enum SyncStatusEnum {
 
     done,
     disabled,
+    rollback,
     error;
 }
