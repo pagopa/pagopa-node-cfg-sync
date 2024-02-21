@@ -57,6 +57,7 @@ spring:
         url: ${DB_PAGOPA_POSTGRES_URL}
         username: ${DB_PAGOPA_POSTGRES_USER}
         password: ${DB_PAGOPA_POSTGRES_PASSWORD}
+        database-platform: org.hibernate.dialect.PostgreSQL10Dialect
         ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
         enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
     nexi:
