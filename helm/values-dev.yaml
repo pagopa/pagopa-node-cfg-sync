@@ -79,7 +79,7 @@ microservice-chart:
     DB_PAGOPA_POSTGRES_USER: "cfg"
     DB_PAGOPA_POSTGRES_ENABLED: "true"
     DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER: "NDP001DEV"
-    OTEL_SERVICE_NAME: "pagopa-node-cfg-sync"
+    OTEL_SERVICE_NAME: "pagopanodecfgsync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_TRACES_EXPORTER: otlp
