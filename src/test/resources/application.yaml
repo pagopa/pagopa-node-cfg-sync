@@ -7,7 +7,7 @@ info:
   properties:
     environment: ${ENV:test}
 cors:
-  configuration: '${CORS_CONFIGURATION:''{"origins": ["*"], "methods": ["*"]}''}'
+  configuration: '{"origins": ["*"], "methods": ["*"]}'
 server:
   port: '8080'
   servlet:
