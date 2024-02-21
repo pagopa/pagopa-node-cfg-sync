@@ -85,7 +85,7 @@ jobs:
     needs: [ deploy ]
     runs-on: ubuntu-latest
     name: Update OpenAPI
-    if: ${{ inputs.target == inputs.environment }}
+    if: ${{ inputs.target == inputs.environment || inputs.target == 'all' }}
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout
@@ -109,3 +109,15 @@ jobs:
           client-id: ${{ secrets.CD_CLIENT_ID }}
           tenant-id: ${{ secrets.TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+
+      - name: Terraform Apply
+        shell: bash
+        run: |
+          cd ./infra
+          export ARM_CLIENT_ID="${{ secrets.CLIENT_ID }}"
+          export ARM_SUBSCRIPTION_ID=$(az account show --query id --output tsv)
+          export ARM_TENANT_ID=$(az account show --query tenantId --output tsv)
+          export ARM_USE_OIDC=true
+          export ARM_ACCESS_KEY=$(az storage account keys list --resource-group io-infra-rg --account-name pagopainfraterraform${{inputs.environment}} --query '[0].value' -o tsv)
+          bash ./terraform.sh init weu-${{ inputs.environment }}
+          bash ./terraform.sh apply weu-${{ inputs.environment }} -auto-approve
