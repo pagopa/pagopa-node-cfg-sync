@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,63 +37,64 @@ public class SyncCacheController {
     private StandInManagerService standInManagerService;
 
 
-  @Operation(
-      summary = "Force stand-in configuration update",
-      security = {@SecurityRequirement(name = "ApiKey")},
-      tags = {
-        "StandIn",
-      })
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "OK",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                )),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Bad Request",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = ProblemJson.class))),
-        @ApiResponse(
-            responseCode = "401",
-            description = "Unauthorized",
-            content = @Content(schema = @Schema())),
-        @ApiResponse(
-            responseCode = "429",
-            description = "Too many requests",
-            content = @Content(schema = @Schema())),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Service unavailable",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = ProblemJson.class)))
-      })
-  @GetMapping(
-          value = "/stand-in",
-          produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<List<SyncStatusResponse>> standin() {
+    @Operation(
+            summary = "Force stand-in configuration to update",
+            security = {@SecurityRequirement(name = "ApiKey")},
+            tags = {
+                    "StandIn",
+            })
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK",
+                            content = {
+                                    @Content(
+                                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                            array = @ArraySchema(schema = @Schema(implementation = SyncStatusResponse.class)))
+                            }),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request",
+                            content =
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ProblemJson.class))),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())),
+                    @ApiResponse(
+                            responseCode = "429",
+                            description = "Too many requests",
+                            content = @Content(schema = @Schema())),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Service unavailable",
+                            content =
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ProblemJson.class)))
+            })
+    @PutMapping(
+            value = "/stand-in",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SyncStatusResponse>> standin() {
 
-      log.debug("Force stand-in configuration update");
-      Map<String, SyncStatusEnum> syncStatusEnumMap = standInManagerService.forceStandIn();
+        log.debug("Force stand-in configuration to update");
+        Map<String, SyncStatusEnum> syncStatusEnumMap = standInManagerService.forceStandIn();
 
-      List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
-              .stream()
-              .map(e -> SyncStatusResponse.builder().serviceIdentifier(e.getKey()).status(e.getValue()).build())
-              .collect(Collectors.toList());
+        List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
+                .stream()
+                .map(e -> SyncStatusResponse.builder().serviceIdentifier(e.getKey()).status(e.getValue()).build())
+                .collect(Collectors.toList());
 
-      return ResponseEntity.ok()
-              .body(syncStatusResponseList);
-  }
+        return ResponseEntity.ok()
+                .body(syncStatusResponseList);
+    }
 
     @Operation(
-            summary = "Force cache configuration update",
+            summary = "Force cache configuration to update",
             security = {@SecurityRequirement(name = "ApiKey")},
             tags = {
                     "Cache",
@@ -131,11 +132,11 @@ public class SyncCacheController {
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ProblemJson.class)))
             })
-    @GetMapping(
+    @PutMapping(
             value = "/cache",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SyncStatusResponse>> cache() {
-        log.debug("Force cache configuration update");
+        log.debug("Force cache configuration to update");
         Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.forceCacheUpdate();
 
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()

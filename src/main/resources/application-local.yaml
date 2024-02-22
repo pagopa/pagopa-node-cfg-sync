@@ -10,15 +10,6 @@ app:
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}
     nexi-postgres: ${DB_NEXI_POSTGRES_SERVICE_IDENTIFIER}
     nexi-oracle: ${DB_NEXI_ORACLE_SERVICE_IDENTIFIER}
-  write:
-    cache:
-      pagopa-postgres: 'true'
-      nexi-postgres: 'false'
-      nexi-oracle: 'false'
-    standin:
-      pagopa-postgres: 'true'
-      nexi-postgres: 'false'
-      nexi-oracle: 'false'
 
 spring:
   datasource:
@@ -59,6 +50,11 @@ stand-in-manager:
   consumer:
     ##permette di abilitare/disabilitare il consumer
     enabled: 'false'
+  write:
+    ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
+    pagopa-postgres: 'true'
+    nexi-postgres: 'false'
+    nexi-oracle: 'false'
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
@@ -74,6 +70,11 @@ api-config-cache:
   consumer:
     ##permette di abilitare/disabilitare il consumer
     enabled: 'true'
+  write:
+    ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
+    pagopa-postgres: 'true'
+    nexi-postgres: 'false'
+    nexi-oracle: 'false'
 
 logging:
   level:

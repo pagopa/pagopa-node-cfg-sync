@@ -19,15 +19,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -45,24 +42,24 @@ public class ApiConfigCacheService extends CommonCacheService {
     private final ApiConfigCacheClient apiConfigCacheClient;
 
     @Autowired(required = false)
-    private Optional<PagoPACachePostgresRepository> pagopaPostgresRepository;
+    private PagoPACachePostgresRepository pagopaPostgresRepository;
     @Autowired(required = false)
-    private Optional<NexiCachePostgresRepository> nexiPostgresRepository;
+    private NexiCachePostgresRepository nexiPostgresRepository;
     @Autowired(required = false)
-    private Optional<NexiCacheOracleRepository> nexiOracleRepository;
+    private NexiCacheOracleRepository nexiOracleRepository;
 
-    @Value("${app.write.cache.pagopa-postgres}")
-    private Boolean pagopaPostgresWrite;
+//    @Value("${app.write.cache.pagopa-postgres}")
+//    private Boolean pagopaPostgresWrite;
     @Value("${app.identifiers.pagopa-postgres}")
     private String pagopaPostgresServiceIdentifier;
-
-    @Value("${app.write.cache.nexi-postgres}")
-    private Boolean nexiPostgresWrite;
+//
+//    @Value("${app.write.cache.nexi-postgres}")
+//    private Boolean nexiPostgresWrite;
     @Value("${app.identifiers.nexi-postgres}")
     private String nexiPostgresServiceIdentifier;
-
-    @Value("${app.write.cache.nexi-oracle}")
-    private Boolean nexiOracleWrite;
+//
+//    @Value("${app.write.cache.nexi-oracle}")
+//    private Boolean nexiOracleWrite;
     @Value("${app.identifiers.nexi-oracle}")
     private String nexiOracleServiceIdentifier;
 
@@ -131,8 +128,8 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     private void savePagoPA(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {
         try {
-            if( pagopaPostgresWrite && pagopaPostgresRepository.isPresent() ) {
-                pagopaPostgresRepository.get().save(configCache);
+            if( null != pagopaPostgresRepository ) {
+                pagopaPostgresRepository.save(configCache);
                 syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.done);
             } else {
                 syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.disabled);
@@ -145,8 +142,8 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     private void saveNexiOracle(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {
         try {
-            if( nexiOracleWrite && nexiOracleRepository.isPresent() ) {
-                nexiOracleRepository.get().save(configCache);
+            if( null != nexiOracleRepository ) {
+                nexiOracleRepository.save(configCache);
                 syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.done);
             } else {
                 syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
@@ -159,8 +156,8 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     private void saveNexiPostgres(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {
         try {
-            if ( nexiPostgresWrite && nexiPostgresRepository.isPresent() ) {
-                nexiPostgresRepository.get().save(configCache);
+            if ( null != nexiPostgresRepository ) {
+                nexiPostgresRepository.save(configCache);
                 syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.done);
             } else {
                 syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.disabled);

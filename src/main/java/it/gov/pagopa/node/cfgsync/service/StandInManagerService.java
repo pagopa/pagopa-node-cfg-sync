@@ -11,7 +11,6 @@ import it.gov.pagopa.node.cfgsync.exception.SyncDbStatusException;
 import it.gov.pagopa.node.cfgsync.model.StationsResponse;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
-import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
@@ -22,13 +21,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -42,24 +38,24 @@ public class StandInManagerService extends CommonCacheService {
     private final ObjectMapper objectMapper;
 
     @Autowired(required = false)
-    private Optional<PagoPAStandInPostgresRepository> pagopaPostgresRepository;
+    private PagoPAStandInPostgresRepository pagopaPostgresRepository;
     @Autowired(required = false)
-    private Optional<NexiStandInPostgresRepository> nexiPostgresRepository;
+    private NexiStandInPostgresRepository nexiPostgresRepository;
     @Autowired(required = false)
-    private Optional<NexiStandInOracleRepository> nexiOracleRepository;
+    private NexiStandInOracleRepository nexiOracleRepository;
 
-    @Value("${app.write.standin.pagopa-postgres}")
-    private Boolean pagopaPostgresWrite;
+//    @Value("${app.write.standin.pagopa-postgres}")
+//    private Boolean pagopaPostgresWrite;
     @Value("${app.identifiers.pagopa-postgres}")
     private String pagopaPostgresServiceIdentifier;
 
-    @Value("${app.write.standin.nexi-postgres}")
-    private Boolean nexiPostgresWrite;
+//    @Value("${app.write.standin.nexi-postgres}")
+//    private Boolean nexiPostgresWrite;
     @Value("${app.identifiers.nexi-postgres}")
     private String nexiPostgresServiceIdentifier;
 
-    @Value("${app.write.standin.nexi-oracle}")
-    private Boolean nexiOracleWrite;
+//    @Value("${app.write.standin.nexi-oracle}")
+//    private Boolean nexiOracleWrite;
     @Value("${app.identifiers.nexi-oracle}")
     private String nexiOracleServiceIdentifier;
 
@@ -120,8 +116,8 @@ public class StandInManagerService extends CommonCacheService {
 
     private void savePagoPA(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
         try {
-            if( pagopaPostgresWrite && pagopaPostgresRepository.isPresent() ) {
-                pagopaPostgresRepository.get().saveAll(stationsEntities);
+            if( null != pagopaPostgresRepository ) {
+                pagopaPostgresRepository.saveAll(stationsEntities);
                 syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.done);
             } else {
                 syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.disabled);
@@ -134,8 +130,8 @@ public class StandInManagerService extends CommonCacheService {
 
     private void saveNexiOracle(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
         try {
-            if( nexiOracleWrite && nexiOracleRepository.isPresent() ) {
-                nexiOracleRepository.get().saveAll(stationsEntities);
+            if( null != nexiOracleRepository ) {
+                nexiOracleRepository.saveAll(stationsEntities);
                 syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.done);
             } else {
                 syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
@@ -148,8 +144,8 @@ public class StandInManagerService extends CommonCacheService {
 
     private void saveNexiPostgres(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
         try {
-            if ( nexiPostgresWrite && nexiPostgresRepository.isPresent() ) {
-                nexiPostgresRepository.get().saveAll(stationsEntities);
+            if ( null != nexiPostgresRepository ) {
+                nexiPostgresRepository.saveAll(stationsEntities);
                 syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.done);
             } else {
                 syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.disabled);
