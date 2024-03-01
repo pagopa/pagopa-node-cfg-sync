@@ -38,67 +38,94 @@ app:
     pagopa-postgres: 'NDP001'
     nexi-postgres: 'NDP004DEV'
     nexi-oracle: 'NDP003'
-  write:
-    cache:
-      pagopa-postgres: 'false'
-      nexi-postgres: 'false'
-      nexi-oracle: 'false'
-    standin:
-      pagopa-postgres: 'false'
-      nexi-postgres: 'false'
-      nexi-oracle: 'false'
 
 spring:
   datasource:
+    url: jdbc:h2:mem:foo;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
     pagopa:
       postgres:
-        url: ${DB_PAGOPA_POSTGRES_URL}
-        username: ${DB_PAGOPA_POSTGRES_USER}
-        password: ${DB_PAGOPA_POSTGRES_PASSWORD}
-        enabled: 'false'
+        url: jdbc:h2:mem:pagopa;DB_CLOSE_ON_EXIT=FALSE
+        username: sa
+        password:
+        ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
+        enabled: 'true'
     nexi:
       oracle:
-        url: ${DB_NEXI_ORACLE_URL}
-        username: ${DB_NEXI_ORACLE_USER}
-        password: ${DB_NEXI_ORACLE_PASSWORD}
-        enabled: 'false'
+        url: jdbc:h2:mem:nexi_oracle;DB_CLOSE_ON_EXIT=FALSE
+        username: sa
+        password:
+        ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
+        enabled: 'true'
       postgres:
-        url: ${DB_NEXI_POSTGRES_URL}
-        username: ${DB_NEXI_POSTGRES_USER}
-        password: ${DB_NEXI_POSTGRES_PASSWORD}
-        enabled: 'false'
+        url: jdbc:h2:mem:nexi_postgres;DB_CLOSE_ON_EXIT=FALSE
+        username: sa
+        password:
+        ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
+        enabled: 'true'
   jpa:
-    show-sql: 'false'
+    database: default
+    generate-ddl: true
+#    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: 'create-drop'
+#    defer-datasource-initialization: true
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: H2Dialect
+#        format_sql: true
+  h2:
+    console:
+      enabled: 'true'
+  sql:
+    init:
+      mode: always
 
 stand-in-manager:
   rx-connection-string: ${STAND_IN_MANAGER_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-stand-in
   service:
     subscriptionKey: ''
-    enabled: 'false'
-    host: https://api.dev.platform.pagopa.it/stand-in-manager/api/v1
+    enabled: 'true'
+    host: http://localhost:1080
   sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
   sa-name: standinevents
   consumer-group: $Default
   consumer:
+    ##permette di abilitare/disabilitare il consumer
     enabled: 'false'
+  write:
+    ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
+    pagopa-postgres: 'true'
+    nexi-postgres: 'true'
+    nexi-oracle: 'true'
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-cache
   service:
+    host: http://localhost:1080
     subscriptionKey: ''
-    host: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
-    enabled: 'false'
+    ##permette di abilitare/disabilitare la chiamata al servizio tramite API
+    enabled: 'true'
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
   sa-name: cacheevents
   consumer-group: $Default
   consumer:
+    ##permette di abilitare/disabilitare il consumer
     enabled: 'false'
+  write:
+    ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
+    pagopa-postgres: 'true'
+    nexi-postgres: 'true'
+    nexi-oracle: 'true'
 
 logging:
   level:
     it:
       gov:
-        pagopa: ${APP_LOGGING_LEVEL:INFO}
-    root: ${DEFAULT_LOGGING_LEVEL:INFO}
+        pagopa: DEBUG
+    root: INFO

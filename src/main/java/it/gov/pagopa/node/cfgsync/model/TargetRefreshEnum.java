@@ -2,7 +2,7 @@ package it.gov.pagopa.node.cfgsync.model;
 
 public enum TargetRefreshEnum {
 
-    config("api-config-cache"),
+    cache("api-config-cache"),
     standin("stand-in-manager");
 
     public final String label;

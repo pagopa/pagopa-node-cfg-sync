@@ -88,7 +88,7 @@ api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-cache
   service:
-    host: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
+    host: https://api.dev.platform.pagopa.it/api-config-cache/p/v1/stakeholders/node/cache/schemas/v1
     subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'

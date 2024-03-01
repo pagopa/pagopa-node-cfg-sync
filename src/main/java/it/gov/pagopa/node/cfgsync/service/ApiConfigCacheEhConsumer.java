@@ -49,7 +49,7 @@ public class ApiConfigCacheEhConsumer {
 
     public void processEvent(EventContext eventContext) {
         log.info("Processing event {} from partition {} with sequence number {} with body: {}",
-                TargetRefreshEnum.config.label,
+                TargetRefreshEnum.cache.label,
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
         apiConfigCacheService.forceCacheUpdate();
@@ -57,7 +57,7 @@ public class ApiConfigCacheEhConsumer {
 
     public void processError(ErrorContext errorContext) {
         log.error("Error occurred for {} from partition {}: {}",
-                TargetRefreshEnum.config.label,
+                TargetRefreshEnum.cache.label,
                 errorContext.getPartitionContext().getPartitionId(),
                 errorContext.getThrowable().getMessage(),
                 errorContext.getThrowable());

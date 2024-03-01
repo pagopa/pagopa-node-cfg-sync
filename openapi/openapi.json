@@ -1,10 +1,10 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "title": "cfg-sync",
-    "description": "Microservice to update configuration schema of Nodo dei Pagamenti",
-    "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.0.0-26-NOD-690-nodo-cfg-sync-microservizio"
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "cfg-sync",
+    "description" : "Microservice to update configuration schema of Nodo dei Pagamenti",
+    "termsOfService" : "https://www.pagopa.gov.it/",
+    "version" : "0.0.0-26-NOD-690-nodo-cfg-sync-microservizio"
   },
   "servers" : [ {
     "url" : "http://localhost",
@@ -12,9 +12,9 @@
   } ],
   "paths" : {
     "/ndp/cache" : {
-      "get" : {
+      "put" : {
         "tags" : [ "Cache" ],
-        "summary" : "Force cache configuration update",
+        "summary" : "Force cache configuration to update",
         "operationId" : "cache",
         "responses" : {
           "200" : {
@@ -111,9 +111,9 @@
       } ]
     },
     "/ndp/stand-in" : {
-      "get" : {
+      "put" : {
         "tags" : [ "StandIn" ],
-        "summary" : "Force stand-in configuration update",
+        "summary" : "Force stand-in configuration to update",
         "operationId" : "standin",
         "responses" : {
           "200" : {
@@ -127,7 +127,14 @@
               }
             },
             "content" : {
-              "application/json" : { }
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SyncStatusResponse"
+                  }
+                }
+              }
             }
           },
           "400" : {
