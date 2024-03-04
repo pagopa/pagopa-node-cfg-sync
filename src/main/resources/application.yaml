@@ -81,8 +81,8 @@ stand-in-manager:
   write:
     ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
     pagopa-postgres: 'true'
-    nexi-postgres: 'false'
-    nexi-oracle: 'false'
+    nexi-postgres: 'true'
+    nexi-oracle: 'true'
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
@@ -101,8 +101,8 @@ api-config-cache:
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
     pagopa-postgres: 'true'
-    nexi-postgres: 'false'
-    nexi-oracle: 'false'
+    nexi-postgres: 'true'
+    nexi-oracle: 'true'
 
 logging:
   level:
