@@ -1,10 +1,10 @@
 microservice-chart:
-  namespace: "node-cfg-sync"
+  namespace: "nodo"
   nameOverride: ""
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.0.0"
+    tag: "0.0.0-34-NOD-690-nodo-cfg-sync-microservizio"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -34,9 +34,9 @@ microservice-chart:
     servicePort: 8080
   serviceAccount:
     create: false
-    annotations: { }
+    annotations: {}
     name: ""
-  podAnnotations: { }
+  podAnnotations: {}
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -67,8 +67,8 @@ microservice-chart:
     APP_LOGGING_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
-
-    OTEL_SERVICE_NAME: "pagopa-node-cfg-sync"
+    CACHET_TX_NAME: "nodo-dei-pagamenti-cache"
+    OTEL_SERVICE_NAME: "pagopanodecfgsync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=prod"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_TRACES_EXPORTER: otlp
@@ -78,12 +78,15 @@ microservice-chart:
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-p-connection-string'
+    CACHE_TX_CONNECTION_STRING: "nodo-dei-pagamenti-cache-tx-connection-string-key"
     OTEL_EXPORTER_OTLP_HEADERS: elastic-apm-secret-token
+    API_CONFIG_CACHE_SUBSCRIPTION_KEY: "cfg-for-node-subscription-key"
+    STAND_IN_MANAGER_SUBSCRIPTION_KEY: "cfg-for-node-subscription-key"
   keyvault:
     name: "pagopa-d-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: { }
-  tolerations: [ ]
+  nodeSelector: {}
+  tolerations: []
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -100,10 +103,10 @@ microservice-chart:
             labelSelector:
               matchLabels:
                 app.kubernetes.io/instance: "pagopa-node-cfg-sync"
-            namespaces: [ "nodo" ]
+            namespaces: ["nodo"]
             topologyKey: topology.kubernetes.io/zone
   canaryDelivery:
-    create: true
+    create: false
     ingress:
       create: true
       canary:
@@ -119,6 +122,5 @@ microservice-chart:
         repository: ghcr.io/pagopa/yourname # TODO
         tag: "0.0.0"
         pullPolicy: Always
-      envConfig: { }
-      envSecret: { }
-
+      envConfig: {}
+      envSecret: {}

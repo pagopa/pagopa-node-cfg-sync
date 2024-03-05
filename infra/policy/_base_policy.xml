@@ -1,7 +1,7 @@
 <policies>
   <inbound>
     <base />
-    <set-backend-service base-url="https://${hostname}/TODO" /> <!-- TODO your base path-->
+    <set-backend-service base-url="https://${hostname}/node-cfg-sync" />
   </inbound>
   <outbound>
     <base />

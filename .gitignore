@@ -38,3 +38,8 @@ hs_err_pid*
 # Helm
 /helm/charts/*
 **/.terraform/
+
+# Others
+**/.DS_Store
+/docker/local-dbs/postgres-data/
+/Application.run/*.run.xml
