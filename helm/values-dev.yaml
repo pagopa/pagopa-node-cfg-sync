@@ -68,7 +68,7 @@ microservice-chart:
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     DB_NEXI_POSTGRES_URL: "jdbc:postgresql://ndp.d.db-nodo-pagamenti.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
-    DB_NEXI_POSTGRES_USER: "cfg"
+    DB_NEXI_POSTGRES_USER: "pp_nodo4_cfg"
     DB_NEXI_POSTGRES_ENABLED: "true"
     DB_NEXI_POSTGRES_SERVICE_IDENTIFIER: "NDP004DEV"
     DB_NEXI_ORACLE_URL: "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN)(ADDRESS=(PROTOCOL=tcp)(PORT=1522)(HOST=db-nodo-pagamenti.d.db-nodo-pagamenti.com))(CONNECT_DATA=(SERVICE_NAME=NDPSPCT_PP_NODO4_CFG))(SO_KEEPALIVE=true)(TCP_KEEPIDLE=60)(TCP_KEEPINTVL=30)(TCP_KEEPCNT=15))"
