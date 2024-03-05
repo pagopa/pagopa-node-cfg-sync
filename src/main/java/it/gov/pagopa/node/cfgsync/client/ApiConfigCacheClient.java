@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface ApiConfigCacheClient {
 
-  @RequestLine("GET /cache")
+  @RequestLine("GET /")
   @Headers({
           "Ocp-Apim-Subscription-Key: {subscriptionKey}"
   })
