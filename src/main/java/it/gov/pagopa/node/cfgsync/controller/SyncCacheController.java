@@ -12,8 +12,8 @@ import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusResponse;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
 import it.gov.pagopa.node.cfgsync.service.StandInManagerService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,13 +29,11 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/ndp")
 @Validated
+@AllArgsConstructor
 public class SyncCacheController {
 
-    @Autowired
     private ApiConfigCacheService apiConfigCacheService;
-    @Autowired
     private StandInManagerService standInManagerService;
-
 
     @Operation(
             summary = "Force stand-in configuration to update",

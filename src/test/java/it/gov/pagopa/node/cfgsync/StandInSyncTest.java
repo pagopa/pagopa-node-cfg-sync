@@ -102,11 +102,11 @@ class StandInSyncTest {
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
     assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
-    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.error);
+    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
     assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NDP004DEV");
-    assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.rollback);
+    assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NDP003");
-    assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.rollback);
+    assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
     ReflectionTestUtils.setField(standInManagerService, "pagopaPostgresRepository", paStandInPostgresRepository);
   }
 
@@ -127,7 +127,7 @@ class StandInSyncTest {
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
     assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
-    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.disabled);
+    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
     ReflectionTestUtils.setField(standInManagerService, "writePagoPa", true);
   }
 
@@ -150,7 +150,7 @@ class StandInSyncTest {
     assertFalse(syncStatusResponseList.isEmpty());
     assertEquals(3, syncStatusResponseList.size());
     assertThat(syncStatusResponseList.get(2).getServiceIdentifier()).isEqualTo("NDP003");
-    assertThat(syncStatusResponseList.get(2).getStatus()).isEqualTo(SyncStatusEnum.disabled);
+    assertThat(syncStatusResponseList.get(2).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
     ReflectionTestUtils.setField(standInManagerService, "writeNexiOracle", true);
   }
 
@@ -173,7 +173,7 @@ class StandInSyncTest {
     assertFalse(syncStatusResponseList.isEmpty());
     assertEquals(3, syncStatusResponseList.size());
     assertThat(syncStatusResponseList.get(1).getServiceIdentifier()).isEqualTo("NDP004DEV");
-    assertThat(syncStatusResponseList.get(1).getStatus()).isEqualTo(SyncStatusEnum.disabled);
+    assertThat(syncStatusResponseList.get(1).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
 
     ReflectionTestUtils.setField(standInManagerService, "writeNexiPostgres", true);
   }

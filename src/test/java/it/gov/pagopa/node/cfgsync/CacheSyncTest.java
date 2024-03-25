@@ -1,15 +1,15 @@
 package it.gov.pagopa.node.cfgsync;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.azure.messaging.eventhubs.EventData;
+import com.azure.messaging.eventhubs.EventHubConsumerAsyncClient;
 import feign.Feign;
 import feign.FeignException;
 import feign.Request;
-import feign.Response;
 import feign.mock.MockClient;
 import feign.mock.MockTarget;
 import it.gov.pagopa.node.cfgsync.client.ApiConfigCacheClient;
-import it.gov.pagopa.node.cfgsync.client.StandInManagerClient;
-import it.gov.pagopa.node.cfgsync.model.*;
+import it.gov.pagopa.node.cfgsync.model.ProblemJson;
+import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheEhConsumer;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,8 +20,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,17 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static it.gov.pagopa.node.cfgsync.util.Constants.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -87,7 +75,7 @@ class CacheSyncTest {
   }
 
   @Test
-  void ssyncCache_500_ConnectionRefused() {
+  void syncCache_500_ConnectionRefused() {
 //    mockClient = new MockClient().noContent(feign.mock.HttpMethod.GET, "/stations");
 //    standInManagerClient =
 //            Feign.builder().client(mockClient).target(new MockTarget<>(StandInManagerClient.class));

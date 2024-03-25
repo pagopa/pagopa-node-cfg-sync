@@ -15,15 +15,15 @@ import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +31,8 @@ import java.util.Map;
 @Service
 @Setter
 @Slf4j
+@AllArgsConstructor
+@NoArgsConstructor
 public class StandInManagerService extends CommonCacheService {
 
     @Value("${stand-in-manager.service.enabled}")
@@ -41,11 +43,8 @@ public class StandInManagerService extends CommonCacheService {
     private StandInManagerClient standInManagerClient;
     private ObjectMapper objectMapper;
 
-    @Autowired(required = false)
     private PagoPAStandInPostgresRepository pagopaPostgresRepository;
-    @Autowired(required = false)
     private NexiStandInPostgresRepository nexiPostgresRepository;
-    @Autowired(required = false)
     private NexiStandInOracleRepository nexiOracleRepository;
 
     @Value("${app.identifiers.pagopa-postgres}")
@@ -71,6 +70,7 @@ public class StandInManagerService extends CommonCacheService {
         this.objectMapper = objectMapper;
     }
 
+    @Transactional(rollbackFor={SyncDbStatusException.class})
     public Map<String, SyncStatusEnum> forceStandIn() {
         Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
         try {
@@ -90,7 +90,23 @@ public class StandInManagerService extends CommonCacheService {
             log.info("SyncService {} stations found", stations.getStations().size());
             List<StandInStations> stationsEntities = stations.getStations().stream().map(StandInStations::new).toList();
 
-            return saveAllDatabases(syncStatusMap, stationsEntities);
+            savePagoPA(syncStatusMap, stationsEntities);
+            saveNexiPostgres(syncStatusMap, stationsEntities);
+            saveNexiOracle(syncStatusMap, stationsEntities);
+
+            Map<String, SyncStatusEnum> syncStatusMapUpdated = new LinkedHashMap<>();
+            if( syncStatusMap.containsValue(SyncStatusEnum.ERROR) ) {
+                syncStatusMap.forEach((k, v) -> {
+                    if (v == SyncStatusEnum.DONE) {
+                        syncStatusMapUpdated.put(k, SyncStatusEnum.ROLLBACK);
+                    } else {
+                        syncStatusMapUpdated.put(k, v);
+                    }
+                });
+                return syncStatusMapUpdated;
+            } else {
+                return syncStatusMap;
+            }
         } catch (FeignException.GatewayTimeout e) {
             log.error("SyncService stand-in-manager get stations error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
@@ -102,38 +118,17 @@ public class StandInManagerService extends CommonCacheService {
         }
     }
 
-    @Transactional(rollbackFor={SyncDbStatusException.class})
-    Map<String, SyncStatusEnum> saveAllDatabases(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
-        savePagoPA(syncStatusMap, stationsEntities);
-        saveNexiPostgres(syncStatusMap, stationsEntities);
-        saveNexiOracle(syncStatusMap, stationsEntities);
-
-        Map<String, SyncStatusEnum> syncStatusMapUpdated = new LinkedHashMap<>();
-        if( syncStatusMap.containsValue(SyncStatusEnum.error) ) {
-            syncStatusMap.forEach((k, v) -> {
-                if (v == SyncStatusEnum.done) {
-                    syncStatusMapUpdated.put(k, SyncStatusEnum.rollback);
-                } else {
-                    syncStatusMapUpdated.put(k, v);
-                }
-            });
-            return syncStatusMapUpdated;
-        } else {
-            return syncStatusMap;
-        }
-    }
-
     private void savePagoPA(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
         try {
             if( writePagoPa ) {
                 pagopaPostgresRepository.saveAll(stationsEntities);
-                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.done);
+                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.DONE);
             } else {
-                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.disabled);
+                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
             log.error("SyncService stand-in-manager save pagoPA error: {}", ex.getMessage(), ex);
-            syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.error);
+            syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.ERROR);
         }
     }
 
@@ -141,13 +136,13 @@ public class StandInManagerService extends CommonCacheService {
         try {
             if( writeNexiOracle ) {
                 nexiOracleRepository.saveAll(stationsEntities);
-                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.done);
+                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.DONE);
             } else {
-                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
+                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
             log.error("SyncService stand-in-manager save Nexi Oracle error: {}", ex.getMessage(), ex);
-            syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
+            syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.ERROR);
         }
     }
 
@@ -155,13 +150,13 @@ public class StandInManagerService extends CommonCacheService {
         try {
             if ( writeNexiPostgres ) {
                 nexiPostgresRepository.saveAll(stationsEntities);
-                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.done);
+                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.DONE);
             } else {
-                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.disabled);
+                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
             log.error("SyncService stand-in-manager save Nexi Postgres error: {}", ex.getMessage(), ex);
-            syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.error);
+            syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.ERROR);
         }
     }
 }

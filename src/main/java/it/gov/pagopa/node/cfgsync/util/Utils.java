@@ -1,12 +1,17 @@
 package it.gov.pagopa.node.cfgsync.util;
 
+import it.gov.pagopa.node.cfgsync.exception.SyncDbStatusException;
+
 import javax.persistence.Column;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.zip.Deflater;
 import java.util.zip.GZIPOutputStream;
 
 public class Utils {
+
+    private Utils() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static byte[] zipContent(byte[] input) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(input.length);
@@ -18,12 +23,12 @@ public class Utils {
         return compressed;
     }
 
-    public static Object trimValueColumn(Class clazz, String columnName, String value) {
+    public static Object trimValueColumn(Class clazz, String columnName, String value) throws SyncDbStatusException {
         try {
             int length = clazz.getDeclaredField(columnName).getAnnotation(Column.class).length();
             return value.substring(0, length);
         } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
+            throw new SyncDbStatusException(e.getMessage());
         }
     }
 

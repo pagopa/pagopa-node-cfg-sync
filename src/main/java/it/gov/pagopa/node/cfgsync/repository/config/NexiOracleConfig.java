@@ -2,14 +2,13 @@ package it.gov.pagopa.node.cfgsync.repository.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.*;
-import org.springframework.core.env.Environment;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -27,9 +26,6 @@ import javax.sql.DataSource;
 )
 @ConditionalOnProperty(prefix = "spring.datasource.nexi.oracle", name = "enabled")
 public class NexiOracleConfig {
-
-    @Autowired
-    private Environment env;
 
     @Bean
     @ConfigurationProperties("spring.datasource.nexi.oracle")

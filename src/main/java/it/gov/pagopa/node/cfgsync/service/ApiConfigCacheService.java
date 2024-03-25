@@ -13,9 +13,10 @@ import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,8 @@ import static it.gov.pagopa.node.cfgsync.util.Constants.*;
 @Component
 @Setter
 @Slf4j
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApiConfigCacheService extends CommonCacheService {
 
     @Value("${api-config-cache.service.enabled}")
@@ -41,11 +44,8 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     private ApiConfigCacheClient apiConfigCacheClient;
 
-    @Autowired(required = false)
     private PagoPACachePostgresRepository pagopaPostgresRepository;
-    @Autowired(required = false)
     private NexiCachePostgresRepository nexiPostgresRepository;
-    @Autowired(required = false)
     private NexiCacheOracleRepository nexiOracleRepository;
 
     @Value("${app.identifiers.pagopa-postgres}")
@@ -70,6 +70,7 @@ public class ApiConfigCacheService extends CommonCacheService {
         apiConfigCacheClient = Feign.builder().target(ApiConfigCacheClient.class, apiConfigCacheUrl);
     }
 
+    @Transactional(rollbackFor={SyncDbStatusException.class})
     public Map<String, SyncStatusEnum> forceCacheUpdate() {
         Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
         try {
@@ -98,10 +99,23 @@ public class ApiConfigCacheService extends CommonCacheService {
 
             ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp), cacheVersion, response.body().asInputStream().readAllBytes());
 
-            saveAllDatabases(syncStatusMap, configCache);
-        } catch (SyncDbStatusException e) {
-            //viene usata per poter restituire in risposta la mappa degli aggiornamenti
-            return syncStatusMap;
+            savePagoPA(syncStatusMap, configCache);
+            saveNexiPostgres(syncStatusMap, configCache);
+            saveNexiOracle(syncStatusMap, configCache);
+
+            Map<String, SyncStatusEnum> syncStatusMapUpdated = new LinkedHashMap<>();
+            if( syncStatusMap.containsValue(SyncStatusEnum.ERROR) ) {
+                syncStatusMap.forEach((k, v) -> {
+                    if (v == SyncStatusEnum.DONE) {
+                        syncStatusMapUpdated.put(k, SyncStatusEnum.ROLLBACK);
+                    } else {
+                        syncStatusMapUpdated.put(k, v);
+                    }
+                });
+                return syncStatusMapUpdated;
+            } else {
+                return syncStatusMap;
+            }
         } catch (FeignException.GatewayTimeout e) {
             log.error("SyncService api-config-cache get cache error: Gateway timeout", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
@@ -111,37 +125,19 @@ public class ApiConfigCacheService extends CommonCacheService {
             log.error("SyncService api-config-cache get cache error", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
-        return syncStatusMap;
-    }
-
-    @Transactional(rollbackFor={SyncDbStatusException.class})
-    void saveAllDatabases(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) throws SyncDbStatusException {
-        savePagoPA(syncStatusMap, configCache);
-        saveNexiPostgres(syncStatusMap, configCache);
-        saveNexiOracle(syncStatusMap, configCache);
-
-        if( syncStatusMap.containsValue(SyncStatusEnum.error) ) {
-            syncStatusMap.forEach((k, v) -> {
-                if (v == SyncStatusEnum.done) {
-                    syncStatusMap.remove(k);
-                    syncStatusMap.put(k, SyncStatusEnum.rollback);
-                }
-            });
-            throw new SyncDbStatusException("Rollback sync");
-        }
     }
 
     private void savePagoPA(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {
         try {
             if( writePagoPa ) {
                 pagopaPostgresRepository.save(configCache);
-                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.done);
+                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.DONE);
             } else {
-                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.disabled);
+                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
             log.error("SyncService api-config-cache save pagoPA error: {}", ex.getMessage(), ex);
-            syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.error);
+            syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.ERROR);
         }
     }
 
@@ -149,13 +145,13 @@ public class ApiConfigCacheService extends CommonCacheService {
         try {
             if( writeNexiOracle ) {
                 nexiOracleRepository.save(configCache);
-                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.done);
+                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.DONE);
             } else {
-                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
+                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
             log.error("SyncService api-config-cache save Nexi Oracle error: {}", ex.getMessage(), ex);
-            syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
+            syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.ERROR);
         }
     }
 
@@ -163,13 +159,13 @@ public class ApiConfigCacheService extends CommonCacheService {
         try {
             if ( writeNexiPostgres ) {
                 nexiPostgresRepository.save(configCache);
-                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.done);
+                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.DONE);
             } else {
-                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.disabled);
+                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
             log.error("SyncService api-config-cache save Nexi Postgres error: {}", ex.getMessage(), ex);
-            syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.error);
+            syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.ERROR);
         }
     }
 }
