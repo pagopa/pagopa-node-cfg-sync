@@ -81,7 +81,7 @@ stand-in-manager:
   write:
     ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
     pagopa-postgres: 'true'
-    nexi-postgres: 'true'
+    nexi-postgres: 'false'
     nexi-oracle: 'true'
 
 api-config-cache:
@@ -101,7 +101,7 @@ api-config-cache:
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
     pagopa-postgres: 'true'
-    nexi-postgres: 'true'
+    nexi-postgres: 'false'
     nexi-oracle: 'true'
 
 logging:
