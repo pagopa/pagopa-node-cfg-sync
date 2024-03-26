@@ -52,4 +52,12 @@ class ApplicationTest {
     assertFalse(response.getBody().isEmpty());
     assertThat(response.getBody().contains("Swagger UI"));
   }
+
+  @Test
+  void constantsTest() {
+    assertEquals("NEXIORACLE", ConstantsTest.NEXIORACLE_SI);
+    assertEquals("NEXIPOSTGRES", ConstantsTest.NEXIPOSTGRES_SI);
+    assertEquals("PAGOPAPOSTGRES", ConstantsTest.PAGOPAPOSTGRES_SI);
+  }
+
 }
