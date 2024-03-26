@@ -27,7 +27,7 @@ public class Utils {
         try {
             int maxColumnLength = clazz.getDeclaredField(columnName).getAnnotation(Column.class).length();
             int valueLength = value.length();
-            int lastIndexTrim = valueLength > maxColumnLength ? maxColumnLength : valueLength;
+            int lastIndexTrim = Math.min(valueLength, maxColumnLength);
             return value.substring(0, lastIndexTrim);
         } catch (NoSuchFieldException e) {
             throw new SyncDbStatusException(e.getMessage());
