@@ -79,7 +79,7 @@ microservice-chart:
     DB_PAGOPA_POSTGRES_USER: "cfg"
     DB_PAGOPA_POSTGRES_ENABLED: "true"
     DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER: "NDP001DEV"
-    API_CONFIG_CACHE_URL: "https://api.dev.platform.pagopa.it/api-config-cache/p/v1/stakeholders/node/cache/schemas/v1"
+    API_CONFIG_CACHE_URL: "https://api.dev.platform.pagopa.it/api-config-cache/o/v1/stakeholders/node/cache/schemas/v1"
     STAND_IN_MANAGER_URL: "https://api.dev.platform.pagopa.it/stand-in-manager/api/v1"
     OTEL_SERVICE_NAME: "pagopanodecfgsync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"

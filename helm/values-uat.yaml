@@ -68,7 +68,7 @@ microservice-chart:
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     CACHET_TX_NAME: "nodo-dei-pagamenti-cache"
-    API_CONFIG_CACHE_URL: "https://api.uat.platform.pagopa.it/api-config-cache/p/v1/stakeholders/node/cache/schemas/v1"
+    API_CONFIG_CACHE_URL: "https://api.uat.platform.pagopa.it/api-config-cache/o/v1/stakeholders/node/cache/schemas/v1"
     STAND_IN_MANAGER_URL: "https://api.uat.platform.pagopa.it/stand-in-manager/api/v1"
     OTEL_SERVICE_NAME: "pagopanodecfgsync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=uat"
@@ -85,7 +85,7 @@ microservice-chart:
     API_CONFIG_CACHE_SUBSCRIPTION_KEY: "cfg-for-node-subscription-key"
     STAND_IN_MANAGER_SUBSCRIPTION_KEY: "cfg-for-node-subscription-key"
   keyvault:
-    name: "pagopa-d-nodo-kv"
+    name: "pagopa-u-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   nodeSelector: {}
   tolerations: []
