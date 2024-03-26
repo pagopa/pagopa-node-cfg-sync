@@ -126,6 +126,38 @@ class CacheSyncTest {
   }
 
   @Test
+  void trimCacheVersionOnDb() {
+    Map<String, Collection<String>> headersCustom =
+            Map.of(
+                    HEADER_CACHE_ID, List.of(String.valueOf(System.currentTimeMillis())),
+                    HEADER_CACHE_TIMESTAMP, List.of(Instant.now().toString()),
+                    HEADER_CACHE_VERSION, List.of("v1.0.0000000000000000000000000009")
+            );
+    when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
+            .builder()
+            .status(200)
+            .reason("Mocked")
+            .headers(headersCustom)
+            .request(mock(Request.class))
+            .body(new byte[0])
+            .build());
+    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
+
+    ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
+
+    assertThat(response.getBody()).isNotNull();
+    assertFalse(response.getHeaders().isEmpty());
+    assertFalse(response.getBody().isEmpty());
+    assertEquals(3, response.getBody().size());
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo(PAGOPAPOSTGRES_SI);
+    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo(NEXIPOSTGRES_SI);
+    assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
+    assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+  }
+
+  @Test
   void writePagoPAPostgresDisabled() {
     ReflectionTestUtils.setField(cacheManagerService, "writePagoPa", false);
 
