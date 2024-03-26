@@ -55,9 +55,9 @@ class ApplicationTest {
 
   @Test
   void constantsTest() {
-    assertEquals("NEXIORACLE", ConstantsTest.NEXIORACLE_SI);
-    assertEquals("NEXIPOSTGRES", ConstantsTest.NEXIPOSTGRES_SI);
-    assertEquals("PAGOPAPOSTGRES", ConstantsTest.PAGOPAPOSTGRES_SI);
+    assertEquals("NEXIORACLE", ConstantsHelper.NEXIORACLE_SI);
+    assertEquals("NEXIPOSTGRES", ConstantsHelper.NEXIPOSTGRES_SI);
+    assertEquals("PAGOPAPOSTGRES", ConstantsHelper.PAGOPAPOSTGRES_SI);
   }
 
 }

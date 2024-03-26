@@ -31,7 +31,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
-import static it.gov.pagopa.node.cfgsync.ConstantsTest.*;
+import static it.gov.pagopa.node.cfgsync.ConstantsHelper.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

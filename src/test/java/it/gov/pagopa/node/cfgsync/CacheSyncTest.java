@@ -36,7 +36,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static it.gov.pagopa.node.cfgsync.ConstantsTest.*;
+import static it.gov.pagopa.node.cfgsync.ConstantsHelper.*;
 import static it.gov.pagopa.node.cfgsync.util.Constants.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;

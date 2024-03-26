@@ -1,6 +1,6 @@
 package it.gov.pagopa.node.cfgsync;
 
-public class ConstantsTest {
+public class ConstantsHelper {
 
     protected static final String PAGOPAPOSTGRES_SI = "PAGOPAPOSTGRES";
     protected static final String NEXIPOSTGRES_SI = "NEXIPOSTGRES";
