@@ -12,8 +12,11 @@ import it.gov.pagopa.node.cfgsync.model.ProblemJson;
 import it.gov.pagopa.node.cfgsync.model.StationsResponse;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusResponse;
+import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
+import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
 import org.junit.jupiter.api.Test;
@@ -35,16 +38,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static it.gov.pagopa.node.cfgsync.util.Constants.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -67,14 +66,21 @@ class CacheSyncTest {
   @Mock
   ApiConfigCacheClient apiConfigCacheClient;
 
+  private static final Map<String, Collection<String>> headers;
+  static {
+      headers = Map.of(HEADER_CACHE_ID, List.of(String.valueOf(System.currentTimeMillis())), HEADER_CACHE_TIMESTAMP, List.of(Instant.now().toString()), HEADER_CACHE_VERSION, List.of("v1.0.0"));
+  }
+
   @Test
   void error400() {
     ReflectionTestUtils.setField(cacheManagerService, "enabled", false);
+
     ResponseEntity<ProblemJson> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, ProblemJson.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody().getTitle()).isEqualTo("Target service disabled");
     assertThat(response.getBody().getStatus()).isEqualTo(400);
     assertThat(response.getBody().getDetail()).isEqualTo("Target service api-config-cache disabled");
+
     ReflectionTestUtils.setField(cacheManagerService, "enabled", true);
   }
 
@@ -92,12 +98,26 @@ class CacheSyncTest {
   }
 
   @Test
-  void syncCache_500_ConnectionRefused() {
-//    mockClient = new MockClient().noContent(feign.mock.HttpMethod.GET, "/stations");
-//    ApiConfigCacheClient =
-//            Feign.builder().client(mockClient).target(new MockTarget<>(ApiConfigCacheClient.class));
-//    cacheManagerService.setApiConfigCacheClient(ApiConfigCacheClient);
+  void error500EmptyCacheHeader() {
+    when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
+            .builder()
+            .status(200)
+            .reason("Mocked")
+            .headers(null)
+            .request(mock(Request.class))
+            .body(new byte[0])
+            .build());
 
+    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
+
+    ResponseEntity<ProblemJson> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, ProblemJson.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(response.getBody().getStatus()).isEqualTo(500);
+    assertThat(response.getBody().getTitle()).isEqualTo("Internal Server Error");
+  }
+
+  @Test
+  void error500ConnectionRefused() {
     Request request = mock(Request.class);
     when(apiConfigCacheClient.getCache(anyString()))
             .thenThrow(new FeignException.NotFound("message", request, null, null));
@@ -109,211 +129,182 @@ class CacheSyncTest {
   }
 
   @Test
-  void syncCache_WritePagoPAPostgresDisabled() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-
-//    HttpHeaders headers = new HttpHeaders();
-//    headers.put(HEADER_CACHE_ID, List.of(String.valueOf(System.currentTimeMillis())));
-//    headers.put(HEADER_CACHE_TIMESTAMP, List.of(Instant.now().toString()));
-//    headers.put(HEADER_CACHE_VERSION, List.of("v1.0.0"));
-
-    Map<String, Collection<String>> headers = new HashMap<>();
-    headers.put(HEADER_CACHE_ID, List.of(String.valueOf(System.currentTimeMillis())));
-    headers.put(HEADER_CACHE_TIMESTAMP, List.of(Instant.now().toString()));
-    headers.put(HEADER_CACHE_VERSION, List.of("v1.0.0"));
-
-//    mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, CLIENT_CACHE_PATH, ResponseEntity.ok().headers(headers).build().toString());
-
-    Request request = mock(Request.class);
-    mockClient = new MockClient()
-            .ok(
-                    feign.mock.HttpMethod.GET,
-                    CLIENT_CACHE_PATH,
-                    Response
-                            .builder()
-                            .headers(headers)
-                            .request(request)
-                            .body(new byte[0])
-                            .build().toString());
+  void writePagoPAPostgresDisabled() {
+    ReflectionTestUtils.setField(cacheManagerService, "writePagoPa", false);
 
     when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
                     .builder()
                     .status(200)
                     .reason("Mocked")
                     .headers(headers)
-                    .request(request)
+                    .request(mock(Request.class))
                     .body(new byte[0])
                     .build());
-
-//    mockClient = new MockClient()
-//            .ok(
-//                    feign.mock.HttpMethod.GET,
-//                    CLIENT_CACHE_PATH,
-//                    Response
-//                            .builder()
-//                            .status(200)
-//                            .reason("Mocked")
-//                            .headers(headers)
-//                            .body(new byte[0])
-//                            .build()
-//                            .toString());
-    ApiConfigCacheClient apiConfigCacheClient =
-            Feign.builder().client(mockClient).target(new MockTarget<>(ApiConfigCacheClient.class));
     cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
-    ReflectionTestUtils.setField(cacheManagerService, "writePagoPa", false);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getHeaders().isEmpty());
-    assertEquals(3, response.getBody());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
+    assertFalse(response.getBody().isEmpty());
+    assertEquals(3, response.getBody().size());
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+
     ReflectionTestUtils.setField(cacheManagerService, "writePagoPa", true);
   }
 
   @Test
-  void writePagoPAPostgresDisabled() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
+  void writeNexiOracleDisabled() {
+    ReflectionTestUtils.setField(cacheManagerService, "writeNexiOracle", false);
 
-    mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, CLIENT_CACHE_PATH, objectMapper.writeValueAsBytes(stationsResponse));
-    ApiConfigCacheClient apiConfigCacheClient =
-            Feign.builder().client(mockClient).target(new MockTarget<>(ApiConfigCacheClient.class));
+    when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
+            .builder()
+            .status(200)
+            .reason("Mocked")
+            .headers(headers)
+            .request(mock(Request.class))
+            .body(new byte[0])
+            .build());
+
     cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
-    ReflectionTestUtils.setField(cacheManagerService, "writePagoPa", false);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
     assertThat(response.getBody()).isNotNull();
+    assertFalse(response.getHeaders().isEmpty());
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
-    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
-    ReflectionTestUtils.setField(cacheManagerService, "writePagoPa", true);
-  }
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
+    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
 
-  @Test
-  void writeNexiOracleDisabled() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
-
-    mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, CLIENT_CACHE_PATH, objectMapper.writeValueAsBytes(stationsResponse));
-    ApiConfigCacheClient apiConfigCacheClient =
-            Feign.builder().client(mockClient).target(new MockTarget<>(ApiConfigCacheClient.class));
-    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
-    ReflectionTestUtils.setField(cacheManagerService, "writeNexiOracle", false);
-
-    ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
-
-    List<SyncStatusResponse> syncStatusResponseList = response.getBody();
-
-    assertThat(syncStatusResponseList).isNotNull();
-    assertFalse(syncStatusResponseList.isEmpty());
-    assertEquals(3, syncStatusResponseList.size());
-    assertThat(syncStatusResponseList.get(2).getServiceIdentifier()).isEqualTo("NDP003");
-    assertThat(syncStatusResponseList.get(2).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
     ReflectionTestUtils.setField(cacheManagerService, "writeNexiOracle", true);
   }
 
   @Test
-  void writeNexiPostgresDisabled() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
-
-    mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, CLIENT_CACHE_PATH, objectMapper.writeValueAsBytes(stationsResponse));
-    ApiConfigCacheClient apiConfigCacheClient =
-            Feign.builder().client(mockClient).target(new MockTarget<>(ApiConfigCacheClient.class));
-    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
+  void writeNexiPostgresDisabled() {
     ReflectionTestUtils.setField(cacheManagerService, "writeNexiPostgres", false);
+
+    when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
+            .builder()
+            .status(200)
+            .reason("Mocked")
+            .headers(headers)
+            .request(mock(Request.class))
+            .body(new byte[0])
+            .build());
+
+    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
-    List<SyncStatusResponse> syncStatusResponseList = response.getBody();
-
-    assertThat(syncStatusResponseList).isNotNull();
-    assertFalse(syncStatusResponseList.isEmpty());
-    assertEquals(3, syncStatusResponseList.size());
-    assertThat(syncStatusResponseList.get(1).getServiceIdentifier()).isEqualTo("NDP004DEV");
-    assertThat(syncStatusResponseList.get(1).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
+    assertThat(response.getBody()).isNotNull();
+    assertFalse(response.getHeaders().isEmpty());
+    assertFalse(response.getBody().isEmpty());
+    assertEquals(3, response.getBody().size());
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
+    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
 
     ReflectionTestUtils.setField(cacheManagerService, "writeNexiPostgres", true);
   }
 
   @Test
-  void errorWritePagoPAPostgres() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
-
-    mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, CLIENT_CACHE_PATH, objectMapper.writeValueAsBytes(stationsResponse));
-    ApiConfigCacheClient apiConfigCacheClient =
-            Feign.builder().client(mockClient).target(new MockTarget<>(ApiConfigCacheClient.class));
-    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
-    PagoPAStandInPostgresRepository repository = (PagoPAStandInPostgresRepository)ReflectionTestUtils.getField(cacheManagerService, "pagopaPostgresRepository");
+  void errorWritePagoPAPostgres() {
+    PagoPACachePostgresRepository repository = (PagoPACachePostgresRepository)ReflectionTestUtils.getField(cacheManagerService, "pagopaPostgresRepository");
     ReflectionTestUtils.setField(cacheManagerService, "pagopaPostgresRepository", null);
+
+    when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
+            .builder()
+            .status(200)
+            .reason("Mocked")
+            .headers(headers)
+            .request(mock(Request.class))
+            .body(new byte[0])
+            .build());
+    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NDP004DEV");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NDP003");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
+
     ReflectionTestUtils.setField(cacheManagerService, "pagopaPostgresRepository", repository);
   }
 
   @Test
-  void errorWriteNexiPostgres() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
-
-    mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, CLIENT_CACHE_PATH, objectMapper.writeValueAsBytes(stationsResponse));
-    ApiConfigCacheClient apiConfigCacheClient =
-            Feign.builder().client(mockClient).target(new MockTarget<>(ApiConfigCacheClient.class));
-    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
-    NexiStandInPostgresRepository repository = (NexiStandInPostgresRepository)ReflectionTestUtils.getField(cacheManagerService, "nexiPostgresRepository");
+  void errorWriteNexiPostgres() {
+    NexiCachePostgresRepository repository = (NexiCachePostgresRepository)ReflectionTestUtils.getField(cacheManagerService, "nexiPostgresRepository");
     ReflectionTestUtils.setField(cacheManagerService, "nexiPostgresRepository", null);
+
+    when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
+            .builder()
+            .status(200)
+            .reason("Mocked")
+            .headers(headers)
+            .request(mock(Request.class))
+            .body(new byte[0])
+            .build());
+    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NDP004DEV");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NDP003");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
+
     ReflectionTestUtils.setField(cacheManagerService, "nexiPostgresRepository", repository);
   }
 
   @Test
-  void errorWriteNexiOracle() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
-
-    mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, CLIENT_CACHE_PATH, objectMapper.writeValueAsBytes(stationsResponse));
-    ApiConfigCacheClient apiConfigCacheClient =
-            Feign.builder().client(mockClient).target(new MockTarget<>(ApiConfigCacheClient.class));
-    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
-    NexiStandInOracleRepository repository = (NexiStandInOracleRepository)ReflectionTestUtils.getField(cacheManagerService, "nexiOracleRepository");
+  void errorWriteNexiOracle() {
+    NexiCacheOracleRepository repository = (NexiCacheOracleRepository)ReflectionTestUtils.getField(cacheManagerService, "nexiOracleRepository");
     ReflectionTestUtils.setField(cacheManagerService, "nexiOracleRepository", null);
+
+    when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
+            .builder()
+            .status(200)
+            .reason("Mocked")
+            .headers(headers)
+            .request(mock(Request.class))
+            .body(new byte[0])
+            .build());
+    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NDP004DEV");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NDP003");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
     ReflectionTestUtils.setField(cacheManagerService, "nexiOracleRepository", repository);
   }

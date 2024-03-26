@@ -44,26 +44,32 @@ class StandInSyncTest {
   public static final String STANDIN_URL = "/ndp/stand-in";
   public static final String STATIONS_PATH = "/stations";
 
+  static final List<String> stations = List.of("1234567890", "9876543210");
+
   @Autowired private StandInManagerService standInManagerService;
   @Autowired private TestRestTemplate restTemplate;
   private MockClient mockClient;
 
   @LocalServerPort private int port;
 
+  ObjectMapper objectMapper = new ObjectMapper();
+
   @Test
   void error400() {
     ReflectionTestUtils.setField(standInManagerService, "enabled", false);
+
     ResponseEntity<ProblemJson> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, ProblemJson.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody().getStatus()).isEqualTo(400);
     assertThat(response.getBody().getTitle()).isEqualTo("Target service disabled");
     assertThat(response.getBody().getDetail()).isEqualTo("Target service stand-in-manager disabled");
+
     ReflectionTestUtils.setField(standInManagerService, "enabled", true);
   }
 
   @Test
   void error500() {
-    mockClient = new MockClient().noContent(feign.mock.HttpMethod.GET, "/stations");
+    mockClient = new MockClient().noContent(feign.mock.HttpMethod.GET, STATIONS_PATH);
     StandInManagerClient standInManagerClient =
             Feign.builder().client(mockClient).target(new MockTarget<>(StandInManagerClient.class));
     standInManagerService.setStandInManagerClient(standInManagerClient);
@@ -76,35 +82,39 @@ class StandInSyncTest {
 
   @Test
   void writePagoPAPostgresDisabled() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
+    ReflectionTestUtils.setField(standInManagerService, "writePagoPa", false);
+
+    StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
     mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, STATIONS_PATH, objectMapper.writeValueAsBytes(stationsResponse));
     StandInManagerClient standInManagerClient =
             Feign.builder().client(mockClient).target(new MockTarget<>(StandInManagerClient.class));
     standInManagerService.setStandInManagerClient(standInManagerClient);
-    ReflectionTestUtils.setField(standInManagerService, "writePagoPa", false);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
     ReflectionTestUtils.setField(standInManagerService, "writePagoPa", true);
   }
 
   @Test
   void writeNexiOracleDisabled() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
+    ReflectionTestUtils.setField(standInManagerService, "writeNexiOracle", false);
+
+    StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
     mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, STATIONS_PATH, objectMapper.writeValueAsBytes(stationsResponse));
     StandInManagerClient standInManagerClient =
             Feign.builder().client(mockClient).target(new MockTarget<>(StandInManagerClient.class));
     standInManagerService.setStandInManagerClient(standInManagerClient);
-    ReflectionTestUtils.setField(standInManagerService, "writeNexiOracle", false);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
@@ -113,21 +123,26 @@ class StandInSyncTest {
     assertThat(syncStatusResponseList).isNotNull();
     assertFalse(syncStatusResponseList.isEmpty());
     assertEquals(3, syncStatusResponseList.size());
-    assertThat(syncStatusResponseList.get(2).getServiceIdentifier()).isEqualTo("NDP003");
-    assertThat(syncStatusResponseList.get(2).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
+    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
+
     ReflectionTestUtils.setField(standInManagerService, "writeNexiOracle", true);
   }
 
   @Test
   void writeNexiPostgresDisabled() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
+    ReflectionTestUtils.setField(standInManagerService, "writeNexiPostgres", false);
+
+    StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
     mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, STATIONS_PATH, objectMapper.writeValueAsBytes(stationsResponse));
     StandInManagerClient standInManagerClient =
             Feign.builder().client(mockClient).target(new MockTarget<>(StandInManagerClient.class));
     standInManagerService.setStandInManagerClient(standInManagerClient);
-    ReflectionTestUtils.setField(standInManagerService, "writeNexiPostgres", false);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
@@ -136,87 +151,94 @@ class StandInSyncTest {
     assertThat(syncStatusResponseList).isNotNull();
     assertFalse(syncStatusResponseList.isEmpty());
     assertEquals(3, syncStatusResponseList.size());
-    assertThat(syncStatusResponseList.get(1).getServiceIdentifier()).isEqualTo("NDP004DEV");
-    assertThat(syncStatusResponseList.get(1).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
+    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
 
     ReflectionTestUtils.setField(standInManagerService, "writeNexiPostgres", true);
   }
 
   @Test
   void errorWritePagoPAPostgres() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
+    PagoPAStandInPostgresRepository repository = (PagoPAStandInPostgresRepository)ReflectionTestUtils.getField(standInManagerService, "pagopaPostgresRepository");
+    ReflectionTestUtils.setField(standInManagerService, "pagopaPostgresRepository", null);
+
+    StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
     mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, STATIONS_PATH, objectMapper.writeValueAsBytes(stationsResponse));
     StandInManagerClient standInManagerClient =
             Feign.builder().client(mockClient).target(new MockTarget<>(StandInManagerClient.class));
     standInManagerService.setStandInManagerClient(standInManagerClient);
-    PagoPAStandInPostgresRepository repository = (PagoPAStandInPostgresRepository)ReflectionTestUtils.getField(standInManagerService, "pagopaPostgresRepository");
-    ReflectionTestUtils.setField(standInManagerService, "pagopaPostgresRepository", null);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NDP004DEV");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NDP003");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
+
     ReflectionTestUtils.setField(standInManagerService, "pagopaPostgresRepository", repository);
   }
 
   @Test
   void errorWriteNexiPostgres() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
+    NexiStandInPostgresRepository repository = (NexiStandInPostgresRepository)ReflectionTestUtils.getField(standInManagerService, "nexiPostgresRepository");
+    ReflectionTestUtils.setField(standInManagerService, "nexiPostgresRepository", null);
+
+    StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
     mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, STATIONS_PATH, objectMapper.writeValueAsBytes(stationsResponse));
     StandInManagerClient standInManagerClient =
             Feign.builder().client(mockClient).target(new MockTarget<>(StandInManagerClient.class));
     standInManagerService.setStandInManagerClient(standInManagerClient);
-    NexiStandInPostgresRepository repository = (NexiStandInPostgresRepository)ReflectionTestUtils.getField(standInManagerService, "nexiPostgresRepository");
-    ReflectionTestUtils.setField(standInManagerService, "nexiPostgresRepository", null);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NDP004DEV");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NDP003");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
+
     ReflectionTestUtils.setField(standInManagerService, "nexiPostgresRepository", repository);
   }
 
   @Test
   void errorWriteNexiOracle() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-    StationsResponse stationsResponse = StationsResponse.builder().stations(List.of("1234567890", "9876543210")).build();
+    NexiStandInOracleRepository repository = (NexiStandInOracleRepository)ReflectionTestUtils.getField(standInManagerService, "nexiOracleRepository");
+    ReflectionTestUtils.setField(standInManagerService, "nexiOracleRepository", null);
+
+    StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
     mockClient = new MockClient().ok(feign.mock.HttpMethod.GET, STATIONS_PATH, objectMapper.writeValueAsBytes(stationsResponse));
     StandInManagerClient standInManagerClient =
             Feign.builder().client(mockClient).target(new MockTarget<>(StandInManagerClient.class));
     standInManagerService.setStandInManagerClient(standInManagerClient);
-    NexiStandInOracleRepository repository = (NexiStandInOracleRepository)ReflectionTestUtils.getField(standInManagerService, "nexiOracleRepository");
-    ReflectionTestUtils.setField(standInManagerService, "nexiOracleRepository", null);
 
     ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
 
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("NDP001");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NDP004DEV");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NDP003");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
+
     ReflectionTestUtils.setField(standInManagerService, "nexiOracleRepository", repository);
   }
 

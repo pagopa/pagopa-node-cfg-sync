@@ -35,9 +35,9 @@ management:
 app:
   trimCacheColumn: 'true'
   identifiers:
-    pagopa-postgres: 'NDP001'
-    nexi-postgres: 'NDP004DEV'
-    nexi-oracle: 'NDP003'
+    pagopa-postgres: 'PAGOPAPOSTGRES'
+    nexi-postgres: 'NEXIPOSTGRES'
+    nexi-oracle: 'NEXIORACLE'
 
 spring:
   datasource:

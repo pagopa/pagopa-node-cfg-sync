@@ -25,8 +25,10 @@ public class Utils {
 
     public static Object trimValueColumn(Class clazz, String columnName, String value) throws SyncDbStatusException {
         try {
-            int length = clazz.getDeclaredField(columnName).getAnnotation(Column.class).length();
-            return value.substring(0, length);
+            int maxColumnLength = clazz.getDeclaredField(columnName).getAnnotation(Column.class).length();
+            int valueLength = value.length();
+            int lastIndexTrim = valueLength > maxColumnLength ? maxColumnLength : valueLength;
+            return value.substring(0, lastIndexTrim);
         } catch (NoSuchFieldException e) {
             throw new SyncDbStatusException(e.getMessage());
         }
