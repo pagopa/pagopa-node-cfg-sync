@@ -15,14 +15,15 @@ import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,21 +32,17 @@ import java.util.Map;
 @Service
 @Setter
 @Slf4j
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class StandInManagerService extends CommonCacheService {
 
     @Value("${stand-in-manager.service.enabled}")
     private boolean enabled;
+
     @Value("${stand-in-manager.service.subscriptionKey}")
     private String subscriptionKey;
 
-    private StandInManagerClient standInManagerClient;
-    private ObjectMapper objectMapper;
-
-    private PagoPAStandInPostgresRepository pagopaPostgresRepository;
-    private NexiStandInPostgresRepository nexiPostgresRepository;
-    private NexiStandInOracleRepository nexiOracleRepository;
+    @Value("${stand-in-manager.service.host}")
+    private String standInManagerUrl;
 
     @Value("${app.identifiers.pagopa-postgres}")
     private String pagopaPostgresServiceIdentifier;
@@ -65,9 +62,20 @@ public class StandInManagerService extends CommonCacheService {
     @Value("${stand-in-manager.write.nexi-postgres}")
     private boolean writeNexiPostgres;
 
-    public StandInManagerService(@Value("${stand-in-manager.service.host}") String standInManagerUrl, ObjectMapper objectMapper) {
+    private StandInManagerClient standInManagerClient;
+
+    private final ObjectMapper objectMapper;
+
+    @Autowired(required = false)
+    private PagoPAStandInPostgresRepository pagopaPostgresRepository;
+    @Autowired(required = false)
+    private NexiStandInPostgresRepository nexiPostgresRepository;
+    @Autowired(required = false)
+    private NexiStandInOracleRepository nexiOracleRepository;
+
+    @PostMapping
+    public void setStandInManagerClient() {
         standInManagerClient = Feign.builder().target(StandInManagerClient.class, standInManagerUrl);
-        this.objectMapper = objectMapper;
     }
 
     @Transactional(rollbackFor={SyncDbStatusException.class})

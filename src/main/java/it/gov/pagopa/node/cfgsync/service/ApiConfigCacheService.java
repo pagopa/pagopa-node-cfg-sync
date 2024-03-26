@@ -11,16 +11,20 @@ import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -30,23 +34,20 @@ import java.util.Map;
 
 import static it.gov.pagopa.node.cfgsync.util.Constants.*;
 
-@Component
+@Service
 @Setter
 @Slf4j
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class ApiConfigCacheService extends CommonCacheService {
 
     @Value("${api-config-cache.service.enabled}")
     private boolean enabled;
+
     @Value("${api-config-cache.service.subscriptionKey}")
     private String subscriptionKey;
 
-    private ApiConfigCacheClient apiConfigCacheClient;
-
-    private PagoPACachePostgresRepository pagopaPostgresRepository;
-    private NexiCachePostgresRepository nexiPostgresRepository;
-    private NexiCacheOracleRepository nexiOracleRepository;
+    @Value("${api-config-cache.service.host}")
+    private String apiConfigCacheUrl;
 
     @Value("${app.identifiers.pagopa-postgres}")
     private String pagopaPostgresServiceIdentifier;
@@ -66,7 +67,17 @@ public class ApiConfigCacheService extends CommonCacheService {
     @Value("${api-config-cache.write.nexi-postgres}")
     private boolean writeNexiPostgres;
 
-    public ApiConfigCacheService(@Value("${api-config-cache.service.host}") String apiConfigCacheUrl) {
+    private ApiConfigCacheClient apiConfigCacheClient;
+
+    @Autowired(required = false)
+    private PagoPACachePostgresRepository pagopaPostgresRepository;
+    @Autowired(required = false)
+    private NexiCachePostgresRepository nexiPostgresRepository;
+    @Autowired(required = false)
+    private NexiCacheOracleRepository nexiOracleRepository;
+
+    @PostMapping
+    public void setStandInManagerClient() {
         apiConfigCacheClient = Feign.builder().target(ApiConfigCacheClient.class, apiConfigCacheUrl);
     }
 
