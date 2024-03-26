@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa.node</groupId>
   <artifactId>cfg-sync</artifactId>
-  <version>0.0.1-1-fix-helm-oracle</version>
+  <version>0.0.1-2-fix-helm-oracle</version>
   <description>Microservice to update configuration schema of Nodo dei Pagamenti</description>
 
   <properties>
