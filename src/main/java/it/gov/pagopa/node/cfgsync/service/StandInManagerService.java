@@ -74,7 +74,7 @@ public class StandInManagerService extends CommonCacheService {
     private NexiStandInOracleRepository nexiOracleRepository;
 
     @PostMapping
-    public void setStandInManagerClient() {
+    private void setStandInManagerClient() {
         standInManagerClient = Feign.builder().target(StandInManagerClient.class, standInManagerUrl);
     }
 

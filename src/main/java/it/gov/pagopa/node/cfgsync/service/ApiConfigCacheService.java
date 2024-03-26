@@ -77,7 +77,7 @@ public class ApiConfigCacheService extends CommonCacheService {
     private NexiCacheOracleRepository nexiOracleRepository;
 
     @PostMapping
-    public void setStandInManagerClient() {
+    private void setStandInManagerClient() {
         apiConfigCacheClient = Feign.builder().target(ApiConfigCacheClient.class, apiConfigCacheUrl);
     }
 

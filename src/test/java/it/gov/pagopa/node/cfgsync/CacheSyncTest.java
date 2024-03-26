@@ -1,6 +1,5 @@
 package it.gov.pagopa.node.cfgsync;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Feign;
 import feign.FeignException;
 import feign.Request;
@@ -9,15 +8,11 @@ import feign.mock.MockClient;
 import feign.mock.MockTarget;
 import it.gov.pagopa.node.cfgsync.client.ApiConfigCacheClient;
 import it.gov.pagopa.node.cfgsync.model.ProblemJson;
-import it.gov.pagopa.node.cfgsync.model.StationsResponse;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusResponse;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepository;
-import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
-import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
-import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +24,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,12 +32,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
+import static it.gov.pagopa.node.cfgsync.ConstantsTest.*;
 import static it.gov.pagopa.node.cfgsync.util.Constants.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -148,11 +145,11 @@ class CacheSyncTest {
     assertFalse(response.getHeaders().isEmpty());
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo(PAGOPAPOSTGRES_SI);
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo(NEXIPOSTGRES_SI);
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
 
     ReflectionTestUtils.setField(cacheManagerService, "writePagoPa", true);
@@ -179,11 +176,11 @@ class CacheSyncTest {
     assertFalse(response.getHeaders().isEmpty());
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo(PAGOPAPOSTGRES_SI);
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DONE);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo(NEXIPOSTGRES_SI);
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
 
     ReflectionTestUtils.setField(cacheManagerService, "writeNexiOracle", true);
@@ -210,11 +207,11 @@ class CacheSyncTest {
     assertFalse(response.getHeaders().isEmpty());
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo(PAGOPAPOSTGRES_SI);
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DONE);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo(NEXIPOSTGRES_SI);
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
 
     ReflectionTestUtils.setField(cacheManagerService, "writeNexiPostgres", true);
@@ -240,11 +237,11 @@ class CacheSyncTest {
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo(PAGOPAPOSTGRES_SI);
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo(NEXIPOSTGRES_SI);
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
 
     ReflectionTestUtils.setField(cacheManagerService, "pagopaPostgresRepository", repository);
@@ -270,11 +267,11 @@ class CacheSyncTest {
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo(PAGOPAPOSTGRES_SI);
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo(NEXIPOSTGRES_SI);
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
 
     ReflectionTestUtils.setField(cacheManagerService, "nexiPostgresRepository", repository);
@@ -300,11 +297,11 @@ class CacheSyncTest {
     assertThat(response.getBody()).isNotNull();
     assertFalse(response.getBody().isEmpty());
     assertEquals(3, response.getBody().size());
-    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo("PAGOPAPOSTGRES");
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo(PAGOPAPOSTGRES_SI);
     assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo("NEXIPOSTGRES");
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo(NEXIPOSTGRES_SI);
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
-    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo("NEXIORACLE");
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
     ReflectionTestUtils.setField(cacheManagerService, "nexiOracleRepository", repository);
   }
