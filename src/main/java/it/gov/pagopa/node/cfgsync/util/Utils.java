@@ -1,12 +1,14 @@
 package it.gov.pagopa.node.cfgsync.util;
 
 import it.gov.pagopa.node.cfgsync.exception.SyncDbStatusException;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Column;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
+@Slf4j
 public class Utils {
 
     private Utils() {
@@ -25,6 +27,7 @@ public class Utils {
 
     public static Object trimValueColumn(Class clazz, String columnName, String value) throws SyncDbStatusException {
         try {
+            log.debug("[NODE-CFG-SYNC] Verify if trim value column '{}' is necessary", columnName);
             int maxColumnLength = clazz.getDeclaredField(columnName).getAnnotation(Column.class).length();
             int valueLength = value.length();
             int lastIndexTrim = Math.min(valueLength, maxColumnLength);

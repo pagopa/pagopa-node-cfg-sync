@@ -50,7 +50,7 @@ public class ApiConfigCacheEhConsumer {
     }
 
     public void processEvent(EventContext eventContext) {
-        log.info("Processing event {} from partition {} with sequence number {} with body: {}",
+        log.info("[NODE-CFG-SYNC] Processing event {} from partition {} with sequence number {} with body: {}",
                 TargetRefreshEnum.cache.label,
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
@@ -59,7 +59,7 @@ public class ApiConfigCacheEhConsumer {
     }
 
     public void processError(ErrorContext errorContext) {
-        log.error("Error occurred for {} from partition {}: {}",
+        log.error("[NODE-CFG-SYNC] Error occurred for {} from partition {}: {}",
                 TargetRefreshEnum.cache.label,
                 errorContext.getPartitionContext().getPartitionId(),
                 errorContext.getThrowable().getMessage(),

@@ -1,7 +1,6 @@
 package it.gov.pagopa.node.cfgsync;
 
 import it.gov.pagopa.node.cfgsync.util.Constants;
-import it.gov.pagopa.node.cfgsync.util.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

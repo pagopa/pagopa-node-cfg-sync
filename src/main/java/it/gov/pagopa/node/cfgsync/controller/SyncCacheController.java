@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.gov.pagopa.node.cfgsync.model.ProblemJson;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusResponse;
+import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
 import it.gov.pagopa.node.cfgsync.service.StandInManagerService;
 import lombok.AllArgsConstructor;
@@ -79,7 +80,7 @@ public class SyncCacheController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SyncStatusResponse>> standin() {
 
-        log.debug("Force stand-in configuration to update");
+        log.debug("[NODE-CFG-SYNC] Force {}, configuration to update", TargetRefreshEnum.standin.label);
         Map<String, SyncStatusEnum> syncStatusEnumMap = standInManagerService.syncStandIn();
 
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
@@ -134,7 +135,7 @@ public class SyncCacheController {
             value = "/cache",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SyncStatusResponse>> cache() {
-        log.debug("Force cache configuration to update");
+        log.debug("[NODE-CFG-SYNC] Force {} configuration to update", TargetRefreshEnum.cache.label);
         Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.syncCache();
 
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()

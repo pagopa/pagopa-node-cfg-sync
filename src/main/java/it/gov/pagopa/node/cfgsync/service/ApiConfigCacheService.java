@@ -21,8 +21,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -64,7 +64,7 @@ public class ApiConfigCacheService extends CommonCacheService {
     @Autowired(required = false)
     private NexiCacheOracleRepository nexiCacheOracleRepository;
 
-    @PostMapping
+    @PostConstruct
     private void setStandInManagerClient() {
         apiConfigCacheClient = Feign.builder().target(ApiConfigCacheClient.class, apiConfigCacheUrl);
     }

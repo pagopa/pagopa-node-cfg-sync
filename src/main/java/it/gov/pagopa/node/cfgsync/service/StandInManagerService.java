@@ -23,8 +23,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.annotation.PostConstruct;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ public class StandInManagerService extends CommonCacheService {
     @Autowired(required = false)
     private NexiStandInOracleRepository nexiStandInOracleRepository;
 
-    @PostMapping
+    @PostConstruct
     private void setStandInManagerClient() {
         standInManagerClient = Feign.builder().target(StandInManagerClient.class, standInManagerUrl);
     }
@@ -80,7 +80,7 @@ public class StandInManagerService extends CommonCacheService {
             Response response = standInManagerClient.getCache(standInManagerSubscriptionKey);
             int httpResponseCode = response.status();
             if (httpResponseCode != HttpStatus.OK.value()) {
-                log.error("SyncService stations error - result: httpStatusCode[{}]", httpResponseCode);
+                log.error("[NODE-CFG-SYNC] stations error - result: httpStatusCode[{}]", httpResponseCode);
                 throw new AppException(AppError.INTERNAL_SERVER_ERROR);
             }
             log.info("[NODE-CFG-SYNC] stations successful");
