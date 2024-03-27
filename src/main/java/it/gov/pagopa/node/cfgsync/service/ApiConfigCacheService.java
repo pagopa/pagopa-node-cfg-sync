@@ -36,6 +36,7 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     @Value("${api-config-cache.service.enabled}")
     private boolean enabled;
+
     @Value("${api-config-cache.service.subscriptionKey}")
     private String subscriptionKey;
 
@@ -43,8 +44,10 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     @Autowired(required = false)
     private PagoPACachePostgresRepository pagopaPostgresRepository;
+
     @Autowired(required = false)
     private NexiCachePostgresRepository nexiPostgresRepository;
+
     @Autowired(required = false)
     private NexiCacheOracleRepository nexiOracleRepository;
 
@@ -115,7 +118,7 @@ public class ApiConfigCacheService extends CommonCacheService {
     }
 
     @Transactional(rollbackFor={SyncDbStatusException.class})
-    void saveAllDatabases(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) throws SyncDbStatusException {
+    public void saveAllDatabases(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) throws SyncDbStatusException {
         savePagoPA(syncStatusMap, configCache);
         saveNexiPostgres(syncStatusMap, configCache);
         saveNexiOracle(syncStatusMap, configCache);
@@ -140,7 +143,7 @@ public class ApiConfigCacheService extends CommonCacheService {
                 syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.disabled);
             }
         } catch(Exception ex) {
-            log.error("SyncService api-config-cache save pagoPA error: {}", ex.getMessage(), ex);
+            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump cache on PagoPA PostgreSQL: {}", ex.getMessage(), ex);
             syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.error);
         }
     }
@@ -154,7 +157,7 @@ public class ApiConfigCacheService extends CommonCacheService {
                 syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.disabled);
             }
         } catch(Exception ex) {
-            log.error("SyncService api-config-cache save Nexi Oracle error: {}", ex.getMessage(), ex);
+            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump cache on Nexi Oracle: {}", ex.getMessage(), ex);
             syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.error);
         }
     }
@@ -168,7 +171,7 @@ public class ApiConfigCacheService extends CommonCacheService {
                 syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.disabled);
             }
         } catch(Exception ex) {
-            log.error("SyncService api-config-cache save Nexi Postgres error: {}", ex.getMessage(), ex);
+            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump cache on Nexi PostgreSQL: {}", ex.getMessage(), ex);
             syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.error);
         }
     }
