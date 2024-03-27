@@ -76,25 +76,24 @@ public class ApiConfigCacheService extends CommonCacheService {
             if( !apiConfigCacheServiceEnabled) {
                 throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.cache.label);
             }
-            log.debug("SyncService api-config-cache get cache");
+            log.debug("[NODE-CFG-SYNC] get cache");
             Response response = apiConfigCacheClient.getCache(apiConfigCacheSubscriptionKey);
             int httpResponseCode = response.status();
             if (httpResponseCode != HttpStatus.OK.value()) {
-                log.error("SyncService api-config-cache get cache error - result: httpStatusCode[{}]", httpResponseCode);
+                log.error("[NODE-CFG-SYNC] cache error - result: httpStatusCode[{}]", httpResponseCode);
                 throw new AppException(AppError.INTERNAL_SERVER_ERROR);
             }
-            log.info("SyncService api-config-cache get cache successful");
 
             Map<String, Collection<String>> headers = response.headers();
             if( headers.isEmpty() ) {
-                log.error("SyncService api-config-cache get cache error - empty header");
+                log.error("[NODE-CFG-SYNC] cache error - empty header");
                 throw new AppException(AppError.INTERNAL_SERVER_ERROR);
             }
             String cacheId = (String) getHeaderParameter(TargetRefreshEnum.cache.label, headers, HEADER_CACHE_ID);
             String cacheTimestamp = (String) getHeaderParameter(TargetRefreshEnum.cache.label, headers, HEADER_CACHE_TIMESTAMP);
             String cacheVersion = (String) getHeaderParameter(TargetRefreshEnum.cache.label, headers, HEADER_CACHE_VERSION);
 
-            log.info("SyncService cacheId:[{}], cacheTimestamp:[{}], cacheVersion:[{}]", cacheId, Instant.from(ZonedDateTime.parse(cacheTimestamp)), cacheVersion);
+            log.info("[NODE-CFG-SYNC] cache successful. cacheId:[{}], cacheTimestamp:[{}], cacheVersion:[{}]", cacheId, Instant.from(ZonedDateTime.parse(cacheTimestamp)), cacheVersion);
 
             ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp), cacheVersion, response.body().asInputStream().readAllBytes());
 
@@ -103,13 +102,13 @@ public class ApiConfigCacheService extends CommonCacheService {
             saveNexiOracle(syncStatusMap, configCache);
 
             return composeSyncStatusMapResult(syncStatusMap);
-        } catch (FeignException e) {
-            log.error("SyncService api-config-cache get cache error: {}", e.getMessage(), e);
+        } catch (FeignException fEx) {
+            log.error("[NODE-CFG-SYNC] cache error: {}", fEx.getMessage(), fEx);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         } catch(AppException appException) {
             throw appException;
-        } catch (Exception e) {
-            log.error("SyncService api-config-cache get cache error: {}", e.getMessage(), e);
+        } catch (Exception ex) {
+            log.error("[NODE-CFG-SYNC] cache error: {}", ex.getMessage(), ex);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
     }
@@ -123,7 +122,7 @@ public class ApiConfigCacheService extends CommonCacheService {
                 syncStatusMap.put(getPagopaPostgresServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
-            log.error("SyncService api-config-cache save pagoPA error: {}", ex.getMessage(), ex);
+            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump cache on PagoPA PostgreSQL: {}", ex.getMessage(), ex);
             syncStatusMap.put(getPagopaPostgresServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }
@@ -137,7 +136,7 @@ public class ApiConfigCacheService extends CommonCacheService {
                 syncStatusMap.put(getNexiOracleServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
-            log.error("SyncService api-config-cache save Nexi Oracle error: {}", ex.getMessage(), ex);
+            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump cache on Nexi Oracle: {}", ex.getMessage(), ex);
             syncStatusMap.put(getNexiOracleServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }
@@ -151,7 +150,7 @@ public class ApiConfigCacheService extends CommonCacheService {
                 syncStatusMap.put(getNexiPostgresServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
-            log.error("SyncService api-config-cache save Nexi Postgres error: {}", ex.getMessage(), ex);
+            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump cache on Nexi PostgreSQL: {}", ex.getMessage(), ex);
             syncStatusMap.put(getNexiPostgresServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }

@@ -76,17 +76,17 @@ public class StandInManagerService extends CommonCacheService {
             if( !standInManagerEnabled) {
                 throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.standin.label);
             }
-            log.debug("SyncService stand-in-manager get stations");
+            log.debug("[NODE-CFG-SYNC] stations");
             Response response = standInManagerClient.getCache(standInManagerSubscriptionKey);
             int httpResponseCode = response.status();
             if (httpResponseCode != HttpStatus.OK.value()) {
-                log.error("SyncService stand-in-manager get stations error - result: httpStatusCode[{}]", httpResponseCode);
+                log.error("SyncService stations error - result: httpStatusCode[{}]", httpResponseCode);
                 throw new AppException(AppError.INTERNAL_SERVER_ERROR);
             }
-            log.info("SyncService stand-in-manager get stations successful");
+            log.info("[NODE-CFG-SYNC] stations successful");
 
             StationsResponse stations = objectMapper.readValue(response.body().asInputStream().readAllBytes(), StationsResponse.class);
-            log.info("SyncService {} stations found", stations.getStations().size());
+            log.info("[NODE-CFG-SYNC] {} stations found", stations.getStations().size());
             List<StandInStations> stationsEntities = stations.getStations().stream().map(StandInStations::new).toList();
 
             savePagoPA(syncStatusMap, stationsEntities);
@@ -94,13 +94,13 @@ public class StandInManagerService extends CommonCacheService {
             saveNexiOracle(syncStatusMap, stationsEntities);
 
             return composeSyncStatusMapResult(syncStatusMap);
-        } catch (FeignException e) {
-            log.error("SyncService stand-in-manager get cache error: {}", e.getMessage(), e);
+        } catch (FeignException fEx) {
+            log.error("[NODE-CFG-SYNC] {} get cache error: {}", TargetRefreshEnum.standin.label, fEx.getMessage(), fEx);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         } catch(AppException appException) {
             throw appException;
-        } catch (Exception e) {
-            log.error("SyncService stand-in-manager get cache error: {}", e.getMessage(), e);
+        } catch (Exception ex) {
+            log.error("[NODE-CFG-SYNC] {} get cache error: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
     }
@@ -114,7 +114,7 @@ public class StandInManagerService extends CommonCacheService {
                 syncStatusMap.put(getPagopaPostgresServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
-            log.error("SyncService stand-in-manager save pagoPA error: {}", ex.getMessage(), ex);
+            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump standin stations on PagoPA PostgreSQL: {}", ex.getMessage(), ex);
             syncStatusMap.put(getPagopaPostgresServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }
@@ -128,7 +128,7 @@ public class StandInManagerService extends CommonCacheService {
                 syncStatusMap.put(getNexiOracleServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
-            log.error("SyncService stand-in-manager save Nexi Oracle error: {}", ex.getMessage(), ex);
+            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump standin stations on Nexi Oracle: {}", ex.getMessage(), ex);
             syncStatusMap.put(getNexiOracleServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }
@@ -142,7 +142,7 @@ public class StandInManagerService extends CommonCacheService {
                 syncStatusMap.put(getNexiPostgresServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
-            log.error("SyncService stand-in-manager save Nexi Postgres error: {}", ex.getMessage(), ex);
+            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump standin stations on Nexi PostgreSQL: {}", ex.getMessage(), ex);
             syncStatusMap.put(getNexiPostgresServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }

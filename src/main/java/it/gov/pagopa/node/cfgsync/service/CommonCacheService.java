@@ -8,7 +8,6 @@ import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.util.Utils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -43,7 +42,7 @@ public class CommonCacheService {
     protected Object getHeaderParameter(String target, Map<String, Collection<String>> headers, String key) {
         List<String> valueList = headers.get(key).stream().toList();
         if(valueList.isEmpty()) {
-            log.error("SyncService {} get cache error - empty parameter '{}'", target, key);
+            log.error("[NODE-CFG-SYNC] {} get cache error - empty parameter '{}'", target, key);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
         return valueList.get(0);
