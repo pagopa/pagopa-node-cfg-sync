@@ -102,19 +102,7 @@ public class ApiConfigCacheService extends CommonCacheService {
             saveNexiPostgres(syncStatusMap, configCache);
             saveNexiOracle(syncStatusMap, configCache);
 
-            Map<String, SyncStatusEnum> syncStatusMapUpdated = new LinkedHashMap<>();
-            if( syncStatusMap.containsValue(SyncStatusEnum.ERROR) ) {
-                syncStatusMap.forEach((k, v) -> {
-                    if (v == SyncStatusEnum.DONE) {
-                        syncStatusMapUpdated.put(k, SyncStatusEnum.ROLLBACK);
-                    } else {
-                        syncStatusMapUpdated.put(k, v);
-                    }
-                });
-                return syncStatusMapUpdated;
-            } else {
-                return syncStatusMap;
-            }
+            return composeSyncStatusMapResult(syncStatusMap);
         } catch (FeignException e) {
             log.error("SyncService api-config-cache get cache error: {}", e.getMessage(), e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);

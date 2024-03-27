@@ -3,6 +3,7 @@ package it.gov.pagopa.node.cfgsync.service;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.exception.SyncDbStatusException;
+import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.util.Utils;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +53,22 @@ public class CommonCacheService {
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
         return valueList.get(0);
+    }
+
+    protected Map<String, SyncStatusEnum> composeSyncStatusMapResult(Map<String, SyncStatusEnum> syncStatusMap) {
+        Map<String, SyncStatusEnum> syncStatusMapUpdated = new LinkedHashMap<>();
+        if( syncStatusMap.containsValue(SyncStatusEnum.ERROR) ) {
+            syncStatusMap.forEach((k, v) -> {
+                if (v == SyncStatusEnum.DONE) {
+                    syncStatusMapUpdated.put(k, SyncStatusEnum.ROLLBACK);
+                } else {
+                    syncStatusMapUpdated.put(k, v);
+                }
+            });
+            return syncStatusMapUpdated;
+        } else {
+            return syncStatusMap;
+        }
     }
 
 }
