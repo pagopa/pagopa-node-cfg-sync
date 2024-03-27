@@ -2,6 +2,7 @@ package it.gov.pagopa.node.cfgsync;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Feign;
+import feign.FeignException;
 import feign.mock.MockClient;
 import feign.mock.MockTarget;
 import it.gov.pagopa.node.cfgsync.client.StandInManagerClient;
@@ -16,6 +17,7 @@ import it.gov.pagopa.node.cfgsync.service.StandInManagerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +37,8 @@ import static it.gov.pagopa.node.cfgsync.ConstantsHelper.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -52,6 +56,9 @@ class StandInSyncTest {
   private MockClient mockClient;
 
   @LocalServerPort private int port;
+
+  @Mock
+  StandInManagerClient standInManagerClient;
 
   ObjectMapper objectMapper = new ObjectMapper();
 
@@ -73,6 +80,30 @@ class StandInSyncTest {
     mockClient = new MockClient().noContent(feign.mock.HttpMethod.GET, STATIONS_PATH);
     StandInManagerClient standInManagerClient =
             Feign.builder().client(mockClient).target(new MockTarget<>(StandInManagerClient.class));
+    standInManagerService.setStandInManagerClient(standInManagerClient);
+
+    ResponseEntity<ProblemJson> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, ProblemJson.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(response.getBody().getStatus()).isEqualTo(500);
+    assertThat(response.getBody().getTitle()).isEqualTo("Internal Server Error");
+  }
+
+  @Test
+  void error500ClientNull() {
+    mockClient = new MockClient().noContent(feign.mock.HttpMethod.GET, STATIONS_PATH);
+
+    standInManagerService.setStandInManagerClient(null);
+
+    ResponseEntity<ProblemJson> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, ProblemJson.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(response.getBody().getStatus()).isEqualTo(500);
+    assertThat(response.getBody().getTitle()).isEqualTo("Internal Server Error");
+  }
+
+  @Test
+  void error500StandInManagerException() {
+    when(standInManagerClient.getCache(anyString())).thenThrow(FeignException.class);
+
     standInManagerService.setStandInManagerClient(standInManagerClient);
 
     ResponseEntity<ProblemJson> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, ProblemJson.class);

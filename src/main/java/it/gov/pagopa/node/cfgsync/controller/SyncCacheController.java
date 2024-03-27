@@ -80,7 +80,7 @@ public class SyncCacheController {
     public ResponseEntity<List<SyncStatusResponse>> standin() {
 
         log.debug("Force stand-in configuration to update");
-        Map<String, SyncStatusEnum> syncStatusEnumMap = standInManagerService.forceStandIn();
+        Map<String, SyncStatusEnum> syncStatusEnumMap = standInManagerService.syncStandIn();
 
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
                 .stream()
@@ -135,7 +135,7 @@ public class SyncCacheController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SyncStatusResponse>> cache() {
         log.debug("Force cache configuration to update");
-        Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.forceCacheUpdate();
+        Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.syncCache();
 
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
                 .stream()

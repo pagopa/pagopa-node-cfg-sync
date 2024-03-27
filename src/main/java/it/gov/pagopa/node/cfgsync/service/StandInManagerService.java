@@ -79,7 +79,7 @@ public class StandInManagerService extends CommonCacheService {
     }
 
     @Transactional(rollbackFor={SyncDbStatusException.class})
-    public Map<String, SyncStatusEnum> forceStandIn() {
+    public Map<String, SyncStatusEnum> syncStandIn() {
         Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
         try {
             if( !enabled ) {
@@ -115,13 +115,13 @@ public class StandInManagerService extends CommonCacheService {
             } else {
                 return syncStatusMap;
             }
-        } catch (FeignException.GatewayTimeout e) {
-            log.error("SyncService stand-in-manager get stations error: Gateway timeout", e);
+        } catch (FeignException e) {
+            log.error("SyncService stand-in-manager get cache error: {}", e.getMessage(), e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         } catch(AppException appException) {
             throw appException;
         } catch (Exception e) {
-            log.error("SyncService stand-in-manager get cache error", e);
+            log.error("SyncService stand-in-manager get cache error: {}", e.getMessage(), e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
     }

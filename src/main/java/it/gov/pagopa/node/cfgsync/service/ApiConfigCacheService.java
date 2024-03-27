@@ -11,11 +11,8 @@ import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepository;
-import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
-import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
-import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -82,7 +79,7 @@ public class ApiConfigCacheService extends CommonCacheService {
     }
 
     @Transactional(rollbackFor={SyncDbStatusException.class})
-    public Map<String, SyncStatusEnum> forceCacheUpdate() {
+    public Map<String, SyncStatusEnum> syncCache() {
         Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
         try {
             if( !enabled ) {
@@ -127,13 +124,13 @@ public class ApiConfigCacheService extends CommonCacheService {
             } else {
                 return syncStatusMap;
             }
-        } catch (FeignException.GatewayTimeout e) {
-            log.error("SyncService api-config-cache get cache error: Gateway timeout", e);
+        } catch (FeignException e) {
+            log.error("SyncService api-config-cache get cache error: {}", e.getMessage(), e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         } catch(AppException appException) {
             throw appException;
         } catch (Exception e) {
-            log.error("SyncService api-config-cache get cache error", e);
+            log.error("SyncService api-config-cache get cache error: {}", e.getMessage(), e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
     }

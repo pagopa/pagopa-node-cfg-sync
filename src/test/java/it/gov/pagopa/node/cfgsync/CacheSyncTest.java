@@ -14,6 +14,7 @@ import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepositor
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -33,6 +34,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -95,12 +97,43 @@ class CacheSyncTest {
   }
 
   @Test
-  void error500EmptyCacheHeader() {
+  void error500ApiConfigCacheException() {
+    when(apiConfigCacheClient.getCache(anyString())).thenThrow(FeignException.class);
+
+    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
+
+    ResponseEntity<ProblemJson> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, ProblemJson.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(response.getBody().getStatus()).isEqualTo(500);
+    assertThat(response.getBody().getTitle()).isEqualTo("Internal Server Error");
+  }
+
+  @Test
+  void error500NullCacheHeader() {
     when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
             .builder()
             .status(200)
             .reason("Mocked")
             .headers(null)
+            .request(mock(Request.class))
+            .body(new byte[0])
+            .build());
+
+    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
+
+    ResponseEntity<ProblemJson> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, ProblemJson.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(response.getBody().getStatus()).isEqualTo(500);
+    assertThat(response.getBody().getTitle()).isEqualTo("Internal Server Error");
+  }
+
+  @Test
+  void error500EmptyKeyCacheHeader() {
+    when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
+            .builder()
+            .status(200)
+            .reason("Mocked")
+            .headers(Map.of(HEADER_CACHE_ID, Collections.emptyList(), HEADER_CACHE_TIMESTAMP, List.of(Instant.now().toString()), HEADER_CACHE_VERSION, List.of("v1.0.0")))
             .request(mock(Request.class))
             .body(new byte[0])
             .build());
@@ -131,7 +164,7 @@ class CacheSyncTest {
             Map.of(
                     HEADER_CACHE_ID, List.of(String.valueOf(System.currentTimeMillis())),
                     HEADER_CACHE_TIMESTAMP, List.of(Instant.now().toString()),
-                    HEADER_CACHE_VERSION, List.of("v1.0.0000000000000000000000000009")
+                    HEADER_CACHE_VERSION, List.of(StringUtils.repeat("*", 50))
             );
     when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
             .builder()

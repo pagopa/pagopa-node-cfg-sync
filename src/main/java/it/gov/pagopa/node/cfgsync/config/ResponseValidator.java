@@ -29,7 +29,7 @@ public class ResponseValidator {
    * @param result    the response to validate
    */
 
-  @AfterReturning(pointcut = "execution(* it.gov.pagopa.node.cfg_sync.controller.*.*(..))", returning = "result")
+  @AfterReturning(pointcut = "execution(* it.gov.pagopa.node.cfgsync.controller.*.*(..))", returning = "result")
   public void validateResponse(JoinPoint joinPoint, Object result) {
     if (result instanceof ResponseEntity) {
       validateResponse((ResponseEntity<?>) result);
