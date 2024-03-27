@@ -2,6 +2,10 @@ package it.gov.pagopa.node.cfgsync.util;
 
 public class Constants {
 
+  private Constants() {
+    throw new IllegalStateException("Constants class");
+  }
+
   public static final String HEADER_REQUEST_ID = "X-Request-Id";
 
   public static final String HEADER_CACHE_ID = "X-CACHE-ID";

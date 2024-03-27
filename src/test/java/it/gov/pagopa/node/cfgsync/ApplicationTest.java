@@ -1,12 +1,16 @@
 package it.gov.pagopa.node.cfgsync;
 
 import it.gov.pagopa.node.cfgsync.util.Constants;
+import it.gov.pagopa.node.cfgsync.util.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicationTest {
@@ -15,6 +19,14 @@ class ApplicationTest {
   void contextLoads() {
     // check only if the context is loaded
     assertTrue(true);
+  }
+
+  @Test
+  void testConstantsConstructorIsPrivate() throws NoSuchMethodException {
+    Constructor<Constants> constructor = Constants.class.getDeclaredConstructor();
+    assertTrue(Modifier.isPrivate(constructor.getModifiers()));
+    constructor.setAccessible(true);
+    assertThrows(InvocationTargetException.class, constructor::newInstance);
   }
 
   @Test
