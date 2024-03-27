@@ -109,13 +109,13 @@ public class StandInManagerService extends CommonCacheService {
         try {
             if(standInManagerWritePagoPa) {
                 pagoPAStandInPostgresRepository.saveAll(stationsEntities);
-                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.DONE);
+                syncStatusMap.put(getPagopaPostgresServiceIdentifier(), SyncStatusEnum.DONE);
             } else {
-                syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.DISABLED);
+                syncStatusMap.put(getPagopaPostgresServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
             log.error("SyncService stand-in-manager save pagoPA error: {}", ex.getMessage(), ex);
-            syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.ERROR);
+            syncStatusMap.put(getPagopaPostgresServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }
 
@@ -123,13 +123,13 @@ public class StandInManagerService extends CommonCacheService {
         try {
             if(standInManagerWriteNexiOracle) {
                 nexiStandInOracleRepository.saveAll(stationsEntities);
-                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.DONE);
+                syncStatusMap.put(getNexiOracleServiceIdentifier(), SyncStatusEnum.DONE);
             } else {
-                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.DISABLED);
+                syncStatusMap.put(getNexiOracleServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
             log.error("SyncService stand-in-manager save Nexi Oracle error: {}", ex.getMessage(), ex);
-            syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.ERROR);
+            syncStatusMap.put(getNexiOracleServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }
 
@@ -137,13 +137,13 @@ public class StandInManagerService extends CommonCacheService {
         try {
             if (standInManagerWriteNexiPostgres) {
                 nexiStandInPostgresRepository.saveAll(stationsEntities);
-                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.DONE);
+                syncStatusMap.put(getNexiPostgresServiceIdentifier(), SyncStatusEnum.DONE);
             } else {
-                syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.DISABLED);
+                syncStatusMap.put(getNexiPostgresServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
             log.error("SyncService stand-in-manager save Nexi Postgres error: {}", ex.getMessage(), ex);
-            syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.ERROR);
+            syncStatusMap.put(getNexiPostgresServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }
 }

@@ -28,21 +28,16 @@ import java.util.Map;
 public class CommonCacheService {
 
     @Value("${app.identifiers.pagopa-postgres}")
-    protected String pagopaPostgresServiceIdentifier;
+    private String pagopaPostgresServiceIdentifier;
 
     @Value("${app.identifiers.nexi-postgres}")
-    protected String nexiPostgresServiceIdentifier;
+    private String nexiPostgresServiceIdentifier;
 
     @Value("${app.identifiers.nexi-oracle}")
-    protected String nexiOracleServiceIdentifier;
-
-    @Value("${app.trimCacheColumn}")
-    private boolean trimCacheColumn;
+    private String nexiOracleServiceIdentifier;
 
     protected ConfigCache composeCache(String cacheId, ZonedDateTime timestamp, String cacheVersion, byte[] cache) throws IOException, SyncDbStatusException {
-        String version = trimCacheColumn ?
-                (String) Utils.trimValueColumn(ConfigCache.class, "version", cacheVersion) : cacheVersion;
-
+        String version = (String) Utils.trimValueColumn(ConfigCache.class, "version", cacheVersion);
         return new ConfigCache(cacheId, timestamp, Utils.zipContent(cache), version);
     }
 

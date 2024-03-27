@@ -5,7 +5,6 @@ cors:
   configuration: '{"origins": ["*"], "methods": ["*"]}'
 
 app:
-  trimCacheColumn: 'true'
   identifiers:
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}
     nexi-postgres: ${DB_NEXI_POSTGRES_SERVICE_IDENTIFIER}

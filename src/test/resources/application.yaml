@@ -33,7 +33,6 @@ management:
       probes:
         enabled: 'true'
 app:
-  trimCacheColumn: 'true'
   identifiers:
     pagopa-postgres: 'PAGOPAPOSTGRES'
     nexi-postgres: 'NEXIPOSTGRES'

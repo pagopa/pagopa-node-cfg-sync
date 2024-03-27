@@ -14,6 +14,7 @@ import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepositor
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
+import it.gov.pagopa.node.cfgsync.service.CommonCacheService;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +58,7 @@ class CacheSyncTest {
   public static final String CLIENT_CACHE_PATH = "/cache";
 
   @Autowired private ApiConfigCacheService cacheManagerService;
+  @Autowired private CommonCacheService commonCacheService;
   @Autowired private TestRestTemplate restTemplate;
   private MockClient mockClient;
 
