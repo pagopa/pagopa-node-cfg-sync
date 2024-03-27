@@ -12,6 +12,11 @@ app:
 
 spring:
   datasource:
+    hikari:
+      connectionTimeout: 15000
+      maxLifetime: 30000
+      keepaliveTime: 30000
+      connection-test-query: select 1
     pagopa:
       postgres:
         url: jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg
@@ -68,7 +73,7 @@ api-config-cache:
   consumer-group: $Default
   consumer:
     ##permette di abilitare/disabilitare il consumer
-    enabled: 'true'
+    enabled: 'false'
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
     pagopa-postgres: 'true'
@@ -80,4 +85,7 @@ logging:
     it:
       gov:
         pagopa: DEBUG
+    com:
+      zaxxer:
+        hikari: INFO
     root: INFO

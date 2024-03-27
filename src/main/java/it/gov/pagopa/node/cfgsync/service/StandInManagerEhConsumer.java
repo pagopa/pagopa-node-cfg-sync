@@ -55,7 +55,7 @@ public class StandInManagerEhConsumer {
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
         Map<String, SyncStatusEnum> syncStatusEnumMap = standInManagerService.syncStandIn();
-        log.info("Processed event {}: {}", TargetRefreshEnum.standin.label, syncStatusEnumMap.toString());
+        log.info("[NODE-CFG-SYNC] Processed event {}: {}", TargetRefreshEnum.standin.label, syncStatusEnumMap.toString());
     }
 
     public void processError(ErrorContext errorContext) {

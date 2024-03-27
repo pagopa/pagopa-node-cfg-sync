@@ -55,7 +55,7 @@ public class ApiConfigCacheEhConsumer {
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
         Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.syncCache();
-        log.info("Processed event {}: {}", TargetRefreshEnum.cache.label, syncStatusEnumMap.toString());
+        log.info("[NODE-CFG-SYNC] Processed event {}: {}", TargetRefreshEnum.cache.label, syncStatusEnumMap.toString());
     }
 
     public void processError(ErrorContext errorContext) {
