@@ -44,6 +44,7 @@ spring:
       connectionTimeout: 15000
       maxLifetime: 30000
       keepaliveTime: 30000
+      connection-test-query: select 1
     pagopa:
       postgres:
         url: ${DB_PAGOPA_POSTGRES_URL}
