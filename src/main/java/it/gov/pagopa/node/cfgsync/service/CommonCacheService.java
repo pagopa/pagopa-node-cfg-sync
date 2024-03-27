@@ -22,7 +22,6 @@ import java.util.Map;
 
 @Slf4j
 @Getter
-@Setter
 @Component
 @RequiredArgsConstructor
 public class CommonCacheService {
