@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.0.1-1-NOD-745-nodo-cfg-sync-coprire-l-80-del-codice-con-gli-unit-test"
+    tag: "0.0.1-2-NOD-745-coverage-80-unit-test"
     pullPolicy: Always
   livenessProbe:
     httpGet:
