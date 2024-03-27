@@ -72,7 +72,7 @@ class CacheSyncTest {
 
   @Test
   void error400() {
-    ReflectionTestUtils.setField(cacheManagerService, "enabled", false);
+    ReflectionTestUtils.setField(cacheManagerService, "apiConfigCacheServiceEnabled", false);
 
     ResponseEntity<ProblemJson> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, ProblemJson.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -80,7 +80,7 @@ class CacheSyncTest {
     assertThat(response.getBody().getStatus()).isEqualTo(400);
     assertThat(response.getBody().getDetail()).isEqualTo("Target service api-config-cache disabled");
 
-    ReflectionTestUtils.setField(cacheManagerService, "enabled", true);
+    ReflectionTestUtils.setField(cacheManagerService, "apiConfigCacheServiceEnabled", true);
   }
 
   @Test
@@ -192,7 +192,7 @@ class CacheSyncTest {
 
   @Test
   void writePagoPAPostgresDisabled() {
-    ReflectionTestUtils.setField(cacheManagerService, "writePagoPa", false);
+    ReflectionTestUtils.setField(cacheManagerService, "apiConfigCacheWritePagoPa", false);
 
     when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
                     .builder()
@@ -217,12 +217,12 @@ class CacheSyncTest {
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
 
-    ReflectionTestUtils.setField(cacheManagerService, "writePagoPa", true);
+    ReflectionTestUtils.setField(cacheManagerService, "apiConfigCacheWritePagoPa", true);
   }
 
   @Test
   void writeNexiOracleDisabled() {
-    ReflectionTestUtils.setField(cacheManagerService, "writeNexiOracle", false);
+    ReflectionTestUtils.setField(cacheManagerService, "apiConfigCacheWriteNexiOracle", false);
 
     when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
             .builder()
@@ -248,12 +248,12 @@ class CacheSyncTest {
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
 
-    ReflectionTestUtils.setField(cacheManagerService, "writeNexiOracle", true);
+    ReflectionTestUtils.setField(cacheManagerService, "apiConfigCacheWriteNexiOracle", true);
   }
 
   @Test
   void writeNexiPostgresDisabled() {
-    ReflectionTestUtils.setField(cacheManagerService, "writeNexiPostgres", false);
+    ReflectionTestUtils.setField(cacheManagerService, "apiConfigCacheWriteNexiPostgres", false);
 
     when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
             .builder()
@@ -279,13 +279,13 @@ class CacheSyncTest {
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
 
-    ReflectionTestUtils.setField(cacheManagerService, "writeNexiPostgres", true);
+    ReflectionTestUtils.setField(cacheManagerService, "apiConfigCacheWriteNexiPostgres", true);
   }
 
   @Test
   void errorWritePagoPAPostgres() {
-    PagoPACachePostgresRepository repository = (PagoPACachePostgresRepository)ReflectionTestUtils.getField(cacheManagerService, "pagopaPostgresRepository");
-    ReflectionTestUtils.setField(cacheManagerService, "pagopaPostgresRepository", null);
+    PagoPACachePostgresRepository repository = (PagoPACachePostgresRepository)ReflectionTestUtils.getField(cacheManagerService, "pagoPACachePostgresRepository");
+    ReflectionTestUtils.setField(cacheManagerService, "pagoPACachePostgresRepository", null);
 
     when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
             .builder()
@@ -309,13 +309,13 @@ class CacheSyncTest {
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
 
-    ReflectionTestUtils.setField(cacheManagerService, "pagopaPostgresRepository", repository);
+    ReflectionTestUtils.setField(cacheManagerService, "pagoPACachePostgresRepository", repository);
   }
 
   @Test
   void errorWriteNexiPostgres() {
-    NexiCachePostgresRepository repository = (NexiCachePostgresRepository)ReflectionTestUtils.getField(cacheManagerService, "nexiPostgresRepository");
-    ReflectionTestUtils.setField(cacheManagerService, "nexiPostgresRepository", null);
+    NexiCachePostgresRepository repository = (NexiCachePostgresRepository)ReflectionTestUtils.getField(cacheManagerService, "nexiCachePostgresRepository");
+    ReflectionTestUtils.setField(cacheManagerService, "nexiCachePostgresRepository", null);
 
     when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
             .builder()
@@ -339,13 +339,13 @@ class CacheSyncTest {
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
 
-    ReflectionTestUtils.setField(cacheManagerService, "nexiPostgresRepository", repository);
+    ReflectionTestUtils.setField(cacheManagerService, "nexiCachePostgresRepository", repository);
   }
 
   @Test
   void errorWriteNexiOracle() {
-    NexiCacheOracleRepository repository = (NexiCacheOracleRepository)ReflectionTestUtils.getField(cacheManagerService, "nexiOracleRepository");
-    ReflectionTestUtils.setField(cacheManagerService, "nexiOracleRepository", null);
+    NexiCacheOracleRepository repository = (NexiCacheOracleRepository)ReflectionTestUtils.getField(cacheManagerService, "nexiCacheOracleRepository");
+    ReflectionTestUtils.setField(cacheManagerService, "nexiCacheOracleRepository", null);
 
     when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
             .builder()
@@ -368,7 +368,7 @@ class CacheSyncTest {
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
-    ReflectionTestUtils.setField(cacheManagerService, "nexiOracleRepository", repository);
+    ReflectionTestUtils.setField(cacheManagerService, "nexiCacheOracleRepository", repository);
   }
 
 }

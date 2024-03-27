@@ -38,40 +38,31 @@ import static it.gov.pagopa.node.cfgsync.util.Constants.*;
 public class ApiConfigCacheService extends CommonCacheService {
 
     @Value("${api-config-cache.service.enabled}")
-    private boolean enabled;
+    private boolean apiConfigCacheServiceEnabled;
 
     @Value("${api-config-cache.service.subscriptionKey}")
-    private String subscriptionKey;
+    private String apiConfigCacheSubscriptionKey;
 
     @Value("${api-config-cache.service.host}")
     private String apiConfigCacheUrl;
 
-    @Value("${app.identifiers.pagopa-postgres}")
-    private String pagopaPostgresServiceIdentifier;
-
-    @Value("${app.identifiers.nexi-postgres}")
-    private String nexiPostgresServiceIdentifier;
-
-    @Value("${app.identifiers.nexi-oracle}")
-    private String nexiOracleServiceIdentifier;
-
     @Value("${api-config-cache.write.pagopa-postgres}")
-    private boolean writePagoPa;
+    private boolean apiConfigCacheWritePagoPa;
 
     @Value("${api-config-cache.write.nexi-oracle}")
-    private boolean writeNexiOracle;
+    private boolean apiConfigCacheWriteNexiOracle;
 
     @Value("${api-config-cache.write.nexi-postgres}")
-    private boolean writeNexiPostgres;
+    private boolean apiConfigCacheWriteNexiPostgres;
 
     private ApiConfigCacheClient apiConfigCacheClient;
 
     @Autowired(required = false)
-    private PagoPACachePostgresRepository pagopaPostgresRepository;
+    private PagoPACachePostgresRepository pagoPACachePostgresRepository;
     @Autowired(required = false)
-    private NexiCachePostgresRepository nexiPostgresRepository;
+    private NexiCachePostgresRepository nexiCachePostgresRepository;
     @Autowired(required = false)
-    private NexiCacheOracleRepository nexiOracleRepository;
+    private NexiCacheOracleRepository nexiCacheOracleRepository;
 
     @PostMapping
     private void setStandInManagerClient() {
@@ -82,11 +73,11 @@ public class ApiConfigCacheService extends CommonCacheService {
     public Map<String, SyncStatusEnum> syncCache() {
         Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
         try {
-            if( !enabled ) {
+            if( !apiConfigCacheServiceEnabled) {
                 throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.cache.label);
             }
             log.debug("SyncService api-config-cache get cache");
-            Response response = apiConfigCacheClient.getCache(subscriptionKey);
+            Response response = apiConfigCacheClient.getCache(apiConfigCacheSubscriptionKey);
             int httpResponseCode = response.status();
             if (httpResponseCode != HttpStatus.OK.value()) {
                 log.error("SyncService api-config-cache get cache error - result: httpStatusCode[{}]", httpResponseCode);
@@ -137,8 +128,8 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     private void savePagoPA(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {
         try {
-            if( writePagoPa ) {
-                pagopaPostgresRepository.save(configCache);
+            if(apiConfigCacheWritePagoPa) {
+                pagoPACachePostgresRepository.save(configCache);
                 syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.DONE);
             } else {
                 syncStatusMap.put(pagopaPostgresServiceIdentifier, SyncStatusEnum.DISABLED);
@@ -151,8 +142,8 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     private void saveNexiOracle(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {
         try {
-            if( writeNexiOracle ) {
-                nexiOracleRepository.save(configCache);
+            if(apiConfigCacheWriteNexiOracle) {
+                nexiCacheOracleRepository.save(configCache);
                 syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.DONE);
             } else {
                 syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.DISABLED);
@@ -165,8 +156,8 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     private void saveNexiPostgres(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {
         try {
-            if ( writeNexiPostgres ) {
-                nexiPostgresRepository.save(configCache);
+            if (apiConfigCacheWriteNexiPostgres) {
+                nexiCachePostgresRepository.save(configCache);
                 syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.DONE);
             } else {
                 syncStatusMap.put(nexiPostgresServiceIdentifier, SyncStatusEnum.DISABLED);

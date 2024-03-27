@@ -64,7 +64,7 @@ class StandInSyncTest {
 
   @Test
   void error400() {
-    ReflectionTestUtils.setField(standInManagerService, "enabled", false);
+    ReflectionTestUtils.setField(standInManagerService, "standInManagerEnabled", false);
 
     ResponseEntity<ProblemJson> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, ProblemJson.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -72,7 +72,7 @@ class StandInSyncTest {
     assertThat(response.getBody().getTitle()).isEqualTo("Target service disabled");
     assertThat(response.getBody().getDetail()).isEqualTo("Target service stand-in-manager disabled");
 
-    ReflectionTestUtils.setField(standInManagerService, "enabled", true);
+    ReflectionTestUtils.setField(standInManagerService, "standInManagerEnabled", true);
   }
 
   @Test
@@ -114,7 +114,7 @@ class StandInSyncTest {
 
   @Test
   void writePagoPAPostgresDisabled() throws Exception {
-    ReflectionTestUtils.setField(standInManagerService, "writePagoPa", false);
+    ReflectionTestUtils.setField(standInManagerService, "standInManagerWritePagoPa", false);
 
     StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
@@ -134,12 +134,12 @@ class StandInSyncTest {
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
-    ReflectionTestUtils.setField(standInManagerService, "writePagoPa", true);
+    ReflectionTestUtils.setField(standInManagerService, "standInManagerWritePagoPa", true);
   }
 
   @Test
   void writeNexiOracleDisabled() throws Exception {
-    ReflectionTestUtils.setField(standInManagerService, "writeNexiOracle", false);
+    ReflectionTestUtils.setField(standInManagerService, "standInManagerWriteNexiOracle", false);
 
     StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
@@ -162,12 +162,12 @@ class StandInSyncTest {
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DISABLED);
 
-    ReflectionTestUtils.setField(standInManagerService, "writeNexiOracle", true);
+    ReflectionTestUtils.setField(standInManagerService, "standInManagerWriteNexiOracle", true);
   }
 
   @Test
   void writeNexiPostgresDisabled() throws Exception {
-    ReflectionTestUtils.setField(standInManagerService, "writeNexiPostgres", false);
+    ReflectionTestUtils.setField(standInManagerService, "standInManagerWriteNexiPostgres", false);
 
     StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
@@ -190,13 +190,13 @@ class StandInSyncTest {
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
 
-    ReflectionTestUtils.setField(standInManagerService, "writeNexiPostgres", true);
+    ReflectionTestUtils.setField(standInManagerService, "standInManagerWriteNexiPostgres", true);
   }
 
   @Test
   void errorWritePagoPAPostgres() throws Exception {
-    PagoPAStandInPostgresRepository repository = (PagoPAStandInPostgresRepository)ReflectionTestUtils.getField(standInManagerService, "pagopaPostgresRepository");
-    ReflectionTestUtils.setField(standInManagerService, "pagopaPostgresRepository", null);
+    PagoPAStandInPostgresRepository repository = (PagoPAStandInPostgresRepository)ReflectionTestUtils.getField(standInManagerService, "pagoPAStandInPostgresRepository");
+    ReflectionTestUtils.setField(standInManagerService, "pagoPAStandInPostgresRepository", null);
 
     StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
@@ -217,13 +217,13 @@ class StandInSyncTest {
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
 
-    ReflectionTestUtils.setField(standInManagerService, "pagopaPostgresRepository", repository);
+    ReflectionTestUtils.setField(standInManagerService, "pagoPAStandInPostgresRepository", repository);
   }
 
   @Test
   void errorWriteNexiPostgres() throws Exception {
-    NexiStandInPostgresRepository repository = (NexiStandInPostgresRepository)ReflectionTestUtils.getField(standInManagerService, "nexiPostgresRepository");
-    ReflectionTestUtils.setField(standInManagerService, "nexiPostgresRepository", null);
+    NexiStandInPostgresRepository repository = (NexiStandInPostgresRepository)ReflectionTestUtils.getField(standInManagerService, "nexiStandInPostgresRepository");
+    ReflectionTestUtils.setField(standInManagerService, "nexiStandInPostgresRepository", null);
 
     StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
@@ -244,13 +244,13 @@ class StandInSyncTest {
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ROLLBACK);
 
-    ReflectionTestUtils.setField(standInManagerService, "nexiPostgresRepository", repository);
+    ReflectionTestUtils.setField(standInManagerService, "nexiStandInPostgresRepository", repository);
   }
 
   @Test
   void errorWriteNexiOracle() throws Exception {
-    NexiStandInOracleRepository repository = (NexiStandInOracleRepository)ReflectionTestUtils.getField(standInManagerService, "nexiOracleRepository");
-    ReflectionTestUtils.setField(standInManagerService, "nexiOracleRepository", null);
+    NexiStandInOracleRepository repository = (NexiStandInOracleRepository)ReflectionTestUtils.getField(standInManagerService, "nexiStandInOracleRepository");
+    ReflectionTestUtils.setField(standInManagerService, "nexiStandInOracleRepository", null);
 
     StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
 
@@ -271,7 +271,7 @@ class StandInSyncTest {
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.ERROR);
 
-    ReflectionTestUtils.setField(standInManagerService, "nexiOracleRepository", repository);
+    ReflectionTestUtils.setField(standInManagerService, "nexiStandInOracleRepository", repository);
   }
 
 }

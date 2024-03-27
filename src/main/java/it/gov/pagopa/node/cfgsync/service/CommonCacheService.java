@@ -5,9 +5,12 @@ import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.exception.SyncDbStatusException;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.util.Utils;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -16,8 +19,20 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@Getter
+@Setter
+@Component
 @RequiredArgsConstructor
 public class CommonCacheService {
+
+    @Value("${app.identifiers.pagopa-postgres}")
+    protected String pagopaPostgresServiceIdentifier;
+
+    @Value("${app.identifiers.nexi-postgres}")
+    protected String nexiPostgresServiceIdentifier;
+
+    @Value("${app.identifiers.nexi-oracle}")
+    protected String nexiOracleServiceIdentifier;
 
     @Value("${app.trimCacheColumn}")
     private boolean trimCacheColumn;
