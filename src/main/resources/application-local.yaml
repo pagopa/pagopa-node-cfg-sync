@@ -13,10 +13,6 @@ app:
 spring:
   datasource:
     hikari:
-      connectionTimeout: 15000
-      maxLifetime: 30000
-      keepaliveTime: 30000
-      connection-test-query: select 1
     pagopa:
       postgres:
         url: jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg
@@ -24,6 +20,9 @@ spring:
         password: ${DB_PAGOPA_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
         enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
+        connectionTimeout: 15000
+        maxLifetime: 20000
+        connection-test-query: select 1
     nexi:
       oracle:
         url: jdbc:oracle:thin:@//localhost:1521/cfg
@@ -31,12 +30,18 @@ spring:
         password: ${DB_NEXI_ORACLE_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
         enabled: ${DB_NEXI_ORACLE_ENABLED:'false'}
+        connectionTimeout: 15000
+        maxLifetime: 20000
+        connection-test-query: select 1 from dual
       postgres:
         url: jdbc:postgresql://localhost:5432/nodo?currentSchema=public
         username: cfg
         password: ${DB_NEXI_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
         enabled: ${DB_NEXI_POSTGRES_ENABLED:'false'}
+        connectionTimeout: 15000
+        maxLifetime: 20000
+        connection-test-query: select 1
   jpa:
     show-sql: 'false'
 

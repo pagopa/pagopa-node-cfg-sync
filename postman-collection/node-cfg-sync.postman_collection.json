@@ -1,0 +1,71 @@
+{
+	"info": {
+		"_postman_id": "47e7e8ae-e0ae-4585-b8b7-73dd7cef05ec",
+		"name": "node-cfg-sync",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4579636",
+		"_collection_link": "https://speeding-station-482612.postman.co/workspace/Nodo-doc~ec880f84-0a42-4ca9-bbd1-454d00bbe20c/collection/4579636-47e7e8ae-e0ae-4585-b8b7-73dd7cef05ec?action=share&source=collection_link&creator=4579636"
+	},
+	"item": [
+		{
+			"name": "force cache",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Ocp-Apim-Subscription-Key",
+						"value": "27edf137361f4a3392ddd055df0d2595",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL_NODE_CFG_SYNC}}/v1/ndp/cache",
+					"host": [
+						"{{URL_NODE_CFG_SYNC}}"
+					],
+					"path": [
+						"v1",
+						"ndp",
+						"cache"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "force stand-in",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Ocp-Apim-Subscription-Key",
+						"value": "27edf137361f4a3392ddd055df0d2595",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL_NODE_CFG_SYNC}}/v1/ndp/stand-in",
+					"host": [
+						"{{URL_NODE_CFG_SYNC}}"
+					],
+					"path": [
+						"v1",
+						"ndp",
+						"stand-in"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
