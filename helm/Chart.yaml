@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-node-cfg-sync
 description: Microservice that handles calculation for pagoPA Advanced Fees Management
 type: application
-version: 0.45.0
-appVersion: 0.0.1-10-fix-problems
+version: 0.46.0
+appVersion: 0.0.1-11-fix-problems
 dependencies:
   - name: microservice-chart
     version: 2.8.0
