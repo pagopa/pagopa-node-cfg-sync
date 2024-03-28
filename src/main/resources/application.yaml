@@ -41,9 +41,9 @@ app:
 spring:
   datasource:
     hikari:
-      connectionTimeout: 15000
-      maxLifetime: 30000
-      keepaliveTime: 30000
+      connectionTimeout: ${DB_CONNECTION_TIMEOUT}
+      maxLifetime: ${DB_MAX_LIFETIME}
+      keepaliveTime: ${DB_KEEPALIVE_TIME}
     pagopa:
       postgres:
         url: ${DB_PAGOPA_POSTGRES_URL}
