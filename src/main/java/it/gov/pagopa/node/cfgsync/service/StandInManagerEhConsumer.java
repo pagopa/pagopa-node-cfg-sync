@@ -55,11 +55,11 @@ public class StandInManagerEhConsumer {
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
         Map<String, SyncStatusEnum> syncStatusEnumMap = standInManagerService.syncStandIn();
-        log.info("[NODE-CFG-SYNC] Processed event {}: {}", TargetRefreshEnum.standin.label, syncStatusEnumMap.toString());
+        log.info("[NODE-CFG-SYNC][ALARM] Processed event {}: {}", TargetRefreshEnum.standin.label, syncStatusEnumMap.toString());
     }
 
     public void processError(ErrorContext errorContext) {
-        log.error("[NODE-CFG-SYNC] Error occurred for {} from partition {}: {}",
+        log.error("[NODE-CFG-SYNC][ALERT] Error occurred for {} from partition {}: {}",
                 TargetRefreshEnum.standin.label,
                 errorContext.getPartitionContext().getPartitionId(),
                 errorContext.getThrowable().getMessage(),
