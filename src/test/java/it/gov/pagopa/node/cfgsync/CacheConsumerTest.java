@@ -7,8 +7,8 @@ import com.azure.messaging.eventhubs.models.ErrorContext;
 import com.azure.messaging.eventhubs.models.EventContext;
 import com.azure.messaging.eventhubs.models.LastEnqueuedEventProperties;
 import com.azure.messaging.eventhubs.models.PartitionContext;
-import it.gov.pagopa.node.cfgsync.service.StandInManagerEhConsumer;
-import it.gov.pagopa.node.cfgsync.service.StandInManagerService;
+import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheEhConsumer;
+import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,10 +20,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class StandInConsumerTest {
+class CacheConsumerTest {
 
     @Mock
-    StandInManagerService service;
+    ApiConfigCacheService service;
 
     @Test
     void processEvent() {
@@ -33,9 +33,9 @@ class StandInConsumerTest {
         EventData eventData = new EventData();
         EventContext eventContext = new EventContext(partitionContext, eventData, checkpointStore, lastEnqueuedEventProperties);
 
-        StandInManagerEhConsumer consumer = new StandInManagerEhConsumer(service);
+        ApiConfigCacheEhConsumer consumer = new ApiConfigCacheEhConsumer(service);
         consumer.processEvent(eventContext);
-        verify(service, times(1)).syncStandIn();
+        verify(service, times(1)).syncCache();
     }
 
     @Test
@@ -43,9 +43,9 @@ class StandInConsumerTest {
         PartitionContext partitionContext = new PartitionContext("", "", "", "1");
         ErrorContext errorContext = new ErrorContext(partitionContext, new Exception(""));
 
-        StandInManagerEhConsumer consumer = new StandInManagerEhConsumer(service);
+        ApiConfigCacheEhConsumer consumer = new ApiConfigCacheEhConsumer(service);
         consumer.processError(errorContext);
-        verify(service, times(0)).syncStandIn();
+        verify(service, times(0)).syncCache();
     }
 
 }

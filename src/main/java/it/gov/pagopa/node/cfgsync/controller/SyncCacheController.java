@@ -10,10 +10,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.gov.pagopa.node.cfgsync.model.ProblemJson;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusResponse;
+import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
 import it.gov.pagopa.node.cfgsync.service.StandInManagerService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,13 +30,11 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/ndp")
 @Validated
+@AllArgsConstructor
 public class SyncCacheController {
 
-    @Autowired
     private ApiConfigCacheService apiConfigCacheService;
-    @Autowired
     private StandInManagerService standInManagerService;
-
 
     @Operation(
             summary = "Force stand-in configuration to update",
@@ -81,8 +80,8 @@ public class SyncCacheController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SyncStatusResponse>> standin() {
 
-        log.debug("Force stand-in configuration to update");
-        Map<String, SyncStatusEnum> syncStatusEnumMap = standInManagerService.forceStandIn();
+        log.debug("[NODE-CFG-SYNC] Force {}, configuration to update", TargetRefreshEnum.standin.label);
+        Map<String, SyncStatusEnum> syncStatusEnumMap = standInManagerService.syncStandIn();
 
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
                 .stream()
@@ -136,8 +135,8 @@ public class SyncCacheController {
             value = "/cache",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SyncStatusResponse>> cache() {
-        log.debug("Force cache configuration to update");
-        Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.forceCacheUpdate();
+        log.debug("[NODE-CFG-SYNC] Force {} configuration to update", TargetRefreshEnum.cache.label);
+        Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.syncCache();
 
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
                 .stream()

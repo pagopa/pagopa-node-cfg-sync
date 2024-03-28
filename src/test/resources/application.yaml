@@ -33,37 +33,33 @@ management:
       probes:
         enabled: 'true'
 app:
-  trimCacheColumn: 'true'
   identifiers:
-    pagopa-postgres: 'NDP001'
-    nexi-postgres: 'NDP004DEV'
-    nexi-oracle: 'NDP003'
+    pagopa-postgres: 'PAGOPAPOSTGRES'
+    nexi-postgres: 'NEXIPOSTGRES'
+    nexi-oracle: 'NEXIORACLE'
 
 spring:
   datasource:
-    url: jdbc:h2:mem:foo;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password:
     driver-class-name: org.h2.Driver
     pagopa:
       postgres:
         url: jdbc:h2:mem:pagopa;DB_CLOSE_ON_EXIT=FALSE
         username: sa
         password:
-        ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
+        #permette di abilitare/disabilitare il datasource al db Postgres PagoPA
         enabled: 'true'
     nexi:
       oracle:
         url: jdbc:h2:mem:nexi_oracle;DB_CLOSE_ON_EXIT=FALSE
         username: sa
         password:
-        ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
+        #permette di abilitare/disabilitare il datasource al db Oracle Nexi
         enabled: 'true'
       postgres:
         url: jdbc:h2:mem:nexi_postgres;DB_CLOSE_ON_EXIT=FALSE
         username: sa
         password:
-        ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
+        #permette di abilitare/disabilitare il datasource al db Postgres Nexi
         enabled: 'true'
   jpa:
     database: default
@@ -95,10 +91,10 @@ stand-in-manager:
   sa-name: standinevents
   consumer-group: $Default
   consumer:
-    ##permette di abilitare/disabilitare il consumer
+    #permette di abilitare/disabilitare il consumer
     enabled: 'false'
   write:
-    ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
+    #permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
     pagopa-postgres: 'true'
     nexi-postgres: 'true'
     nexi-oracle: 'true'
@@ -109,16 +105,16 @@ api-config-cache:
   service:
     host: http://localhost:1080
     subscriptionKey: ''
-    ##permette di abilitare/disabilitare la chiamata al servizio tramite API
+    #permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
   sa-name: cacheevents
   consumer-group: $Default
   consumer:
-    ##permette di abilitare/disabilitare il consumer
+    #permette di abilitare/disabilitare il consumer
     enabled: 'false'
   write:
-    ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
+    #permettono di abilitare/disabilitare la scrittura di cache sui vari database
     pagopa-postgres: 'true'
     nexi-postgres: 'true'
     nexi-oracle: 'true'

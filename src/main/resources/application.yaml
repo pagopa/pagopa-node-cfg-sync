@@ -33,7 +33,6 @@ management:
       probes:
         enabled: 'true'
 app:
-  trimCacheColumn: 'true'
   identifiers:
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}
     nexi-postgres: ${DB_NEXI_POSTGRES_SERVICE_IDENTIFIER}
@@ -41,6 +40,10 @@ app:
 
 spring:
   datasource:
+    hikari:
+      connectionTimeout: 15000
+      maxLifetime: 30000
+      keepaliveTime: 30000
     pagopa:
       postgres:
         url: ${DB_PAGOPA_POSTGRES_URL}
@@ -48,6 +51,7 @@ spring:
         password: ${DB_PAGOPA_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
         enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
+        connection-test-query: select 1
     nexi:
       oracle:
         url: ${DB_NEXI_ORACLE_URL}
@@ -55,12 +59,14 @@ spring:
         password: ${DB_NEXI_ORACLE_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
         enabled: ${DB_NEXI_ORACLE_ENABLED:'false'}
+        connection-test-query: select 1 from dual
       postgres:
         url: ${DB_NEXI_POSTGRES_URL}
         username: ${DB_NEXI_POSTGRES_USER}
         password: ${DB_NEXI_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
         enabled: ${DB_NEXI_POSTGRES_ENABLED:'false'}
+        connection-test-query: select 1
   jpa:
     show-sql: 'false'
 
@@ -81,7 +87,7 @@ stand-in-manager:
   write:
     ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
     pagopa-postgres: 'true'
-    nexi-postgres: 'true'
+    nexi-postgres: 'false'
     nexi-oracle: 'true'
 
 api-config-cache:
@@ -101,7 +107,7 @@ api-config-cache:
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
     pagopa-postgres: 'true'
-    nexi-postgres: 'true'
+    nexi-postgres: 'false'
     nexi-oracle: 'true'
 
 logging:

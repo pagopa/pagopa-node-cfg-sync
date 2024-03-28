@@ -9,7 +9,6 @@ import java.util.List;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StationsResponse {
   private List<String> stations;

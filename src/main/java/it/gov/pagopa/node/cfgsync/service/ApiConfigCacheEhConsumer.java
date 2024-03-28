@@ -7,6 +7,7 @@ import com.azure.messaging.eventhubs.models.ErrorContext;
 import com.azure.messaging.eventhubs.models.EventContext;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
+import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -48,15 +50,16 @@ public class ApiConfigCacheEhConsumer {
     }
 
     public void processEvent(EventContext eventContext) {
-        log.info("Processing event {} from partition {} with sequence number {} with body: {}",
+        log.info("[NODE-CFG-SYNC] Processing event {} from partition {} with sequence number {} with body: {}",
                 TargetRefreshEnum.cache.label,
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
-        apiConfigCacheService.forceCacheUpdate();
+        Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.syncCache();
+        log.info("[NODE-CFG-SYNC][ALARM] Processed event {}: {}", TargetRefreshEnum.cache.label, syncStatusEnumMap.toString());
     }
 
     public void processError(ErrorContext errorContext) {
-        log.error("Error occurred for {} from partition {}: {}",
+        log.error("[NODE-CFG-SYNC][ALERT] Error occurred for {} from partition {}: {}",
                 TargetRefreshEnum.cache.label,
                 errorContext.getPartitionContext().getPartitionId(),
                 errorContext.getThrowable().getMessage(),
