@@ -4,7 +4,7 @@
     "title": "cfg-sync",
     "description": "Microservice to update configuration schema of Nodo dei Pagamenti",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.0.1-4-NOD-745-coverage-80-unit-test"
+    "version": "0.0.1-5-NOD-745-coverage-80-unit-test"
   },
   "servers": [
     {
