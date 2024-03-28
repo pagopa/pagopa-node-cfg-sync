@@ -44,7 +44,6 @@ spring:
       connectionTimeout: 15000
       maxLifetime: 30000
       keepaliveTime: 30000
-      connection-test-query: select 1
     pagopa:
       postgres:
         url: ${DB_PAGOPA_POSTGRES_URL}
@@ -52,6 +51,7 @@ spring:
         password: ${DB_PAGOPA_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
         enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
+        connection-test-query: select 1
     nexi:
       oracle:
         url: ${DB_NEXI_ORACLE_URL}
@@ -59,12 +59,14 @@ spring:
         password: ${DB_NEXI_ORACLE_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
         enabled: ${DB_NEXI_ORACLE_ENABLED:'false'}
+        connection-test-query: select 1 from dual
       postgres:
         url: ${DB_NEXI_POSTGRES_URL}
         username: ${DB_NEXI_POSTGRES_USER}
         password: ${DB_NEXI_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
         enabled: ${DB_NEXI_POSTGRES_ENABLED:'false'}
+        connection-test-query: select 1
   jpa:
     show-sql: 'false'
 
