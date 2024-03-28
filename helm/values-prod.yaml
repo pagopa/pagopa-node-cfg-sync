@@ -65,6 +65,7 @@ microservice-chart:
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync' # required to show cloud role name in application insights
     ENV: 'azure-prod'
     APP_LOGGING_LEVEL: 'INFO'
+    HIKARI_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     DB_CONNECTION_TIMEOUT: 15000

@@ -120,4 +120,7 @@ logging:
     it:
       gov:
         pagopa: ${APP_LOGGING_LEVEL:INFO}
+    com:
+      zaxxer:
+        hikari: ${HIKARI_LOGGING_LEVEL:INFO}
     root: ${DEFAULT_LOGGING_LEVEL:INFO}
