@@ -50,7 +50,6 @@ spring:
         connection-test-query: select 1
         connectionTimeout: ${DB_PAGOPA_POSTGRES_CONNECTION_TIMEOUT}
         maxLifetime: ${DB_PAGOPA_POSTGRES_MAX_LIFETIME}
-        keepaliveTime: ${DB_PAGOPA_POSTGRES_KEEPALIVE_TIME}
     nexi:
       oracle:
         url: ${DB_NEXI_ORACLE_URL}
@@ -61,7 +60,6 @@ spring:
         connection-test-query: select 1 from dual
         connectionTimeout: ${DB_NEXI_ORACLE_CONNECTION_TIMEOUT}
         maxLifetime: ${DB_NEXI_ORACLE_MAX_LIFETIME}
-        keepaliveTime: ${DB_NEXI_ORACLE_KEEPALIVE_TIME}
       postgres:
         url: ${DB_NEXI_POSTGRES_URL}
         username: ${DB_NEXI_POSTGRES_USER}
@@ -71,7 +69,6 @@ spring:
         connection-test-query: select 1
         connectionTimeout: ${DB_NEXI_POSTGRES_CONNECTION_TIMEOUT}
         maxLifetime: ${DB_NEXI_POSTGRES_MAX_LIFETIME}
-        keepaliveTime: ${DB_NEXI_POSTGRES_KEEPALIVE_TIME}
   jpa:
     show-sql: 'false'
 
