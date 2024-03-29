@@ -15,7 +15,7 @@ RUN java -Djarmode=layertools -jar application.jar extract
 
 FROM ghcr.io/pagopa/docker-base-springboot-openjdk17:v1.1.0@sha256:6fa320d452fa22066441f1ef292d15eb06f944bc8bca293e1a91ea460d30a613
 WORKDIR /app
-ADD --chown=spring:spring https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.25.1/opentelemetry-javaagent.jar .
+#ADD --chown=spring:spring https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.25.1/opentelemetry-javaagent.jar .
 
 COPY --chown=spring:spring  --from=builder /app/dependencies/ ./
 COPY --chown=spring:spring  --from=builder /app/snapshot-dependencies/ ./
@@ -25,4 +25,5 @@ COPY --chown=spring:spring  --from=builder /app/application/ ./
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-javaagent:opentelemetry-javaagent.jar","--enable-preview","org.springframework.boot.loader.JarLauncher"]
+#ENTRYPOINT ["java","-javaagent:opentelemetry-javaagent.jar","--enable-preview","org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["java", "--enable-preview","org.springframework.boot.loader.JarLauncher"]
