@@ -12,7 +12,7 @@ class StandInPostConstructorTest {
 
     @Test
     void postConstruct() {
-        final StandInManagerService postConstructChild = Mockito.mock(StandInManagerService.class);
+        StandInManagerService postConstructChild = Mockito.mock(StandInManagerService.class);
         InOrder inOrder = Mockito.inOrder(postConstructChild);
         inOrder.verify(postConstructChild, Mockito.times(1));
     }
