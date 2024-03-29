@@ -100,7 +100,7 @@ public class ApiConfigCacheService extends CommonCacheService {
             saveNexiPostgres(syncStatusMap, configCache);
             saveNexiOracle(syncStatusMap, configCache);
 
-            return composeSyncStatusMapResult(syncStatusMap);
+            return composeSyncStatusMapResult(TargetRefreshEnum.cache.label, syncStatusMap);
         } catch (FeignException fEx) {
             log.error("[{}] error: {}", TargetRefreshEnum.cache.label, fEx.getMessage(), fEx);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
