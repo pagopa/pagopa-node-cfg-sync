@@ -19,7 +19,7 @@
 					},
 					{
 						"key": "Ocp-Apim-Subscription-Key",
-						"value": "27edf137361f4a3392ddd055df0d2595",
+						"value": "{{SUBSCRIPTION_KEY}}",
 						"type": "text"
 					}
 				],
@@ -49,7 +49,7 @@
 					},
 					{
 						"key": "Ocp-Apim-Subscription-Key",
-						"value": "27edf137361f4a3392ddd055df0d2595",
+						"value": "{{SUBSCRIPTION_KEY}}",
 						"type": "text"
 					}
 				],
