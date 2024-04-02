@@ -50,16 +50,15 @@ public class ApiConfigCacheEhConsumer {
     }
 
     public void processEvent(EventContext eventContext) {
-        log.info("[NODE-CFG-SYNC] Processing event {} from partition {} with sequence number {} with body: {}",
+        log.info("[{}] Processing event from partition {} with sequence number {} with body: {}",
                 TargetRefreshEnum.cache.label,
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
-        Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.syncCache();
-        log.info("[NODE-CFG-SYNC][ALARM] Processed event {}: {}", TargetRefreshEnum.cache.label, syncStatusEnumMap.toString());
+        apiConfigCacheService.syncCache();
     }
 
     public void processError(ErrorContext errorContext) {
-        log.error("[NODE-CFG-SYNC][ALERT] Error occurred for {} from partition {}: {}",
+        log.error("[{}][ALERT] Error occurred from partition {}: {}",
                 TargetRefreshEnum.cache.label,
                 errorContext.getPartitionContext().getPartitionId(),
                 errorContext.getThrowable().getMessage(),

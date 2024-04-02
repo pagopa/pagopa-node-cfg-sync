@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,31 +78,29 @@ public class StandInManagerService extends CommonCacheService {
             if( !standInManagerEnabled) {
                 throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.standin.label);
             }
-            log.debug("[NODE-CFG-SYNC] stations");
             Response response = standInManagerClient.getCache(standInManagerSubscriptionKey);
             int httpResponseCode = response.status();
             if (httpResponseCode != HttpStatus.OK.value()) {
-                log.error("[NODE-CFG-SYNC] stations error - result: httpStatusCode[{}]", httpResponseCode);
+                log.error("[{}] error - result: httpStatusCode[{}]", TargetRefreshEnum.standin.label, httpResponseCode);
                 throw new AppException(AppError.INTERNAL_SERVER_ERROR);
             }
-            log.info("[NODE-CFG-SYNC] stations successful");
 
             StationsResponse stations = objectMapper.readValue(response.body().asInputStream().readAllBytes(), StationsResponse.class);
-            log.info("[NODE-CFG-SYNC] {} stations found", stations.getStations().size());
+            log.info("[{}] response successful. {} stations found", TargetRefreshEnum.standin.label, stations.getStations().size());
             List<StandInStations> stationsEntities = stations.getStations().stream().map(StandInStations::new).toList();
 
             savePagoPA(syncStatusMap, stationsEntities);
             saveNexiPostgres(syncStatusMap, stationsEntities);
             saveNexiOracle(syncStatusMap, stationsEntities);
 
-            return composeSyncStatusMapResult(syncStatusMap);
+            return composeSyncStatusMapResult(TargetRefreshEnum.standin.label, syncStatusMap);
         } catch (FeignException fEx) {
-            log.error("[NODE-CFG-SYNC] {} get cache error: {}", TargetRefreshEnum.standin.label, fEx.getMessage(), fEx);
+            log.error("[{}] error: {}", TargetRefreshEnum.standin.label, fEx.getMessage(), fEx);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         } catch(AppException appException) {
             throw appException;
         } catch (Exception ex) {
-            log.error("[NODE-CFG-SYNC] {} get cache error: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
+            log.error("[{}] error: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
     }
@@ -114,7 +114,7 @@ public class StandInManagerService extends CommonCacheService {
                 syncStatusMap.put(getPagopaPostgresServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
-            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump standin stations on PagoPA PostgreSQL: {}", ex.getMessage(), ex);
+            log.error("[{}][ALERT] Problem to dump cache on PagoPA PostgreSQL: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
             syncStatusMap.put(getPagopaPostgresServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }
@@ -128,7 +128,7 @@ public class StandInManagerService extends CommonCacheService {
                 syncStatusMap.put(getNexiOracleServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
-            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump standin stations on Nexi Oracle: {}", ex.getMessage(), ex);
+            log.error("[{}][ALERT] Problem to dump cache on Nexi Oracle: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
             syncStatusMap.put(getNexiOracleServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }
@@ -142,7 +142,7 @@ public class StandInManagerService extends CommonCacheService {
                 syncStatusMap.put(getNexiPostgresServiceIdentifier(), SyncStatusEnum.DISABLED);
             }
         } catch(Exception ex) {
-            log.error("[NODE-CFG-SYNC][ALERT] Problem to dump standin stations on Nexi PostgreSQL: {}", ex.getMessage(), ex);
+            log.error("[{}][ALERT] Problem to dump cache on Nexi PostgreSQL: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
             syncStatusMap.put(getNexiPostgresServiceIdentifier(), SyncStatusEnum.ERROR);
         }
     }

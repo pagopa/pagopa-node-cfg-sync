@@ -4,6 +4,7 @@ import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.exception.SyncDbStatusException;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
+import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.util.Utils;
 import lombok.Getter;
@@ -48,7 +49,7 @@ public class CommonCacheService {
         return valueList.get(0);
     }
 
-    protected Map<String, SyncStatusEnum> composeSyncStatusMapResult(Map<String, SyncStatusEnum> syncStatusMap) {
+    protected Map<String, SyncStatusEnum> composeSyncStatusMapResult(String event, Map<String, SyncStatusEnum> syncStatusMap) {
         Map<String, SyncStatusEnum> syncStatusMapUpdated = new LinkedHashMap<>();
         if( syncStatusMap.containsValue(SyncStatusEnum.ERROR) ) {
             syncStatusMap.forEach((k, v) -> {
@@ -58,8 +59,10 @@ public class CommonCacheService {
                     syncStatusMapUpdated.put(k, v);
                 }
             });
+            log.info("[{}] Processed event: {}", event, syncStatusMapUpdated);
             return syncStatusMapUpdated;
         } else {
+            log.info("[{}][ALERT-OK] Processed event: {}", event, syncStatusMap);
             return syncStatusMap;
         }
     }

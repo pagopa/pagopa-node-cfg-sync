@@ -40,10 +40,6 @@ app:
 
 spring:
   datasource:
-    hikari:
-      connectionTimeout: 15000
-      maxLifetime: 30000
-      keepaliveTime: 30000
     pagopa:
       postgres:
         url: ${DB_PAGOPA_POSTGRES_URL}
@@ -52,6 +48,8 @@ spring:
         ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
         enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
         connection-test-query: select 1
+        connectionTimeout: ${DB_PAGOPA_POSTGRES_CONNECTION_TIMEOUT}
+        maxLifetime: ${DB_PAGOPA_POSTGRES_MAX_LIFETIME}
     nexi:
       oracle:
         url: ${DB_NEXI_ORACLE_URL}
@@ -60,6 +58,8 @@ spring:
         ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
         enabled: ${DB_NEXI_ORACLE_ENABLED:'false'}
         connection-test-query: select 1 from dual
+        connectionTimeout: ${DB_NEXI_ORACLE_CONNECTION_TIMEOUT}
+        maxLifetime: ${DB_NEXI_ORACLE_MAX_LIFETIME}
       postgres:
         url: ${DB_NEXI_POSTGRES_URL}
         username: ${DB_NEXI_POSTGRES_USER}
@@ -67,6 +67,8 @@ spring:
         ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
         enabled: ${DB_NEXI_POSTGRES_ENABLED:'false'}
         connection-test-query: select 1
+        connectionTimeout: ${DB_NEXI_POSTGRES_CONNECTION_TIMEOUT}
+        maxLifetime: ${DB_NEXI_POSTGRES_MAX_LIFETIME}
   jpa:
     show-sql: 'false'
 
@@ -115,4 +117,7 @@ logging:
     it:
       gov:
         pagopa: ${APP_LOGGING_LEVEL:INFO}
+    com:
+      zaxxer:
+        hikari: ${HIKARI_LOGGING_LEVEL:INFO}
     root: ${DEFAULT_LOGGING_LEVEL:INFO}
