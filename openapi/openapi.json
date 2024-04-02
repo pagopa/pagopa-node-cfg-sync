@@ -4,7 +4,7 @@
     "title": "cfg-sync",
     "description": "Microservice to update configuration schema of Nodo dei Pagamenti",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.0.2-3-fix-problems"
+    "version": "0.0.2-4-fix-problems"
   },
   "servers": [
     {
