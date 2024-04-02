@@ -97,7 +97,7 @@ microservice-chart:
     OTEL_TRACES_SAMPLER: "always_on"
   envSecret:
     # required
-    APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
+    APPLICATIONINSIGHTS_CONNECTION_STRING: 'azure-insight-connection-string'
     DB_PAGOPA_POSTGRES_PASSWORD: "db-cfg-password"
     DB_NEXI_POSTGRES_PASSWORD: "db-nexi-cfg-password"
     DB_NEXI_ORACLE_PASSWORD: "oracle-db-cfg-password"
