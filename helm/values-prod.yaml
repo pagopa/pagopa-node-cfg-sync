@@ -80,7 +80,7 @@ microservice-chart:
     DB_NEXI_ORACLE_SERVICE_IDENTIFIER: "NDP003DEV"
     DB_NEXI_ORACLE_CONNECTION_TIMEOUT: "15000"
     DB_NEXI_ORACLE_MAX_LIFETIME: "30000"
-    DB_PAGOPA_POSTGRES_URL: "jdbc:postgresql://ndp.p.db-nodo-pagamenti.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
+    DB_PAGOPA_POSTGRES_URL: "jdbc:postgresql://nodo-db.p.internal.postgresql.pagopa.it:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
     DB_PAGOPA_POSTGRES_USER: "cfg"
     DB_PAGOPA_POSTGRES_ENABLED: "true"
     DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER: "NDP001DEV"
