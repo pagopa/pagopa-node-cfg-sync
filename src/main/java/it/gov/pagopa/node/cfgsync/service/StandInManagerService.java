@@ -93,7 +93,7 @@ public class StandInManagerService extends CommonCacheService {
             saveNexiPostgres(syncStatusMap, stationsEntities);
             saveNexiOracle(syncStatusMap, stationsEntities);
 
-            return composeSyncStatusMapResult(syncStatusMap);
+            return composeSyncStatusMapResult(TargetRefreshEnum.standin.label, syncStatusMap);
         } catch (FeignException fEx) {
             log.error("[{}] error: {}", TargetRefreshEnum.standin.label, fEx.getMessage(), fEx);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);

@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.0.2"
+    tag: "0.0.2-2-fix-problems"
     pullPolicy: Always
   livenessProbe:
     httpGet:
