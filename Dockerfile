@@ -25,5 +25,7 @@ COPY --chown=spring:spring  --from=builder /app/application/ ./
 
 EXPOSE 8080
 
+COPY --chown=spring:spring docker/run.sh ./run.sh
+ENTRYPOINT ["./run.sh"]
+
 #ENTRYPOINT ["java","-javaagent:opentelemetry-javaagent.jar","--enable-preview","org.springframework.boot.loader.JarLauncher"]
-#ENTRYPOINT ["java","-javaagent:/app/applicationinsights-agent.jar", "--enable-preview","org.springframework.boot.loader.JarLauncher"]
