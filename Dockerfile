@@ -8,7 +8,6 @@ RUN mvn clean package -DskipTests
 
 
 FROM amazoncorretto:17.0.10-alpine3.19@sha256:180e9c91bdbaad3599fedd2f492bf0d0335a9382835aa64669b2c2a8de7c9a22 as builder
-WORKDIR /app
 COPY --from=buildtime /build/target/*.jar ./application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
