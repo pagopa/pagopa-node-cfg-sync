@@ -16,8 +16,9 @@ FROM ghcr.io/pagopa/docker-base-springboot-openjdk17:v1.1.3@sha256:a4e970ef05ecf
 WORKDIR /app
 COPY --chown=spring:spring  --from=builder /app/dependencies/ ./
 COPY --chown=spring:spring  --from=builder /app/snapshot-dependencies/ ./
-COPY --chown=spring:spring ./applicationinsights-agent.jar /app/applicationinsights-agent.jar
-COPY --chown=spring:spring ./applicationinsights.json /app/applicationinsights.json
+COPY --chown=spring:spring ../applicationinsights-agent.jar /app/applicationinsights-agent.jar
+COPY --chown=spring:spring ../applicationinsights.json /app/applicationinsights.json
+COPY --chown=spring:spring ../run.sh /app/run.sh
 # https://github.com/moby/moby/issues/37965#issuecomment-426853382
 RUN true
 COPY --chown=spring:spring  --from=builder /app/spring-boot-loader/ ./
