@@ -6,8 +6,12 @@ WORKDIR /build
 COPY . .
 RUN mvn clean package -DskipTests
 
-FROM amazoncorretto:17.0.10-alpine3.19@sha256:180e9c91bdbaad3599fedd2f492bf0d0335a9382835aa64669b2c2a8de7c9a22 as builder
-COPY --from=buildtime /build/target/*.jar application.jar
+FROM amazoncorretto:17.0.10-alpine3.19@sha256:180e9c91bdbaad3599fedd2f492bf0d0335a9382835aa64669b2c2a8de7c9a22 as runtime
+
+VOLUME /tmp
+WORKDIR /app
+
+COPY --from=buildtime /build/target/*.jar /app/application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 #FROM ghcr.io/pagopa/docker-base-springboot-openjdk17:v1.1.3@sha256:a4e970ef05ecf2081424a64707e7c20856bbc40ddb3e99b32a24cd74591817c4
@@ -18,16 +22,10 @@ RUN java -Djarmode=layertools -jar application.jar extract
 #COPY --chown=spring:spring --from=builder spring-boot-loader/ ./
 #COPY --chown=spring:spring --from=builder application/ ./
 
-COPY --chown=spring:spring dependencies/ ./
-COPY --chown=spring:spring snapshot-dependencies/ ./
-RUN true
-COPY --chown=spring:spring spring-boot-loader ./
-COPY --chown=spring:spring application/ ./
-
-# https://github.com/microsoft/ApplicationInsights-Java/releases
-ADD --chown=spring:spring https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.19/applicationinsights-agent-3.4.19.jar /applicationinsights-agent.jar
-COPY --chown=spring:spring docker/applicationinsights.json ./applicationinsights.json
-COPY --chown=spring:spring docker/run.sh ./run.sh
+## https://github.com/microsoft/ApplicationInsights-Java/releases
+ADD --chown=spring:spring https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.19/applicationinsights-agent-3.4.19.jar /app/applicationinsights-agent.jar
+COPY --chown=spring:spring docker/applicationinsights.json /app/applicationinsights.json
+COPY --chown=spring:spring docker/run.sh /app/run.sh
 RUN chmod +x ./run.sh
 
 EXPOSE 8080
