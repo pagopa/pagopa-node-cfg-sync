@@ -18,6 +18,12 @@ RUN java -Djarmode=layertools -jar application.jar extract
 #COPY --chown=spring:spring --from=builder spring-boot-loader/ ./
 #COPY --chown=spring:spring --from=builder application/ ./
 
+COPY --chown=spring:spring dependencies/ ./
+COPY --chown=spring:spring snapshot-dependencies/ ./
+RUN true
+COPY --chown=spring:spring spring-boot-loader ./
+COPY --chown=spring:spring application/ ./
+
 # https://github.com/microsoft/ApplicationInsights-Java/releases
 ADD --chown=spring:spring https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.19/applicationinsights-agent-3.4.19.jar /applicationinsights-agent.jar
 COPY --chown=spring:spring docker/applicationinsights.json ./applicationinsights.json
