@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa.node</groupId>
   <artifactId>cfg-sync</artifactId>
-  <version>0.0.3-10-NOD-744-deploy-uat</version>
+  <version>0.0.3-11-NOD-744-deploy-uat</version>
   <description>Microservice to update configuration schema of Nodo dei Pagamenti</description>
 
   <properties>
