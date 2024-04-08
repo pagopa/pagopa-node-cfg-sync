@@ -18,7 +18,7 @@ COPY --chown=spring:spring  --from=builder /app/dependencies/ ./
 COPY --chown=spring:spring  --from=builder /app/snapshot-dependencies/ ./
 COPY --chown=spring:spring ../applicationinsights-agent.jar /app/applicationinsights-agent.jar
 COPY --chown=spring:spring ../applicationinsights.json /app/applicationinsights.json
-COPY --chown=spring:spring ../run.sh /app/run.sh
+COPY --chown=spring:spring ../docker/run.sh /app/run.sh
 # https://github.com/moby/moby/issues/37965#issuecomment-426853382
 RUN true
 COPY --chown=spring:spring  --from=builder /app/spring-boot-loader/ ./
@@ -35,6 +35,6 @@ COPY --chown=spring:spring  --from=builder /app/application/ ./
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "./run.sh"]
+ENTRYPOINT ["sh", "run.sh"]
 
 #ENTRYPOINT ["java","-javaagent:opentelemetry-javaagent.jar","--enable-preview","org.springframework.boot.loader.JarLauncher"]
