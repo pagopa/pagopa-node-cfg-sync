@@ -65,7 +65,7 @@ microservice-chart:
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync'
     ENV: 'azure-dev'
     APP_LOGGING_LEVEL: 'INFO'
-    HIKARI_LOGGING_LEVEL: 'DEBUG'
+    HIKARI_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp.d.db-nodo-pagamenti.com:5444/ndpspct?prepareThreshold=0&currentSchema=NODO4_CFG"
