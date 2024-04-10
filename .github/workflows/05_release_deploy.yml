@@ -147,21 +147,21 @@ jobs:
       target: ${{ needs.setup.outputs.environment }}
     secrets: inherit
 
-#  notify:
-#    name: Notify
-#    needs: [ setup, release, deploy_aks ]
-#    runs-on: ubuntu-latest
-#    if: always()
-#    steps:
-#      - name: Report Status
-#        if: always()
-#        uses: ravsamhq/notify-slack-action@v2
-#        with:
-#          status: ${{ needs.deploy_aks.result }}
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          notification_title: 'New Release on ${{ needs.setup.outputs.environment }} for ${{ needs.release.outputs.version }} has {status_message}'
-#          message_format: '{emoji} <{run_url}|{workflow}> {status_message} in <{repo_url}|{repo}>'
-#          footer: 'Linked to <{workflow_url}| workflow file>'
-#          icon_success: ':white_check_mark:'
-#        env:
-#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  notify:
+    name: Notify
+    needs: [ setup, release, deploy_aks ]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Report Status
+        if: always()
+        uses: ravsamhq/notify-slack-action@v2
+        with:
+          status: ${{ needs.deploy_aks.result }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          notification_title: 'New Release on ${{ needs.setup.outputs.environment }} for ${{ needs.release.outputs.version }} has {status_message}'
+          message_format: '{emoji} <{run_url}|{workflow}> {status_message} in <{repo_url}|{repo}>'
+          footer: 'Linked to <{workflow_url}| workflow file>'
+          icon_success: ':white_check_mark:'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
