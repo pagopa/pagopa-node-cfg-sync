@@ -52,7 +52,11 @@ public class StandInManagerEhConsumer {
                 TargetRefreshEnum.standin.label,
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
-        standInManagerService.syncStandIn();
+        try {
+            standInManagerService.syncStandIn();
+        } catch (Exception ex) {
+            log.error("[{}][ALERT] Generic Error on consumer: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
+        }
     }
 
     public void processError(ErrorContext errorContext) {
