@@ -107,7 +107,7 @@ public class ApiConfigCacheService extends CommonCacheService {
         } catch(AppException appException) {
             throw appException;
         } catch (Exception ex) {
-            log.error("[{}] error: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
+            log.error("[{}][ALERT] Generic Error: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
     }

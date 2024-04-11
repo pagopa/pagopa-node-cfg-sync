@@ -100,7 +100,7 @@ public class StandInManagerService extends CommonCacheService {
         } catch(AppException appException) {
             throw appException;
         } catch (Exception ex) {
-            log.error("[{}] error: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
+            log.error("[{}][ALERT] Generic Error: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
     }

@@ -54,7 +54,11 @@ public class ApiConfigCacheEhConsumer {
                 TargetRefreshEnum.cache.label,
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
-        apiConfigCacheService.syncCache();
+        try {
+            apiConfigCacheService.syncCache();
+        } catch (Exception ex) {
+            log.error("[{}][ALERT] Generic Error on consumer: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
+        }
     }
 
     public void processError(ErrorContext errorContext) {
