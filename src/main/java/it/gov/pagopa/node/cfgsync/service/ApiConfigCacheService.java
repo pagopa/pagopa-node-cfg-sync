@@ -9,15 +9,19 @@ import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.exception.SyncDbStatusException;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
-import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
-import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepository;
+import it.gov.pagopa.node.cfgsync.repository.model.*;
+import it.gov.pagopa.node.cfgsync.repository.nexioracle.*;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
-import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
+import it.gov.pagopa.node.cfgsync.repository.pagopa.*;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static it.gov.pagopa.node.cfgsync.util.Constants.*;
@@ -55,7 +60,16 @@ public class ApiConfigCacheService extends CommonCacheService {
     @Value("${api-config-cache.write.nexi-postgres}")
     private boolean apiConfigCacheWriteNexiPostgres;
 
+    @Value("${riversamento.source}")
+    private String riversamentoSource;
+
+    @Value("${riversamento.target}")
+    private String riversamentoTarget;
+
     private ApiConfigCacheClient apiConfigCacheClient;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Autowired(required = false)
     private PagoPACachePostgresRepository pagoPACachePostgresRepository;
@@ -63,6 +77,24 @@ public class ApiConfigCacheService extends CommonCacheService {
     private NexiCachePostgresRepository nexiCachePostgresRepository;
     @Autowired(required = false)
     private NexiCacheOracleRepository nexiCacheOracleRepository;
+
+    @Autowired(required = false)
+    private PagoPaElencoServiziPostgresRepository pagoPaElencoServiziPostgresRepository;
+    @Autowired(required = false)
+    private PagoPaElencoServiziViewPostgresRepository pagoPaElencoServiziViewPostgresRepository;
+    @Autowired(required = false)
+    private NexiElencoServiziOracleRepository nexiElencoServiziOracleRepository;
+    @Autowired(required = false)
+    private NexiElencoServiziViewOracleRepository nexiElencoServiziViewOracleRepository;
+
+    @Autowired(required = false)
+    private PagoPaCdiPreferencesPostgresRepository pagoPaCdiPreferencesPostgresRepository;
+    @Autowired(required = false)
+    private PagoPaCdiPreferencesViewPostgresRepository pagoPaCdiPreferencesViewPostgresRepository;
+    @Autowired(required = false)
+    private NexiCdiPreferencesOracleRepository nexiCdiPreferencesOracleRepository;
+    @Autowired(required = false)
+    private NexiCdiPreferencesViewOracleRepository nexiCdiPreferencesViewOracleRepository;
 
     @PostConstruct
     private void setStandInManagerClient() {
@@ -94,11 +126,14 @@ public class ApiConfigCacheService extends CommonCacheService {
 
             log.info("[{}] response successful. cacheId:[{}], cacheTimestamp:[{}], cacheVersion:[{}]", TargetRefreshEnum.cache.label, cacheId, Instant.from(ZonedDateTime.parse(cacheTimestamp)), cacheVersion);
 
-            ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp), cacheVersion, response.body().asInputStream().readAllBytes());
+//            ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp), cacheVersion, response.body().asInputStream().readAllBytes());
+//
+//            savePagoPA(syncStatusMap, configCache);
+//            saveNexiPostgres(syncStatusMap, configCache);
+//            saveNexiOracle(syncStatusMap, configCache);
 
-            savePagoPA(syncStatusMap, configCache);
-            saveNexiPostgres(syncStatusMap, configCache);
-            saveNexiOracle(syncStatusMap, configCache);
+            riversamentoElencoServizi();
+            riversamentoCdiPreferences();
 
             return composeSyncStatusMapResult(TargetRefreshEnum.cache.label, syncStatusMap);
         } catch (FeignException fEx) {
@@ -138,6 +173,103 @@ public class ApiConfigCacheService extends CommonCacheService {
             log.error("[{}][ALERT] Problem to dump cache on Nexi Oracle: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
             syncStatusMap.put(getNexiOracleServiceIdentifier(), SyncStatusEnum.ERROR);
         }
+    }
+
+    private void riversamentoElencoServizi() {
+        log.info("riversamentoElencoServizi");
+        JpaRepository<ElencoServiziView,Long> sourceRepository = null;
+        JpaRepository<ElencoServizi,Long> targetRepository = null;
+        switch (riversamentoSource){
+            case "pagopa-postgres":
+                sourceRepository = pagoPaElencoServiziViewPostgresRepository;
+                break;
+            case "nexi-oracle":
+                sourceRepository = nexiElencoServiziViewOracleRepository;
+                break;
+        }
+
+        switch (riversamentoTarget){
+            case "pagopa-postgres":
+                targetRepository = pagoPaElencoServiziPostgresRepository;
+                break;
+            case "nexi-oracle":
+                targetRepository = nexiElencoServiziOracleRepository;
+                break;
+        }
+        if(sourceRepository == null || targetRepository == null){
+            log.error("riversamentoElencoServizi wrong riversamentoSource[{}] or riversamentoTarget[{}]",riversamentoSource,riversamentoTarget);
+            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+        }
+
+        log.info("riversamentoElencoServizi deleting all from target");
+        targetRepository.deleteAll();
+
+        log.info("riversamentoElencoServizi getting data from source");
+        Page<ElencoServiziView> page = null;
+        do{
+            if(page==null){
+                page = sourceRepository.findAll(Pageable.ofSize(100));
+            }else{
+                page = sourceRepository.findAll(page.nextPageable());
+            }
+            List<ElencoServiziView> sources = page.toList();
+            List<ElencoServizi> targets = sources.stream().map(s -> {
+                return modelMapper.map(s, ElencoServizi.class);
+            }).toList();
+            log.info("riversamentoElencoServizi saving page {}/{} in target",page.getNumber()+1,page.getTotalPages());
+            targetRepository.saveAll(targets);
+            log.info("riversamentoElencoServizi saved");
+        } while(page.hasNext());
+        log.info("riversamentoElencoServizi done");
+
+    }
+    private void riversamentoCdiPreferences() {
+        log.info("riversamentoCdiPreferences");
+
+        JpaRepository<CDIPreferencesView,Long> sourceRepository = null;
+        JpaRepository<CDIPreferences,Long> targetRepository = null;
+        switch (riversamentoSource){
+            case "pagopa-postgres":
+                sourceRepository = pagoPaCdiPreferencesViewPostgresRepository;
+                break;
+            case "nexi-oracle":
+                sourceRepository = nexiCdiPreferencesViewOracleRepository;
+                break;
+        }
+
+        switch (riversamentoTarget){
+            case "pagopa-postgres":
+                targetRepository = pagoPaCdiPreferencesPostgresRepository;
+                break;
+            case "nexi-oracle":
+                targetRepository = nexiCdiPreferencesOracleRepository;
+                break;
+        }
+        if(sourceRepository == null || targetRepository == null){
+            log.error("riversamentoCdiPreferences wrong riversamentoSource[{}] or riversamentoTarget[{}]",riversamentoSource,riversamentoTarget);
+            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+        }
+        log.info("riversamentoCdiPreferences deleting all from target");
+        targetRepository.deleteAll();
+
+        log.info("riversamentoCdiPreferences getting data from source");
+        Page<CDIPreferencesView> page = null;
+        do{
+            if(page==null){
+                page = sourceRepository.findAll(Pageable.ofSize(100));
+            }else{
+                page = sourceRepository.findAll(page.nextPageable());
+            }
+            List<CDIPreferencesView> sources = page.toList();
+            List<CDIPreferences> targets = sources.stream().map(s -> {
+                return modelMapper.map(s, CDIPreferences.class);
+            }).toList();
+            log.info("riversamentoCdiPreferences saving page {}/{} in target",page.getNumber()+1,page.getTotalPages());
+            targetRepository.saveAll(targets);
+            log.info("riversamentoCdiPreferences saved");
+        } while(page.hasNext());
+        log.info("riversamentoCdiPreferences done");
+
     }
 
     private void saveNexiPostgres(Map<String, SyncStatusEnum> syncStatusMap, ConfigCache configCache) {

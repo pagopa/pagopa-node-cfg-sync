@@ -118,6 +118,9 @@ api-config-cache:
     pagopa-postgres: 'true'
     nexi-postgres: 'true'
     nexi-oracle: 'true'
+riversamento:
+  source: pagopa-postgres
+  target: pagopa-postgres
 
 logging:
   level:
