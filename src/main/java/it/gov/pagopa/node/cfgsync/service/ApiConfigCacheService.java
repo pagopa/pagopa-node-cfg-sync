@@ -11,7 +11,7 @@ import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.*;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.*;
-import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
+import it.gov.pagopa.node.cfgsync.repository.nexipostgres.*;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.*;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -86,6 +86,10 @@ public class ApiConfigCacheService extends CommonCacheService {
     private NexiElencoServiziOracleRepository nexiElencoServiziOracleRepository;
     @Autowired(required = false)
     private NexiElencoServiziViewOracleRepository nexiElencoServiziViewOracleRepository;
+    @Autowired(required = false)
+    private NexiElencoServiziPostgresRepository nexiElencoServiziPostgresRepository;
+    @Autowired(required = false)
+    private NexiElencoServiziViewPostgresRepository nexiElencoServiziViewPostgresRepository;
 
     @Autowired(required = false)
     private PagoPaCdiPreferencesPostgresRepository pagoPaCdiPreferencesPostgresRepository;
@@ -95,6 +99,10 @@ public class ApiConfigCacheService extends CommonCacheService {
     private NexiCdiPreferencesOracleRepository nexiCdiPreferencesOracleRepository;
     @Autowired(required = false)
     private NexiCdiPreferencesViewOracleRepository nexiCdiPreferencesViewOracleRepository;
+    @Autowired(required = false)
+    private NexiCdiPreferencesPostgresRepository nexiCdiPreferencesPostgresRepository;
+    @Autowired(required = false)
+    private NexiCdiPreferencesViewPostgresRepository nexiCdiPreferencesViewPostgresRepository;
 
     @PostConstruct
     private void setStandInManagerClient() {
@@ -132,7 +140,7 @@ public class ApiConfigCacheService extends CommonCacheService {
 //            saveNexiPostgres(syncStatusMap, configCache);
 //            saveNexiOracle(syncStatusMap, configCache);
 
-            riversamentoElencoServizi();
+//            riversamentoElencoServizi();
             riversamentoCdiPreferences();
 
             return composeSyncStatusMapResult(TargetRefreshEnum.cache.label, syncStatusMap);
@@ -186,6 +194,9 @@ public class ApiConfigCacheService extends CommonCacheService {
             case "nexi-oracle":
                 sourceRepository = nexiElencoServiziViewOracleRepository;
                 break;
+            case "nexi-postgres":
+                sourceRepository = nexiElencoServiziViewPostgresRepository;
+                break;
         }
 
         switch (riversamentoTarget){
@@ -194,6 +205,9 @@ public class ApiConfigCacheService extends CommonCacheService {
                 break;
             case "nexi-oracle":
                 targetRepository = nexiElencoServiziOracleRepository;
+                break;
+            case "nexi-postgres":
+                targetRepository = nexiElencoServiziPostgresRepository;
                 break;
         }
         if(sourceRepository == null || targetRepository == null){
@@ -235,6 +249,9 @@ public class ApiConfigCacheService extends CommonCacheService {
             case "nexi-oracle":
                 sourceRepository = nexiCdiPreferencesViewOracleRepository;
                 break;
+            case "nexi-postgres":
+                sourceRepository = nexiCdiPreferencesViewPostgresRepository;
+                break;
         }
 
         switch (riversamentoTarget){
@@ -243,6 +260,9 @@ public class ApiConfigCacheService extends CommonCacheService {
                 break;
             case "nexi-oracle":
                 targetRepository = nexiCdiPreferencesOracleRepository;
+                break;
+            case "nexi-postgres":
+                targetRepository = nexiCdiPreferencesPostgresRepository;
                 break;
         }
         if(sourceRepository == null || targetRepository == null){
