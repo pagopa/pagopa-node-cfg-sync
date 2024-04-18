@@ -98,8 +98,8 @@ microservice-chart:
     OTEL_TRACES_SAMPLER: "always_on"
     RIVERSAMENTO_SOURCE: "pagopa-postgres"
     RIVERSAMENTO_TARGET: "nexi-oracle"
-    CDI_PREFERENCES_TABLE: cdi_preferences_view_table
-    ELENCO_SERVIZI_TABLE: elenco_servizi_view_table
+    CDI_PREFERENCES_TABLE: cdi_preferences_table
+    ELENCO_SERVIZI_TABLE: elenco_servizi_table
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'azure-insight-connection-string'
