@@ -96,6 +96,7 @@ microservice-chart:
     OTEL_METRICS_EXPORTER: otlp
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
+    RIVERSAMENTO_ENABLED: "true"
     RIVERSAMENTO_SOURCE: "pagopa-postgres"
     RIVERSAMENTO_TARGET: "nexi-oracle"
     CDI_PREFERENCES_TABLE: cdi_preferences_table
