@@ -117,6 +117,7 @@ api-config-cache:
     nexi-postgres: 'false'
     nexi-oracle: 'true'
 riversamento:
+  enabled: ${RIVERSAMENTO_ENABLED}
   source: ${RIVERSAMENTO_SOURCE}
   target: ${RIVERSAMENTO_TARGET}
 

@@ -60,6 +60,9 @@ public class ApiConfigCacheService extends CommonCacheService {
     @Value("${api-config-cache.write.nexi-postgres}")
     private boolean apiConfigCacheWriteNexiPostgres;
 
+    @Value("${riversamento.enabled}")
+    private boolean riversamentoEnabled;
+
     @Value("${riversamento.source}")
     private String riversamentoSource;
 
@@ -134,14 +137,16 @@ public class ApiConfigCacheService extends CommonCacheService {
 
             log.info("[{}] response successful. cacheId:[{}], cacheTimestamp:[{}], cacheVersion:[{}]", TargetRefreshEnum.cache.label, cacheId, Instant.from(ZonedDateTime.parse(cacheTimestamp)), cacheVersion);
 
-//            ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp), cacheVersion, response.body().asInputStream().readAllBytes());
-//
-//            savePagoPA(syncStatusMap, configCache);
-//            saveNexiPostgres(syncStatusMap, configCache);
-//            saveNexiOracle(syncStatusMap, configCache);
+            ConfigCache configCache = composeCache(cacheId, ZonedDateTime.parse(cacheTimestamp), cacheVersion, response.body().asInputStream().readAllBytes());
 
-//            riversamentoElencoServizi();
-            riversamentoCdiPreferences();
+            savePagoPA(syncStatusMap, configCache);
+            saveNexiPostgres(syncStatusMap, configCache);
+            saveNexiOracle(syncStatusMap, configCache);
+
+            if(riversamentoEnabled) {
+                riversamentoElencoServizi();
+                riversamentoCdiPreferences();
+            }
 
             return composeSyncStatusMapResult(TargetRefreshEnum.cache.label, syncStatusMap);
         } catch (FeignException fEx) {

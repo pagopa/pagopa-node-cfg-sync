@@ -119,6 +119,7 @@ api-config-cache:
     nexi-postgres: 'true'
     nexi-oracle: 'true'
 riversamento:
+  enabled: true
   source: pagopa-postgres
   target: pagopa-postgres
 
