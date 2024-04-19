@@ -238,6 +238,8 @@ public class ApiConfigCacheService extends CommonCacheService {
             log.info("riversamentoElencoServizi saving page {}/{} in target",page.getNumber()+1,page.getTotalPages());
             targetRepository.saveAll(targets);
             log.info("riversamentoElencoServizi saved");
+            long count = targetRepository.count();
+            log.info("riversamentoElencoServizi {} copied",count);
         } while(page.hasNext());
         log.info("riversamentoElencoServizi done");
 
@@ -292,6 +294,8 @@ public class ApiConfigCacheService extends CommonCacheService {
             log.info("riversamentoCdiPreferences saving page {}/{} in target",page.getNumber()+1,page.getTotalPages());
             targetRepository.saveAll(targets);
             log.info("riversamentoCdiPreferences saved");
+            long count = targetRepository.count();
+            log.info("riversamentoCdiPreferences {} copied",count);
         } while(page.hasNext());
         log.info("riversamentoCdiPreferences done");
 
