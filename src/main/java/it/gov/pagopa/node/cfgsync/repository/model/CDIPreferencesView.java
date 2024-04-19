@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "cdi_preferences_view")
+@Table(name = "{cdi_preferences_source}")
 @Setter
 @Getter
 public class CDIPreferencesView {

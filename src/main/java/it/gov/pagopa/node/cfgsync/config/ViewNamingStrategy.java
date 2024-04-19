@@ -42,6 +42,14 @@ public class ViewNamingStrategy implements PhysicalNamingStrategy {
             String elencoServiziTable = System.getenv("ELENCO_SERVIZI_TABLE");
             return Identifier.toIdentifier(elencoServiziTable);
         }
+        if(identifier.getText().equals("{cdi_preferences_source}")){
+            String cdiPreferencesTable = System.getenv("CDI_PREFERENCES_VIEW");
+            return Identifier.toIdentifier(cdiPreferencesTable);
+        }
+        if(identifier.getText().equals("{elenco_servizi_source}")){
+            String elencoServiziTable = System.getenv("ELENCO_SERVIZI_VIEW");
+            return Identifier.toIdentifier(elencoServiziTable);
+        }
         return identifier;
     }
 }

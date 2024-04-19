@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Entity
-@Table(name = "elenco_servizi_view")
+@Table(name = "{elenco_servizi_source}")
 @Setter
 @Getter
 public class ElencoServiziView {
