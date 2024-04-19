@@ -22,13 +22,13 @@ public class CDIPreferencesView {
 
     @Column(name="`OBJ_ID`")
     @Id
-    private Long OBJ_ID;
+    private Long objid;
     @Column(name="`SELLER`")
-    private String SELLER;
+    private String seller;
     @Column(name="`BUYER`")
-    private String BUYER;
+    private String buyer;
     @Column(name="`COSTO_CONVENZIONE`")
-    private BigDecimal COSTO_CONVENZIONE;
+    private BigDecimal costoconvenzione;
     @Column(name="`ID_CDI_MASTER`")
-    private Long ID_CDI_MASTER;
+    private Long idcdimaster;
 }

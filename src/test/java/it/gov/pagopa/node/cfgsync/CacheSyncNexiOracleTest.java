@@ -126,6 +126,7 @@ class CacheSyncNexiOracleTest {
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
     List<CDIPreferences> all = nexiCdiPreferencesOracleRepository.findAll();
     assertThat(all.size()).isEqualTo(size);
+    assertThat(all.get(0).getSeller()).isEqualTo(arrayList.get(0).getSeller());
   }
 
 }
