@@ -11,5 +11,8 @@ public class Constants {
   public static final String HEADER_CACHE_ID = "X-CACHE-ID";
   public static final String HEADER_CACHE_TIMESTAMP = "X-CACHE-TIMESTAMP";
   public static final String HEADER_CACHE_VERSION = "X-CACHE-VERSION";
+  public static final String PAGOPA_POSTGRES = "pagopa-postgres";
+  public static final String NEXI_ORACLE = "nexi-oracle";
+  public static final String NEXI_POSTGRES = "nexi-postgres";
 
 }

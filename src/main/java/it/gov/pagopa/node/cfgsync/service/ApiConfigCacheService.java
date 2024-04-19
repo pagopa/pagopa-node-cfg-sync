@@ -193,31 +193,33 @@ public class ApiConfigCacheService extends CommonCacheService {
         JpaRepository<ElencoServiziView,Long> sourceRepository = null;
         JpaRepository<ElencoServizi,Long> targetRepository = null;
         switch (riversamentoSource){
-            case "pagopa-postgres":
+            case PAGOPA_POSTGRES:
                 sourceRepository = pagoPaElencoServiziViewPostgresRepository;
                 break;
-            case "nexi-oracle":
+            case NEXI_ORACLE:
                 sourceRepository = nexiElencoServiziViewOracleRepository;
                 break;
-            case "nexi-postgres":
+            case NEXI_POSTGRES:
                 sourceRepository = nexiElencoServiziViewPostgresRepository;
                 break;
+            default:
+                log.error("riversamentoCdiPreferences wrong riversamentoSource[{}]",riversamentoSource);
+                throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
 
         switch (riversamentoTarget){
-            case "pagopa-postgres":
+            case PAGOPA_POSTGRES:
                 targetRepository = pagoPaElencoServiziPostgresRepository;
                 break;
-            case "nexi-oracle":
+            case NEXI_ORACLE:
                 targetRepository = nexiElencoServiziOracleRepository;
                 break;
-            case "nexi-postgres":
+            case NEXI_POSTGRES:
                 targetRepository = nexiElencoServiziPostgresRepository;
                 break;
-        }
-        if(sourceRepository == null || targetRepository == null){
-            log.error("riversamentoElencoServizi wrong riversamentoSource[{}] or riversamentoTarget[{}]",riversamentoSource,riversamentoTarget);
-            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+            default:
+                log.error("riversamentoCdiPreferences wrong riversamentoTarget[{}]",riversamentoTarget);
+                throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
 
         log.info("riversamentoElencoServizi deleting all from target");
@@ -250,31 +252,33 @@ public class ApiConfigCacheService extends CommonCacheService {
         JpaRepository<CDIPreferencesView,Long> sourceRepository = null;
         JpaRepository<CDIPreferences,Long> targetRepository = null;
         switch (riversamentoSource){
-            case "pagopa-postgres":
+            case PAGOPA_POSTGRES:
                 sourceRepository = pagoPaCdiPreferencesViewPostgresRepository;
                 break;
-            case "nexi-oracle":
+            case NEXI_ORACLE:
                 sourceRepository = nexiCdiPreferencesViewOracleRepository;
                 break;
-            case "nexi-postgres":
+            case NEXI_POSTGRES:
                 sourceRepository = nexiCdiPreferencesViewPostgresRepository;
                 break;
+            default:
+                log.error("riversamentoCdiPreferences wrong riversamentoSource[{}]",riversamentoSource);
+                throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
 
         switch (riversamentoTarget){
-            case "pagopa-postgres":
+            case PAGOPA_POSTGRES:
                 targetRepository = pagoPaCdiPreferencesPostgresRepository;
                 break;
-            case "nexi-oracle":
+            case NEXI_ORACLE:
                 targetRepository = nexiCdiPreferencesOracleRepository;
                 break;
-            case "nexi-postgres":
+            case NEXI_POSTGRES:
                 targetRepository = nexiCdiPreferencesPostgresRepository;
                 break;
-        }
-        if(sourceRepository == null || targetRepository == null){
-            log.error("riversamentoCdiPreferences wrong riversamentoSource[{}] or riversamentoTarget[{}]",riversamentoSource,riversamentoTarget);
-            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+            default:
+                log.error("riversamentoCdiPreferences wrong riversamentoTarget[{}]",riversamentoTarget);
+                throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
         log.info("riversamentoCdiPreferences deleting all from target");
         targetRepository.deleteAll();
