@@ -234,9 +234,7 @@ public class ApiConfigCacheService extends CommonCacheService {
                 page = sourceRepository.findAll(page.nextPageable());
             }
             List<ElencoServiziView> sources = page.toList();
-            List<ElencoServizi> targets = sources.stream().map(s -> {
-                return modelMapper.map(s, ElencoServizi.class);
-            }).toList();
+            List<ElencoServizi> targets = sources.stream().map(s -> modelMapper.map(s, ElencoServizi.class)).toList();
             log.info("riversamentoElencoServizi saving page {}/{} in target",page.getNumber()+1,page.getTotalPages());
             targetRepository.saveAll(targets);
             log.info("riversamentoElencoServizi saved");
@@ -292,9 +290,7 @@ public class ApiConfigCacheService extends CommonCacheService {
                 page = sourceRepository.findAll(page.nextPageable());
             }
             List<CDIPreferencesView> sources = page.toList();
-            List<CDIPreferences> targets = sources.stream().map(s -> {
-                return modelMapper.map(s, CDIPreferences.class);
-            }).toList();
+            List<CDIPreferences> targets = sources.stream().map(s -> modelMapper.map(s, CDIPreferences.class)).toList();
             log.info("riversamentoCdiPreferences saving page {}/{} in target",page.getNumber()+1,page.getTotalPages());
             targetRepository.saveAll(targets);
             log.info("riversamentoCdiPreferences saved");
