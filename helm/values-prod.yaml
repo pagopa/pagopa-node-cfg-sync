@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.0.5-3-NOD-822_viste"
+    tag: "0.0.5-4-NOD-822_viste"
     pullPolicy: Always
   livenessProbe:
     httpGet:
