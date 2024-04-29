@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.0.5"
+    tag: "0.0.5-4-NOD-822_viste"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -95,6 +95,13 @@ microservice-chart:
     OTEL_METRICS_EXPORTER: otlp
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
+    RIVERSAMENTO_ENABLED: "true"
+    RIVERSAMENTO_SOURCE: "nexi-oracle"
+    RIVERSAMENTO_TARGET: "nexi-oracle"
+    CDI_PREFERENCES_VIEW: CDI_PREFERENCES_VIEW
+    CDI_PREFERENCES_TABLE: CDI_PREFERENCES_TABLE
+    ELENCO_SERVIZI_VIEW: ELENCO_SERVIZI_VIEW
+    ELENCO_SERVIZI_TABLE: ELENCO_SERVIZI_TABLE
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'azure-insight-connection-string'

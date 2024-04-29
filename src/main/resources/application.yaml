@@ -70,6 +70,11 @@ spring:
         connectionTimeout: ${DB_NEXI_POSTGRES_CONNECTION_TIMEOUT}
         maxLifetime: ${DB_NEXI_POSTGRES_MAX_LIFETIME}
   jpa:
+    properties:
+      hibernate:
+        physical_naming_strategy: it.gov.pagopa.node.cfgsync.config.ViewNamingStrategy
+        jdbc:
+          batch_size: 100
     show-sql: 'false'
 
 stand-in-manager:
@@ -111,6 +116,10 @@ api-config-cache:
     pagopa-postgres: 'true'
     nexi-postgres: 'false'
     nexi-oracle: 'true'
+riversamento:
+  enabled: ${RIVERSAMENTO_ENABLED}
+  source: ${RIVERSAMENTO_SOURCE}
+  target: ${RIVERSAMENTO_TARGET}
 
 logging:
   level:
