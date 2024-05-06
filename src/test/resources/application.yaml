@@ -123,6 +123,8 @@ riversamento:
   source: pagopa-postgres
   target: pagopa-postgres
 
+timezone: ${TIMEZONE:Europe/Rome}
+
 logging:
   level:
     it:

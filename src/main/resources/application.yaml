@@ -121,6 +121,8 @@ riversamento:
   source: ${RIVERSAMENTO_SOURCE}
   target: ${RIVERSAMENTO_TARGET}
 
+timezone: ${TIMEZONE:Europe/Rome}
+
 logging:
   level:
     it:
