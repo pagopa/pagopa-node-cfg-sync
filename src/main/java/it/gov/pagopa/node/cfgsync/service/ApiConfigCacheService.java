@@ -166,6 +166,7 @@ public class ApiConfigCacheService extends CommonCacheService {
                 riversamentoCdiPreferences();
             }catch (Exception e){
                 log.error("Errore riversamento",e);
+                throw e;
             }
         }
     }
