@@ -123,4 +123,52 @@ class CacheSyncNexiPostgresTest {
 
   }
 
+  @Test
+  void nexipostgres2() throws InterruptedException {
+
+    ReflectionTestUtils.setField(cacheManagerService, "riversamentoEnabled", false);
+
+    long size = Math.round(Math.random()*500);
+    ArrayList<CDIPreferencesView> arrayList = new ArrayList();
+    for(long i = 0;i<size;i++){
+      arrayList.add(new CDIPreferencesView(new Long(i),"","", BigDecimal.ZERO,new Long(i)));
+    }
+    long originalcount = nexiCdiPreferencesPostgresRepository.count();
+    nexiCdiPreferencesViewPostgresRepository.deleteAll();
+    nexiCdiPreferencesViewPostgresRepository.saveAll(arrayList);
+
+    Map<String, Collection<String>> headersCustom =
+            Map.of(
+                    HEADER_CACHE_ID, List.of(String.valueOf(System.currentTimeMillis())),
+                    HEADER_CACHE_TIMESTAMP, List.of(Instant.now().toString()),
+                    HEADER_CACHE_VERSION, List.of(StringUtils.repeat("*", 50))
+            );
+    when(apiConfigCacheClient.getCache(anyString())).thenReturn(Response
+            .builder()
+            .status(200)
+            .reason("Mocked")
+            .headers(headersCustom)
+            .request(mock(Request.class))
+            .body(new byte[0])
+            .build());
+    cacheManagerService.setApiConfigCacheClient(apiConfigCacheClient);
+
+    ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(CACHE_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {});
+
+    assertThat(response.getBody()).isNotNull();
+    assertFalse(response.getHeaders().isEmpty());
+    assertFalse(response.getBody().isEmpty());
+    assertEquals(3, response.getBody().size());
+    assertThat(response.getBody().get(0).getServiceIdentifier()).isEqualTo(PAGOPAPOSTGRES_SI);
+    assertThat(response.getBody().get(0).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(1).getServiceIdentifier()).isEqualTo(NEXIPOSTGRES_SI);
+    assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
+    assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    Thread.sleep(5000);
+    Long afterCount = nexiCdiPreferencesPostgresRepository.count();
+    assertThat(afterCount).isEqualTo(originalcount);
+
+  }
+
 }
