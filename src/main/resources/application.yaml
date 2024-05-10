@@ -87,7 +87,7 @@ stand-in-manager:
     enabled: 'true'
   sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
   sa-name: standinevents
-  consumer-group: $Default
+  consumer-group: nodo-dei-pagamenti-stand-in-sync-rx
   consumer:
     ##permette di abilitare/disabilitare il consumer
     enabled: 'true'
@@ -107,7 +107,7 @@ api-config-cache:
     enabled: 'true'
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
   sa-name: cacheevents
-  consumer-group: $Default
+  consumer-group: nodo-dei-pagamenti-cache-sync-rx
   consumer:
     ##permette di abilitare/disabilitare il consumer
     enabled: 'true'
@@ -120,6 +120,8 @@ riversamento:
   enabled: ${RIVERSAMENTO_ENABLED}
   source: ${RIVERSAMENTO_SOURCE}
   target: ${RIVERSAMENTO_TARGET}
+
+timezone: ${TIMEZONE:Europe/Rome}
 
 logging:
   level:
