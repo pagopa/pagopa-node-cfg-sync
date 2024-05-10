@@ -84,7 +84,7 @@ class CacheSyncNexiOracleTest {
   }
 
   @Test
-  void nexioracle() {
+  void nexioracle() throws InterruptedException {
 
     ReflectionTestUtils.setField(cacheManagerService, "riversamentoSource", "nexi-oracle");
     ReflectionTestUtils.setField(cacheManagerService, "riversamentoTarget", "nexi-oracle");
@@ -124,6 +124,7 @@ class CacheSyncNexiOracleTest {
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    Thread.sleep(5000);
     List<CDIPreferences> all = nexiCdiPreferencesOracleRepository.findAll();
     assertThat(all.size()).isEqualTo(size);
     assertThat(all.get(0).getSeller()).isEqualTo(arrayList.get(0).getSeller());

@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,11 +144,6 @@ public class ApiConfigCacheService extends CommonCacheService {
             saveNexiPostgres(syncStatusMap, configCache);
             saveNexiOracle(syncStatusMap, configCache);
 
-            if(riversamentoEnabled) {
-                riversamentoElencoServizi();
-                riversamentoCdiPreferences();
-            }
-
             return composeSyncStatusMapResult(TargetRefreshEnum.cache.label, syncStatusMap);
         } catch (FeignException fEx) {
             log.error("[{}] error: {}", TargetRefreshEnum.cache.label, fEx.getMessage(), fEx);
@@ -157,6 +153,19 @@ public class ApiConfigCacheService extends CommonCacheService {
         } catch (Exception ex) {
             log.error("[{}][ALERT] Generic Error: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Async
+    public void asyncRiversamento() {
+        if(riversamentoEnabled) {
+            log.info("riversamento elenco servizi e cdi preferences abilitato");
+            try {
+                riversamentoElencoServizi();
+                riversamentoCdiPreferences();
+            }catch (Exception e){
+                log.error("Errore riversamento",e);
+            }
         }
     }
 

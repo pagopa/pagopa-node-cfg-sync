@@ -136,6 +136,9 @@ public class SyncCacheController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SyncStatusResponse>> cache() {
         log.debug("[NODE-CFG-SYNC] Force {} configuration to update", TargetRefreshEnum.cache.label);
+
+        apiConfigCacheService.asyncRiversamento();
+
         Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.syncCache();
 
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()

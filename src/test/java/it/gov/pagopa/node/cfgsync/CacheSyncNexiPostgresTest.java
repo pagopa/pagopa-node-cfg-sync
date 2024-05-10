@@ -77,7 +77,7 @@ class CacheSyncNexiPostgresTest {
   }
 
   @Test
-  void nexipostgres() {
+  void nexipostgres() throws InterruptedException {
 
     ReflectionTestUtils.setField(cacheManagerService, "riversamentoSource", "nexi-postgres");
     ReflectionTestUtils.setField(cacheManagerService, "riversamentoTarget", "nexi-postgres");
@@ -117,8 +117,10 @@ class CacheSyncNexiPostgresTest {
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    Thread.sleep(5000);
     List<CDIPreferences> all = nexiCdiPreferencesPostgresRepository.findAll();
     assertThat(all.size()).isEqualTo(size);
+
   }
 
 }
