@@ -157,6 +157,7 @@ public class ApiConfigCacheService extends CommonCacheService {
     }
 
     @Async
+    @Transactional
     public void asyncRiversamento() {
         if(riversamentoEnabled) {
             log.info("riversamento elenco servizi e cdi preferences abilitato");
