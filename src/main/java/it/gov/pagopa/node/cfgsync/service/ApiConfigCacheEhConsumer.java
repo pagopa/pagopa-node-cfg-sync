@@ -53,13 +53,19 @@ public class ApiConfigCacheEhConsumer {
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
 
-        apiConfigCacheService.asyncRiversamento();
-
         try {
             apiConfigCacheService.syncCache();
         } catch (Exception ex) {
             log.error("[{}][ALERT] Generic Error on consumer: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
         }
+
+        try {
+            apiConfigCacheService.syncRiversamento();
+        } catch (Exception ex) {
+            log.error("[{}][ALERT] Generic Error on consumer: {}", TargetRefreshEnum.riversamento.label, ex.getMessage(), ex);
+        }
+
+
     }
 
     public void processError(ErrorContext errorContext) {

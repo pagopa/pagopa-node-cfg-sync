@@ -23,7 +23,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -156,18 +155,12 @@ public class ApiConfigCacheService extends CommonCacheService {
         }
     }
 
-    @Async
     @Transactional
-    public void asyncRiversamento() {
+    public void syncRiversamento() {
         if(riversamentoEnabled) {
             log.info("riversamento elenco servizi e cdi preferences abilitato");
-            try {
-                riversamentoElencoServizi();
-                riversamentoCdiPreferences();
-            }catch (Exception e){
-                log.error("Errore riversamento",e);
-                throw e;
-            }
+            riversamentoElencoServizi();
+            riversamentoCdiPreferences();
         }
     }
 
