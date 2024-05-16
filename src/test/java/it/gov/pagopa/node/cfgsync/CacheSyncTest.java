@@ -168,7 +168,7 @@ class CacheSyncTest {
   }
 
   @Test
-  void trimCacheVersionOnDb() {
+  void trimCacheVersionOnDb() throws InterruptedException {
 
     long size = Math.round(Math.random()*500);
     ArrayList<CDIPreferencesView> arrayList = new ArrayList();
@@ -205,6 +205,7 @@ class CacheSyncTest {
     assertThat(response.getBody().get(1).getStatus()).isEqualTo(SyncStatusEnum.DONE);
     assertThat(response.getBody().get(2).getServiceIdentifier()).isEqualTo(NEXIORACLE_SI);
     assertThat(response.getBody().get(2).getStatus()).isEqualTo(SyncStatusEnum.DONE);
+    Thread.sleep(5000);
     List<CDIPreferences> all = pagoPaCdiPreferencesPostgresRepository.findAll();
     assertThat(all.size()).isEqualTo(size);
   }

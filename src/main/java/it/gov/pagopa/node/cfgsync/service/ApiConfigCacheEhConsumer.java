@@ -7,7 +7,6 @@ import com.azure.messaging.eventhubs.models.ErrorContext;
 import com.azure.messaging.eventhubs.models.EventContext;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
-import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -54,11 +52,20 @@ public class ApiConfigCacheEhConsumer {
                 TargetRefreshEnum.cache.label,
                 eventContext.getPartitionContext().getPartitionId(), eventContext.getEventData().getSequenceNumber(),
                 eventContext.getEventData().getBodyAsString());
+
         try {
             apiConfigCacheService.syncCache();
         } catch (Exception ex) {
             log.error("[{}][ALERT] Generic Error on consumer: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
         }
+
+        try {
+            apiConfigCacheService.syncRiversamento();
+        } catch (Exception ex) {
+            log.error("[{}][ALERT] Generic Error on consumer: {}", TargetRefreshEnum.riversamento.label, ex.getMessage(), ex);
+        }
+
+
     }
 
     public void processError(ErrorContext errorContext) {
