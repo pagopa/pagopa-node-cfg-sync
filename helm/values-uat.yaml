@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.0.7"
+    tag: "0.0.8-NOD-921-fix-uat"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -98,9 +98,9 @@ microservice-chart:
     RIVERSAMENTO_ENABLED: "true"
     RIVERSAMENTO_SOURCE: "nexi-oracle"
     RIVERSAMENTO_TARGET: "nexi-oracle"
-    CDI_PREFERENCES_VIEW: CDI_PREFERENCES_VIEW
+    CDI_PREFERENCES_VIEW: CDI_PREFERENCES_VIEW_MASTER
     CDI_PREFERENCES_TABLE: CDI_PREFERENCES_TABLE
-    ELENCO_SERVIZI_VIEW: ELENCO_SERVIZI_VIEW
+    ELENCO_SERVIZI_VIEW: ELENCO_SERVIZI_VIEW_MASTER
     ELENCO_SERVIZI_TABLE: ELENCO_SERVIZI_TABLE
     JAVA_OPTS: "-XX:MaxHeapSize=512m"
   envSecret:
