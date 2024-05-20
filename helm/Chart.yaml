@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-node-cfg-sync
 description: Microservice that sync api-config-cache and standin configuration
 type: application
-version: 0.87.0
-appVersion: 0.0.8-NOD-921-fix-uat
+version: 0.88.0
+appVersion: 0.0.9
 dependencies:
   - name: microservice-chart
     version: 2.8.0
