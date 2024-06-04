@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa.node</groupId>
   <artifactId>cfg-sync</artifactId>
-  <version>0.0.9</version>
+  <version>0.0.10</version>
   <description>Microservice to update configuration schema of Nodo dei Pagamenti</description>
 
   <properties>
