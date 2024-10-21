@@ -70,22 +70,25 @@ microservice-chart:
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp.d.db-nodo-pagamenti.com:5444/ndpspct?prepareThreshold=0&currentSchema=NODO4_CFG"
     DB_NEXI_POSTGRES_USER: "pp_nodo4_cfg"
-    DB_NEXI_POSTGRES_ENABLED: "false"
+    DB_NEXI_POSTGRES_ENABLED: "false" # connect to datasource
     DB_NEXI_POSTGRES_SERVICE_IDENTIFIER: "NDP004DEV"
     DB_NEXI_POSTGRES_CONNECTION_TIMEOUT: "15000"
     DB_NEXI_POSTGRES_MAX_LIFETIME: "30000"
+    DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED: "false" # write cache
     DB_NEXI_ORACLE_URL: "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN)(ADDRESS=(PROTOCOL=tcp)(PORT=1522)(HOST=db-nodo-pagamenti.d.db-nodo-pagamenti.com))(CONNECT_DATA=(SERVICE_NAME=NDPSPCT_PP_NODO4_CFG))(SO_KEEPALIVE=true)(TCP_KEEPIDLE=60)(TCP_KEEPINTVL=30)(TCP_KEEPCNT=15))"
     DB_NEXI_ORACLE_USER: "NODO4_CFG"
-    DB_NEXI_ORACLE_ENABLED: "true"
+    DB_NEXI_ORACLE_ENABLED: "true" # connect to datasource
     DB_NEXI_ORACLE_SERVICE_IDENTIFIER: "NDP003DEV"
     DB_NEXI_ORACLE_CONNECTION_TIMEOUT: "15000"
     DB_NEXI_ORACLE_MAX_LIFETIME: "30000"
+    DB_NEXI_ORACLE_WRITE_CACHE_ENABLED: "true" # write cache
     DB_PAGOPA_POSTGRES_URL: "jdbc:postgresql://nodo-db.d.internal.postgresql.pagopa.it:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
     DB_PAGOPA_POSTGRES_USER: "cfg"
-    DB_PAGOPA_POSTGRES_ENABLED: "true"
+    DB_PAGOPA_POSTGRES_ENABLED: "true" # connect to datasource
     DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER: "NDP001DEV"
     DB_PAGOPA_POSTGRES_CONNECTION_TIMEOUT: "15000"
     DB_PAGOPA_POSTGRES_MAX_LIFETIME: "30000"
+    DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED: "true" # write cache
     API_CONFIG_CACHE_URL: "https://api.dev.platform.pagopa.it/api-config-cache/p/v1/stakeholders/node/cache/schemas/v1"
     STAND_IN_MANAGER_URL: "https://api.dev.platform.pagopa.it/stand-in-manager/api/v1"
     OTEL_SERVICE_NAME: "pagopanodecfgsync"
