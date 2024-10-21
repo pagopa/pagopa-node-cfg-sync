@@ -113,9 +113,9 @@ api-config-cache:
     enabled: 'true'
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
-    pagopa-postgres: 'true'
-    nexi-postgres: 'false'
-    nexi-oracle: 'true'
+    pagopa-postgres: ${DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED:'true'}
+    nexi-postgres: ${DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED:'false'}
+    nexi-oracle: ${DB_NEXI_ORACLE_WRITE_CACHE_ENABLED:'true'}
 riversamento:
   enabled: ${RIVERSAMENTO_ENABLED}
   source: ${RIVERSAMENTO_SOURCE}
