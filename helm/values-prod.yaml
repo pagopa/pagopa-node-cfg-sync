@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.5-PAGOPA-2336-dr-postgres"
+    tag: "0.1.6"
     pullPolicy: Always
   livenessProbe:
     httpGet:

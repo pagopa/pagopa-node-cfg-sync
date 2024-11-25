@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.5-PAGOPA-2336-dr-postgres"
+    tag: "0.1.6"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -68,7 +68,7 @@ microservice-chart:
     HIKARI_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
-#    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp.u.db-nodo-pagamenti.com:5444/ndpspca?prepareThreshold=0&currentSchema=NODO4_CFG"
+    #    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp.u.db-nodo-pagamenti.com:5444/ndpspca?prepareThreshold=0&currentSchema=NODO4_CFG"
     DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp-1.u.db-nodo-pagamenti.com:6432,db-postgres-ndp-2.u.db-nodo-pagamenti.com:6432/ndpspcp"
     DB_NEXI_POSTGRES_USER: "pp_nodo4_cfg"
     DB_NEXI_POSTGRES_ENABLED: "false" # connect to datasource
