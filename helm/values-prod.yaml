@@ -83,7 +83,7 @@ microservice-chart:
     DB_NEXI_ORACLE_CONNECTION_TIMEOUT: "15000"
     DB_NEXI_ORACLE_MAX_LIFETIME: "30000"
     DB_NEXI_ORACLE_WRITE_CACHE_ENABLED: "true" # write cache
-    DB_PAGOPA_POSTGRES_URL: "jdbc:postgresql://nodo-db.p.internal.postgresql.pagopa.it:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
+    DB_PAGOPA_POSTGRES_URL: "jdbc:postgresql://nodo-db.p.internal.postgresql.pagopa.it:5432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
     DB_PAGOPA_POSTGRES_USER: "cfg"
     DB_PAGOPA_POSTGRES_ENABLED: "true" # connect to datasource
     DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER: "NDP001PROD"
