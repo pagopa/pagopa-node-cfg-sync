@@ -91,6 +91,10 @@ microservice-chart:
     DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED: "true" # write cache
     API_CONFIG_CACHE_URL: "https://api.dev.platform.pagopa.it/api-config-cache/p/v1/stakeholders/node/cache/schemas/v1"
     STAND_IN_MANAGER_URL: "https://api.dev.platform.pagopa.it/stand-in-manager/api/v1"
+    # enable/disable stand-in writing to various databases
+    STAND_IN_MANAGER_WRITE_PAGOPA_POSTGRES: "true"
+    STAND_IN_MANAGER_WRITE_NEXI_POSTGRES: "false"
+    STAND_IN_MANAGER_WRITE_NEXI_ORACLE: "true"
     OTEL_SERVICE_NAME: "pagopanodecfgsync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
