@@ -49,6 +49,7 @@ spring:
         enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
         connection-test-query: select 1
         connectionTimeout: ${DB_PAGOPA_POSTGRES_CONNECTION_TIMEOUT}
+        keepaliveTime: 30000
         maxLifetime: ${DB_PAGOPA_POSTGRES_MAX_LIFETIME}
     nexi:
       oracle:
