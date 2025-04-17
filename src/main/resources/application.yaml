@@ -93,9 +93,9 @@ stand-in-manager:
     enabled: 'true'
   write:
     ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
-    pagopa-postgres: 'true'
-    nexi-postgres: 'false'
-    nexi-oracle: 'true'
+    pagopa-postgres: ${STAND_IN_MANAGER_WRITE_PAGOPA_POSTGRES:false}
+    nexi-postgres: ${STAND_IN_MANAGER_WRITE_NEXI_POSTGRES:false}
+    nexi-oracle: ${STAND_IN_MANAGER_WRITE_NEXI_ORACLE:false}
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
