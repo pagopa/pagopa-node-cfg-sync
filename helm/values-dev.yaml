@@ -63,7 +63,7 @@ microservice-chart:
           value: "75"
   envConfig:
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync'
-    ENV: 'azure-dev'
+    ENV: 'dev'
     APP_LOGGING_LEVEL: 'INFO'
     HIKARI_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
