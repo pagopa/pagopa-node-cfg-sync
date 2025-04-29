@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.10"
+    tag: "0.1.10-1-PAGOPA-2890-fix-cfg-sync"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -63,7 +63,7 @@ microservice-chart:
           value: "75"
   envConfig:
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync' # required to show cloud role name in application insights
-    ENV: 'azure-prod'
+    ENV: 'prod'
     APP_LOGGING_LEVEL: 'INFO'
     HIKARI_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'

@@ -39,8 +39,10 @@ public class PagoPAPostgresConfig {
     @Bean
     @ConfigurationProperties("spring.datasource.pagopa.postgres")
     public DataSource pagopaPostgresDataSource() {
-        return pagopaPostgresDatasourceProperties().initializeDataSourceBuilder()
+        HikariDataSource build = pagopaPostgresDatasourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();
+        build.setPoolName("pagopaPostgres");
+        return build;
     }
 
     @Primary

@@ -36,8 +36,10 @@ public class NexiOracleConfig {
     @Bean
     @ConfigurationProperties("spring.datasource.nexi.oracle")
     public DataSource nexiOracleDataSource() {
-        return nexiOracleDatasourceProperties().initializeDataSourceBuilder()
+        HikariDataSource build = nexiOracleDatasourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();
+        build.setPoolName("nexiOracle");
+        return build;
     }
 
     @Bean(name = "nexiOracleEntityManagerFactory")

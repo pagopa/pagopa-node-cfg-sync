@@ -36,8 +36,10 @@ public class NexiPostgresConfig {
     @Bean
     @ConfigurationProperties("spring.datasource.nexi.postgres")
     public DataSource nexiPostgresDataSource() {
-        return nexiPostgresDatasourceProperties().initializeDataSourceBuilder()
+        HikariDataSource build = nexiPostgresDatasourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();
+        build.setPoolName("nexiPostgres");
+        return build;
     }
 
     @Bean(name = "nexiPostgresEntityManagerFactory")
