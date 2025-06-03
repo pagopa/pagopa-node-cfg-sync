@@ -69,13 +69,13 @@ microservice-chart:
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     #    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp.u.db-nodo-pagamenti.com:5444/ndpspca?prepareThreshold=0&currentSchema=NODO4_CFG"
-    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp-1.u.db-nodo-pagamenti.com:6432,db-postgres-ndp-2.u.db-nodo-pagamenti.com:6432/ndpspcp"
+    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp-prf.u.db-nodo-pagamenti.com:6432"
     DB_NEXI_POSTGRES_USER: "pp_nodo4_cfg"
-    DB_NEXI_POSTGRES_ENABLED: "false" # connect to datasource
+    DB_NEXI_POSTGRES_ENABLED: "true" # connect to datasource
     DB_NEXI_POSTGRES_SERVICE_IDENTIFIER: "NDP004UAT"
     DB_NEXI_POSTGRES_CONNECTION_TIMEOUT: "15000"
     DB_NEXI_POSTGRES_MAX_LIFETIME: "30000"
-    DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED: "false" # write cache
+    DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED: "true" # write cache
     DB_NEXI_ORACLE_URL: "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN)(ADDRESS=(PROTOCOL=tcp)(PORT=1524)(HOST=db-nodo-pagamenti.u.db-nodo-pagamenti.com))(CONNECT_DATA=(SERVICE_NAME=NDPSPCA_NODO4_CFG))(SO_KEEPALIVE=true)(TCP_KEEPIDLE=60)(TCP_KEEPINTVL=30)(TCP_KEEPCNT=15))"
     DB_NEXI_ORACLE_USER: "NODO4_CFG"
     DB_NEXI_ORACLE_ENABLED: "true" # connect to datasource
@@ -103,7 +103,7 @@ microservice-chart:
     OTEL_METRICS_EXPORTER: otlp
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
-    RIVERSAMENTO_ENABLED: "true"
+    RIVERSAMENTO_ENABLED: "false"
     RIVERSAMENTO_SOURCE: "pagopa-postgres"
     RIVERSAMENTO_TARGET: "nexi-oracle"
     CDI_PREFERENCES_VIEW: CDI_PREFERENCES_VIEW_MASTER
