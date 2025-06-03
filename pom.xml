@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa.node</groupId>
   <artifactId>cfg-sync</artifactId>
-  <version>0.1.12-PAGOPA-3096-uat-nexi</version>
+  <version>0.1.13-PAGOPA-3096-uat-nexi</version>
   <description>Microservice to update configuration schema of Nodo dei Pagamenti</description>
 
   <properties>
