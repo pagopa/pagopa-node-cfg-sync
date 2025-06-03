@@ -1,7 +1,5 @@
 microservice-chart:
   namespace: "nodo"
-  nameOverride: ""
-  fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
     tag: "0.1.12-PAGOPA-3096-uat-nexi"
@@ -22,24 +20,21 @@ microservice-chart:
     periodSeconds: 10
   deployment:
     create: true
-  service:
-    create: true
-    type: ClusterIP
-    ports:
-      - 8080
+    replicas: 1
   ingress:
     create: true
     host: "weudev.nodo.internal.dev.platform.pagopa.it"
     path: /node-cfg-sync/(.*)
     servicePort: 8080
+  service:
+    create: true
+    type: ClusterIP
+    ports:
+      - 8080
   serviceAccount:
-    create: false
-    annotations: {}
-    name: ""
-  podAnnotations: {}
-  podSecurityContext:
-    seccompProfile:
-      type: RuntimeDefault
+    name: "nodo-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   securityContext:
     allowPrivilegeEscalation: false
   resources:
@@ -50,17 +45,17 @@ microservice-chart:
       memory: "1G"
       cpu: "1.0"
   autoscaling:
-    enable: true
-    minReplica: 1
-    maxReplica: 1
-    pollingInterval: 10 # seconds
-    cooldownPeriod: 50 # seconds
-    triggers:
-      - type: cpu
-        metadata:
-          # Required
-          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
-          value: "75"
+    enable: false
+#    minReplica: 1
+#    maxReplica: 1
+#    pollingInterval: 10 # seconds
+#    cooldownPeriod: 50 # seconds
+#    triggers:
+#      - type: cpu
+#        metadata:
+#          # Required
+#          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+#          value: "75"
   envConfig:
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync'
     ENV: 'dev'
@@ -125,8 +120,6 @@ microservice-chart:
   keyvault:
     name: "pagopa-d-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: {}
-  tolerations: []
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
