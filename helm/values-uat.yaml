@@ -10,36 +10,33 @@ microservice-chart:
     httpGet:
       path: /actuator/health/liveness
       port: 8080
-    initialDelaySeconds: 90
+    initialDelaySeconds: 60
     failureThreshold: 6
     periodSeconds: 10
   readinessProbe:
     httpGet:
       path: /actuator/health/readiness
       port: 8080
-    initialDelaySeconds: 90
+    initialDelaySeconds: 60
     failureThreshold: 6
     periodSeconds: 10
   deployment:
     create: true
+    replicas: 1
+  ingress:
+    create: true
+    host: "weudev.nodo.internal.dev.platform.pagopa.it"
+    path: /node-cfg-sync/(.*)
+    servicePort: 8080
   service:
     create: true
     type: ClusterIP
     ports:
       - 8080
-  ingress:
-    create: true
-    host: "weuuat.nodo.internal.uat.platform.pagopa.it"
-    path: /node-cfg-sync/(.*)
-    servicePort: 8080
   serviceAccount:
-    create: false
-    annotations: {}
-    name: ""
-  podAnnotations: {}
-  podSecurityContext:
-    seccompProfile:
-      type: RuntimeDefault
+    name: "nodo-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   securityContext:
     allowPrivilegeEscalation: false
   resources:
@@ -50,17 +47,17 @@ microservice-chart:
       memory: "1G"
       cpu: "1.0"
   autoscaling:
-    enable: true
-    minReplica: 1
-    maxReplica: 3
-    pollingInterval: 10 # seconds
-    cooldownPeriod: 50 # seconds
-    triggers:
-      - type: cpu
-        metadata:
-          # Required
-          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
-          value: "75"
+    enable: false
+#    minReplica: 1
+#    maxReplica: 1
+#    pollingInterval: 10 # seconds
+#    cooldownPeriod: 50 # seconds
+#    triggers:
+#      - type: cpu
+#        metadata:
+#          # Required
+#          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+#          value: "75"
   envConfig:
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync'
     ENV: 'uat'
