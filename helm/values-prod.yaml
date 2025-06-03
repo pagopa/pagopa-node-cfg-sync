@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.11-1-enable-pg-nexi-dev"
+    tag: "0.1.11-2-PAGOPA-3096-uat-nexi"
     pullPolicy: Always
   livenessProbe:
     httpGet:
