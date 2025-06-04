@@ -62,6 +62,11 @@ data "azurerm_key_vault_secret" "key_vault_read_package_token" {
 }
 
 data "azurerm_user_assigned_identity" "identity_cd" {
-  name = "${local.product}-${local.domain}-01-github-cd-identity"
+  name = "${local.product}-${local.domain}-job-01-github-cd-identity"
   resource_group_name = "${local.product}-identity-rg"
+}
+
+data "azurerm_user_assigned_identity" "workload_identity_clientid" {
+  name                = "nodo-workload-identity"
+  resource_group_name = "pagopa-${var.env_short}-weu-${var.env}-aks-rg"
 }
