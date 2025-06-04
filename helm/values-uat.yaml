@@ -90,7 +90,7 @@ microservice-chart:
     STAND_IN_MANAGER_URL: "https://api.uat.platform.pagopa.it/stand-in-manager/api/v1"
     # enable/disable stand-in writing to various databases
     STAND_IN_MANAGER_WRITE_PAGOPA_POSTGRES: "true"
-    STAND_IN_MANAGER_WRITE_NEXI_POSTGRES: "false"
+    STAND_IN_MANAGER_WRITE_NEXI_POSTGRES: "true"
     STAND_IN_MANAGER_WRITE_NEXI_ORACLE: "true"
     OTEL_SERVICE_NAME: "pagopanodecfgsync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=uat"
