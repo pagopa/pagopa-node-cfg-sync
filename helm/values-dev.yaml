@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.13-1-PAGOPA-3096-uat-nexi"
+    tag: "0.1.13-2-PAGOPA-3096-uat-nexi"
     pullPolicy: Always
   livenessProbe:
     httpGet:
