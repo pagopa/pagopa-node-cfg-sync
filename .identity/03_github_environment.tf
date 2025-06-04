@@ -21,7 +21,7 @@ resource "github_repository_environment" "github_repository_environment" {
 
 locals {
   env_secrets = {
-    "CD_CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd.client_id,
+    "CD_CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd_01.client_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
   }
@@ -31,6 +31,9 @@ locals {
     "CLUSTER_NAME" : local.aks_cluster.name,
     "CLUSTER_RESOURCE_GROUP" : local.aks_cluster.resource_group_name,
     "NAMESPACE" : local.domain,
+    "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
+  }
+  repo_secrets = {
   }
 }
 
@@ -73,7 +76,7 @@ resource "github_actions_secret" "secret_sonar_token" {
 resource "github_actions_secret" "secret_bot_token" {
   repository       = local.github.repository
   secret_name      = "BOT_TOKEN_GITHUB"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_bot_token.value
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_bot_cd_token.value
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
@@ -93,8 +96,8 @@ resource "github_actions_secret" "secret_read_package_token" {
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
 resource "github_actions_secret" "slack_webhook_url" {
   repository       = local.github.repository
-  secret_name      = "SLACK_WEBHOOK_URL"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_slack_webhook_url.value
+  secret_name      = "DEPLOY_SLACK_WEBHOOK_URL"
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_deploy_slack_webhook_url.value
 }
 
 ############
