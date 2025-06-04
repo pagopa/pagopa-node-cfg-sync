@@ -1,7 +1,5 @@
 microservice-chart:
   namespace: "nodo"
-  nameOverride: ""
-  fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
     tag: "0.1.13-2-PAGOPA-3096-uat-nexi"
@@ -112,7 +110,8 @@ microservice-chart:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'azure-insight-connection-string'
     DB_PAGOPA_POSTGRES_PASSWORD: "db-cfg-password"
-    DB_NEXI_POSTGRES_PASSWORD: "db-nexi-cfg-password"
+#    DB_NEXI_POSTGRES_PASSWORD: "db-nexi-cfg-password"
+    DB_NEXI_POSTGRES_PASSWORD: "db-nexi-cfg-password-prf"
     DB_NEXI_ORACLE_PASSWORD: "oracle-db-cfg-password"
     API_CONFIG_CACHE_RX_CONNECTION_STRING: "nodo-dei-pagamenti-cache-sync-rx-connection-string-key"
     API_CONFIG_CACHE_SA_CONNECTION_STRING: "node-cfg-sync-re-sa-connection-string-key"
@@ -124,8 +123,6 @@ microservice-chart:
   keyvault:
     name: "pagopa-u-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: {}
-  tolerations: []
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
