@@ -58,7 +58,7 @@ jobs:
         # from https://github.com/hashicorp/setup-terraform/commits/main
         uses: hashicorp/setup-terraform@8feba2b913ea459066180f9cb177f58a881cf146
         with:
-          terraform_version: "1.3.6"
+          terraform_version: "1.9.8"
 
       - name: Login
         id: login
