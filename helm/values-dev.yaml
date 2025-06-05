@@ -1,5 +1,7 @@
 microservice-chart:
   namespace: "nodo"
+  nameOverride: ""
+  fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
     tag: "0.1.15"
@@ -21,22 +23,26 @@ microservice-chart:
   deployment:
     create: true
     replicas: 1
-  ingress:
-    create: true
-    host: "weudev.nodo.internal.dev.platform.pagopa.it"
-    path: /node-cfg-sync/(.*)
-    servicePort: 8080
   service:
     create: true
     type: ClusterIP
     ports:
       - 8080
+  ingress:
+    create: true
+    host: "weudev.nodo.internal.dev.platform.pagopa.it"
+    path: /node-cfg-sync/(.*)
+    servicePort: 8080
   serviceAccount:
     name: "nodo-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   securityContext:
     allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - all
   resources:
     requests:
       memory: "512Mi"
@@ -104,6 +110,9 @@ microservice-chart:
     CDI_PREFERENCES_TABLE: CDI_PREFERENCES_TABLE
     ELENCO_SERVIZI_VIEW: ELENCO_SERVIZI_VIEW_MASTER
     ELENCO_SERVIZI_TABLE: ELENCO_SERVIZI_TABLE
+  envFieldRef:
+    APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
+    APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'azure-insight-connection-string'

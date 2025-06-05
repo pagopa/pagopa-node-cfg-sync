@@ -21,7 +21,7 @@ resource "github_repository_environment" "github_repository_environment" {
 
 locals {
   env_secrets = {
-    "CD_CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd_01.client_id,
+    "CD_CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd.client_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
   }
@@ -94,7 +94,7 @@ resource "github_actions_secret" "secret_read_package_token" {
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
-resource "github_actions_secret" "slack_webhook_url" {
+resource "github_actions_secret" "deploy_slack_webhook_url" {
   repository       = local.github.repository
   secret_name      = "DEPLOY_SLACK_WEBHOOK_URL"
   plaintext_value  = data.azurerm_key_vault_secret.key_vault_deploy_slack_webhook_url.value
