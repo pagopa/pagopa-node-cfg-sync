@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.14-1-PIDM-492-workload-identity-helm-7"
+    tag: "0.1.15"
     pullPolicy: Always
   livenessProbe:
     httpGet:
