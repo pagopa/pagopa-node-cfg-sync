@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.14"
+    tag: "0.1.15"
     pullPolicy: Always
   livenessProbe:
     httpGet:
