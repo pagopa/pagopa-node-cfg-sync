@@ -7,9 +7,9 @@ on:
         required: true
         description: The name of the environment where to deploy
         type: string
-      target:
-        required: true
-        description: The environment target of the job
+      branch:
+        required: false
+        default: ${{ github.ref_name }}
         type: string
 
 env:
@@ -23,14 +23,13 @@ permissions:
 jobs:
   deploy:
     runs-on: [ self-hosted-job, "${{ inputs.environment }}" ]
-    if: ${{ inputs.target == inputs.environment || inputs.target == 'all' }}
     name: Deploy on AKS
     environment: ${{ inputs.environment }}
     steps:
       - name: Deploy
         uses: pagopa/github-actions-template/aks-deploy@main
         with:
-          branch: ${{ github.ref_name }}
+          branch: ${{ inputs.branch }}
           client_id: ${{ secrets.CD_CLIENT_ID }}
           subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
           tenant_id: ${{ secrets.TENANT_ID }}
@@ -40,12 +39,12 @@ jobs:
           resource_group: ${{ vars.CLUSTER_RESOURCE_GROUP }}
           app_name: ${{ env.APP_NAME }}
           helm_upgrade_options: "--debug --set microservice-chart.forceRedeploy=true --set microservice-chart.azure.workloadIdentityClientId=${{vars.WORKLOAD_IDENTITY_ID}}"
+          timeout: '5m0s'
 
   update_openapi:
     needs: [ deploy ]
     runs-on: ubuntu-latest
     name: Update OpenAPI
-    if: ${{ inputs.target == inputs.environment || inputs.target == 'all' }}
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout

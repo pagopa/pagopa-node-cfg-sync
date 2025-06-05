@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.11-1-PIDM-492-workload-identity-helm-7"
+    tag: "0.1.14-1-PIDM-492-workload-identity-helm-7"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -37,10 +37,6 @@ microservice-chart:
     name: "nodo-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
-  podAnnotations: {}
-  podSecurityContext:
-    seccompProfile:
-      type: RuntimeDefault
   securityContext:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
@@ -55,17 +51,17 @@ microservice-chart:
       memory: "4G"
       cpu: "1.0"
   autoscaling:
-    enable: true
-    minReplica: 1
-    maxReplica: 3
-    pollingInterval: 10 # seconds
-    cooldownPeriod: 50 # seconds
-    triggers:
-      - type: cpu
-        metadata:
-          # Required
-          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
-          value: "75"
+    enable: false
+    #    minReplica: 1
+    #    maxReplica: 3
+    #    pollingInterval: 10 # seconds
+    #    cooldownPeriod: 50 # seconds
+    #    triggers:
+    #      - type: cpu
+    #        metadata:
+    #          # Required
+    #          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+    #          value: "75"
   envConfig:
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync' # required to show cloud role name in application insights
     ENV: 'prod'
@@ -134,8 +130,6 @@ microservice-chart:
   keyvault:
     name: "pagopa-p-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: {}
-  tolerations: []
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -145,15 +139,6 @@ microservice-chart:
                 operator: In
                 values:
                   - user
-    podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchLabels:
-                app.kubernetes.io/instance: "pagopa-node-cfg-sync"
-            namespaces: ["nodo"]
-            topologyKey: topology.kubernetes.io/zone
   canaryDelivery:
     create: false
     ingress:

@@ -33,6 +33,8 @@ locals {
     "NAMESPACE" : local.domain,
     "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
   }
+  repo_secrets = {
+  }
 }
 
 ###############
@@ -74,7 +76,7 @@ resource "github_actions_secret" "secret_sonar_token" {
 resource "github_actions_secret" "secret_bot_token" {
   repository       = local.github.repository
   secret_name      = "BOT_TOKEN_GITHUB"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_bot_token.value
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_bot_cd_token.value
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret

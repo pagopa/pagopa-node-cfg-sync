@@ -4,20 +4,20 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.11-1-PIDM-492-workload-identity-helm-7"
+    tag: "0.1.14-1-PIDM-492-workload-identity-helm-7"
     pullPolicy: Always
   livenessProbe:
     httpGet:
       path: /actuator/health/liveness
       port: 8080
-    initialDelaySeconds: 180
+    initialDelaySeconds: 60
     failureThreshold: 6
     periodSeconds: 10
   readinessProbe:
     httpGet:
       path: /actuator/health/readiness
       port: 8080
-    initialDelaySeconds: 180
+    initialDelaySeconds: 60
     failureThreshold: 6
     periodSeconds: 10
   deployment:
@@ -37,10 +37,6 @@ microservice-chart:
     name: "nodo-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
-  podAnnotations: {}
-  podSecurityContext:
-    seccompProfile:
-      type: RuntimeDefault
   securityContext:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
@@ -55,17 +51,17 @@ microservice-chart:
       memory: "1G"
       cpu: "1.0"
   autoscaling:
-    enable: true
-    minReplica: 1
-    maxReplica: 1
-    pollingInterval: 10 # seconds
-    cooldownPeriod: 50 # seconds
-    triggers:
-      - type: cpu
-        metadata:
-          # Required
-          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
-          value: "75"
+    enable: false
+    #    minReplica: 1
+    #    maxReplica: 1
+    #    pollingInterval: 10 # seconds
+    #    cooldownPeriod: 50 # seconds
+    #    triggers:
+    #      - type: cpu
+    #        metadata:
+    #          # Required
+    #          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+    #          value: "75"
   envConfig:
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync'
     ENV: 'dev'
@@ -75,11 +71,11 @@ microservice-chart:
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp.d.db-nodo-pagamenti.com:5444/ndpspct?prepareThreshold=0&currentSchema=NODO4_CFG"
     DB_NEXI_POSTGRES_USER: "pp_nodo4_cfg"
-    DB_NEXI_POSTGRES_ENABLED: "false" # connect to datasource
+    DB_NEXI_POSTGRES_ENABLED: "true" # connect to datasource
     DB_NEXI_POSTGRES_SERVICE_IDENTIFIER: "NDP004DEV"
     DB_NEXI_POSTGRES_CONNECTION_TIMEOUT: "15000"
     DB_NEXI_POSTGRES_MAX_LIFETIME: "30000"
-    DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED: "false" # write cache
+    DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED: "true" # write cache
     DB_NEXI_ORACLE_URL: "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN)(ADDRESS=(PROTOCOL=tcp)(PORT=1522)(HOST=db-nodo-pagamenti.d.db-nodo-pagamenti.com))(CONNECT_DATA=(SERVICE_NAME=NDPSPCT_PP_NODO4_CFG))(SO_KEEPALIVE=true)(TCP_KEEPIDLE=60)(TCP_KEEPINTVL=30)(TCP_KEEPCNT=15))"
     DB_NEXI_ORACLE_USER: "NODO4_CFG"
     DB_NEXI_ORACLE_ENABLED: "true" # connect to datasource
@@ -98,7 +94,7 @@ microservice-chart:
     STAND_IN_MANAGER_URL: "https://api.dev.platform.pagopa.it/stand-in-manager/api/v1"
     # enable/disable stand-in writing to various databases
     STAND_IN_MANAGER_WRITE_PAGOPA_POSTGRES: "true"
-    STAND_IN_MANAGER_WRITE_NEXI_POSTGRES: "false"
+    STAND_IN_MANAGER_WRITE_NEXI_POSTGRES: "true"
     STAND_IN_MANAGER_WRITE_NEXI_ORACLE: "true"
     OTEL_SERVICE_NAME: "pagopanodecfgsync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
@@ -107,7 +103,7 @@ microservice-chart:
     OTEL_METRICS_EXPORTER: otlp
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
-    RIVERSAMENTO_ENABLED: "true"
+    RIVERSAMENTO_ENABLED: "false"
     RIVERSAMENTO_SOURCE: "pagopa-postgres"
     RIVERSAMENTO_TARGET: "nexi-oracle"
     CDI_PREFERENCES_VIEW: CDI_PREFERENCES_VIEW_MASTER
@@ -133,8 +129,6 @@ microservice-chart:
   keyvault:
     name: "pagopa-d-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: {}
-  tolerations: []
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
