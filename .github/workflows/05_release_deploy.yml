@@ -2,7 +2,7 @@ name: Release And Deploy
 
 # Controls when the workflow will run
 on:
-m  merge_group:
+  merge_group:
     branches: [ main ]
   pull_request:
     types: [ closed ]
