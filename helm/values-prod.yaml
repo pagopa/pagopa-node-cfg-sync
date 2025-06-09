@@ -70,7 +70,8 @@ microservice-chart:
     DEFAULT_LOGGING_LEVEL: 'INFO'
     JAVA_OPTS: "-XX:MaxHeapSize=2g"
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
-    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp-1.p.db-nodo-pagamenti.com:6432,db-postgres-ndp-2.p.db-nodo-pagamenti.com:6432/ndpspcp"
+#    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp-1.p.db-nodo-pagamenti.com:6432,db-postgres-ndp-2.p.db-nodo-pagamenti.com:6432/ndpspcp"
+    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://10.102.1.93:6432/ndpspcp"
     DB_NEXI_POSTGRES_USER: "pp_nodo4_cfg"
     DB_NEXI_POSTGRES_ENABLED: "false" # connect to datasource
     DB_NEXI_POSTGRES_SERVICE_IDENTIFIER: "NDP004PROD"
