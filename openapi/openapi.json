@@ -4,7 +4,7 @@
     "title": "cfg-sync",
     "description": "Microservice to update configuration schema of Nodo dei Pagamenti",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.17-1-test-dr-nexi-09062025"
+    "version": "0.1.18"
   },
   "servers": [
     {
