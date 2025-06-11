@@ -117,10 +117,6 @@ api-config-cache:
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED:'true'}
     nexi-postgres: ${DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED:'false'}
     nexi-oracle: ${DB_NEXI_ORACLE_WRITE_CACHE_ENABLED:'true'}
-riversamento:
-  enabled: ${RIVERSAMENTO_ENABLED}
-  source: ${RIVERSAMENTO_SOURCE}
-  target: ${RIVERSAMENTO_TARGET}
 
 timezone: ${TIMEZONE:Europe/Rome}
 

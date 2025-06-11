@@ -59,13 +59,6 @@ public class ApiConfigCacheEhConsumer {
             log.error("[{}][ALERT] Generic Error on consumer: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
         }
 
-        try {
-            apiConfigCacheService.syncRiversamento();
-        } catch (Exception ex) {
-            log.error("[{}][ALERT] Generic Error on consumer: {}", TargetRefreshEnum.riversamento.label, ex.getMessage(), ex);
-        }
-
-
     }
 
     public void processError(ErrorContext errorContext) {
