@@ -63,9 +63,7 @@ class CacheSyncNexiOracleTest {
   }
 
   @Test
-  void nexioracle() throws InterruptedException {
-
-    long size = Math.round(Math.random()*500);
+  void nexioracle() {
 
     Map<String, Collection<String>> headersCustom =
             Map.of(
