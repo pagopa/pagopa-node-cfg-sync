@@ -138,7 +138,6 @@ public class SyncCacheController {
         log.debug("[NODE-CFG-SYNC] Force {} configuration to update", TargetRefreshEnum.cache.label);
 
         Map<String, SyncStatusEnum> syncStatusEnumMap = apiConfigCacheService.syncCache();
-        apiConfigCacheService.syncRiversamento();
 
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
                 .stream()
