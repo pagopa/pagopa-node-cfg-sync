@@ -6,9 +6,11 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum AppError {
-  INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
-      "Something was wrong"),
-  SERVICE_DISABLED(
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
+            "Something was wrong"),
+    CACHE_UNPROCESSABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Cache not ready to be saved",
+        "Problem to retrieve cache"),
+    SERVICE_DISABLED(
           HttpStatus.BAD_REQUEST,
       "Target service disabled",
               "Target service %s disabled");

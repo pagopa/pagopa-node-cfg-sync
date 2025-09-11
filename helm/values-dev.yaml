@@ -78,11 +78,11 @@ microservice-chart:
     DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED: "true" # write cache
     DB_NEXI_ORACLE_URL: "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN)(ADDRESS=(PROTOCOL=tcp)(PORT=1522)(HOST=db-nodo-pagamenti.d.db-nodo-pagamenti.com))(CONNECT_DATA=(SERVICE_NAME=NDPSPCT_PP_NODO4_CFG))(SO_KEEPALIVE=true)(TCP_KEEPIDLE=60)(TCP_KEEPINTVL=30)(TCP_KEEPCNT=15))"
     DB_NEXI_ORACLE_USER: "NODO4_CFG"
-    DB_NEXI_ORACLE_ENABLED: "true" # connect to datasource
+    DB_NEXI_ORACLE_ENABLED: "false" # connect to datasource
     DB_NEXI_ORACLE_SERVICE_IDENTIFIER: "NDP003DEV"
     DB_NEXI_ORACLE_CONNECTION_TIMEOUT: "15000"
     DB_NEXI_ORACLE_MAX_LIFETIME: "30000"
-    DB_NEXI_ORACLE_WRITE_CACHE_ENABLED: "true" # write cache
+    DB_NEXI_ORACLE_WRITE_CACHE_ENABLED: "false" # write cache
     DB_PAGOPA_POSTGRES_URL: "jdbc:postgresql://nodo-db.d.internal.postgresql.pagopa.it:5432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg"
     DB_PAGOPA_POSTGRES_USER: "cfg"
     DB_PAGOPA_POSTGRES_ENABLED: "true" # connect to datasource
@@ -96,7 +96,7 @@ microservice-chart:
     # enable/disable stand-in writing to various databases
     STAND_IN_MANAGER_WRITE_PAGOPA_POSTGRES: "true"
     STAND_IN_MANAGER_WRITE_NEXI_POSTGRES: "true"
-    STAND_IN_MANAGER_WRITE_NEXI_ORACLE: "true"
+    STAND_IN_MANAGER_WRITE_NEXI_ORACLE: "false"
     OTEL_SERVICE_NAME: "pagopanodecfgsync"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"

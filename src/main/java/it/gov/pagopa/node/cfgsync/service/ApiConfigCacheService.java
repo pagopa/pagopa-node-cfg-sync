@@ -16,7 +16,6 @@ import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepositor
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,10 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.*;
 
 import static it.gov.pagopa.node.cfgsync.util.Constants.*;
 
@@ -36,8 +37,9 @@ import static it.gov.pagopa.node.cfgsync.util.Constants.*;
 @Setter
 @Slf4j
 @RequiredArgsConstructor
-public class ApiConfigCacheService extends CommonCacheService {
-
+//public class ApiConfigCacheService extends CommonCacheService {
+public class ApiConfigCacheService {
+/*
     @Value("${api-config-cache.service.enabled}")
     private boolean apiConfigCacheServiceEnabled;
 
@@ -58,8 +60,7 @@ public class ApiConfigCacheService extends CommonCacheService {
 
     private ApiConfigCacheClient apiConfigCacheClient;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     @Autowired(required = false)
     private PagoPACachePostgresRepository pagoPACachePostgresRepository;
@@ -69,12 +70,111 @@ public class ApiConfigCacheService extends CommonCacheService {
     private NexiCacheOracleRepository nexiCacheOracleRepository;
 
     @PostConstruct
-    private void setStandInManagerClient() {
+    private void setApiConfigCacheClient() {
         apiConfigCacheClient = Feign.builder().target(ApiConfigCacheClient.class, apiConfigCacheUrl);
     }
 
-    @Transactional(rollbackFor={SyncDbStatusException.class})
+    private CompletableFuture<Map<String, SyncStatusEnum>> syncCacheWithRetry(int retryLeft, int attempt) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return doSyncCache();
+            } catch (AppException ex) {
+                log.info("Cache handling [{}] {}", ex.getHttpStatus(), ex.getMessage());
+                throw ex;
+            }
+        }).handle((result, ex) -> {
+            if (ex == null) {
+                return CompletableFuture.completedFuture(result);
+            } else if (ex.getCause() instanceof AppException && retryLeft > 0) {
+                long delay = (long) Math.pow(2, attempt); // backoff esponenziale
+                CompletableFuture<Map<String, SyncStatusEnum>> retryFuture = new CompletableFuture<>();
+                scheduler.schedule(
+                        () -> syncCacheWithRetry(retryLeft - 1, attempt + 1)
+                                .whenComplete((res, err) -> {
+                                    if (err != null) retryFuture.completeExceptionally(err);
+                                    else retryFuture.complete(res);
+                                }),
+                        delay, TimeUnit.SECONDS
+                );
+                return retryFuture;
+            } else {
+                CompletableFuture<Map<String, SyncStatusEnum>> failed = new CompletableFuture<>();
+                failed.completeExceptionally(ex.getCause() != null ? ex.getCause() : ex);
+                return failed;
+            }
+        }).thenCompose(f -> f);
+    }
+
     public Map<String, SyncStatusEnum> syncCache() {
+        log.info("Starting sync cache [{}]", LocalDateTime.now());
+        try {
+            Map<String, SyncStatusEnum> response = syncCacheWithRetry(5, 0).get();
+            log.info("Done sync cache [{}]", LocalDateTime.now());
+            return response;
+        } catch (ExecutionException | InterruptedException e) {
+            throw new AppException(AppError.CACHE_UNPROCESSABLE, "Cache not ready to be saved after retries");
+        }
+    }
+
+    @Transactional(rollbackFor = {SyncDbStatusException.class})
+    public Map<String, SyncStatusEnum> doSyncCache() {
+        Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
+        try {
+            if (!apiConfigCacheServiceEnabled) {
+                throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.cache.label);
+            }
+
+            Response response = apiConfigCacheClient.getCache(apiConfigCacheSubscriptionKey);
+            int httpResponseCode = response.status();
+
+            if (httpResponseCode == HttpStatus.NOT_FOUND.value()) {
+                throw new AppException(AppError.CACHE_UNPROCESSABLE);
+            }
+
+            if (httpResponseCode != HttpStatus.OK.value()) {
+                log.error("[{}] error - result: httpStatusCode[{}] {}", TargetRefreshEnum.cache.label, httpResponseCode, response.body());
+                throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+            }
+
+            Map<String, Collection<String>> headers = response.headers();
+            if (headers.isEmpty()) {
+                log.error("[{}] response error - empty header", TargetRefreshEnum.cache.label);
+                throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+            }
+
+            String cacheId = (String) getHeaderParameter(TargetRefreshEnum.cache.label, headers, HEADER_CACHE_ID);
+            String cacheTimestamp = (String) getHeaderParameter(TargetRefreshEnum.cache.label, headers, HEADER_CACHE_TIMESTAMP);
+            String cacheVersion = (String) getHeaderParameter(TargetRefreshEnum.cache.label, headers, HEADER_CACHE_VERSION);
+
+            log.info("[{}] response successful. cacheId:[{}], cacheTimestamp:[{}], cacheVersion:[{}]",
+                    TargetRefreshEnum.cache.label, cacheId, Instant.from(ZonedDateTime.parse(cacheTimestamp)), cacheVersion);
+
+            ConfigCache configCache = composeCache(
+                    cacheId,
+                    ZonedDateTime.parse(cacheTimestamp),
+                    cacheVersion,
+                    response.body().asInputStream().readAllBytes()
+            );
+
+            savePagoPA(syncStatusMap, configCache);
+            saveNexiPostgres(syncStatusMap, configCache);
+            saveNexiOracle(syncStatusMap, configCache);
+
+            return composeSyncStatusMapResult(TargetRefreshEnum.cache.label, syncStatusMap);
+
+        } catch (FeignException fEx) {
+            log.error("[{}] error: {}", TargetRefreshEnum.cache.label, fEx.getMessage(), fEx);
+            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+        } catch (AppException appException) {
+            throw appException;
+        } catch (Exception ex) {
+            log.error("[{}][ALERT] Generic Error: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
+            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Transactional(rollbackFor={SyncDbStatusException.class})
+    public Map<String, SyncStatusEnum> syncCacheOLD() {
         Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
         try {
             if( !apiConfigCacheServiceEnabled) {
@@ -83,7 +183,7 @@ public class ApiConfigCacheService extends CommonCacheService {
             Response response = apiConfigCacheClient.getCache(apiConfigCacheSubscriptionKey);
             int httpResponseCode = response.status();
             if (httpResponseCode != HttpStatus.OK.value()) {
-                log.error("[{}] error - result: httpStatusCode[{}]", TargetRefreshEnum.cache.label, httpResponseCode);
+                log.error("[{}] error - result: httpStatusCode[{}] {}", TargetRefreshEnum.cache.label, httpResponseCode, response.body());
                 throw new AppException(AppError.INTERNAL_SERVER_ERROR);
             }
 
@@ -155,6 +255,30 @@ public class ApiConfigCacheService extends CommonCacheService {
         } catch(Exception ex) {
             log.error("[{}][ALERT] Problem to dump cache on Nexi PostgreSQL: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
             syncStatusMap.put(getNexiPostgresServiceIdentifier(), SyncStatusEnum.ERROR);
+        }
+    }
+
+ */
+
+    @Value("${api-config-cache.service.enabled}")
+    private boolean apiConfigCacheServiceEnabled;
+
+    private final ApiConfigCacheFetchService fetchService;
+    private final ApiConfigCachePersistenceService persistenceService;
+
+    public Map<String, SyncStatusEnum> syncCache() {
+        if( !apiConfigCacheServiceEnabled) {
+            throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.cache.label);
+        }
+
+        log.info("Starting sync cache [{}]", LocalDateTime.now());
+        try {
+            Map<String, SyncStatusEnum> response = fetchService.fetchCacheWithRetry()
+                    .thenApply(persistenceService::saveCache).get();
+            log.info("Done sync cache [{}]", LocalDateTime.now());
+            return response;
+        } catch (ExecutionException | InterruptedException e) {
+            throw new AppException(AppError.CACHE_UNPROCESSABLE, "Cache not ready to be saved after retries");
         }
     }
 }
