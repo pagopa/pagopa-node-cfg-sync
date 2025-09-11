@@ -15,7 +15,7 @@ spring:
     hikari:
     pagopa:
       postgres:
-        url: jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:6432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg
+        url: jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:5432/nodo?sslmode=require&prepareThreshold=0&currentSchema=cfg
         username: cfg
         password: ${DB_PAGOPA_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
@@ -54,7 +54,7 @@ stand-in-manager:
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'
   sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
-  sa-name: standinevents
+  sa-name: standineventslocal
   consumer-group: $Default
   consumer:
     ##permette di abilitare/disabilitare il consumer
@@ -74,14 +74,14 @@ api-config-cache:
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
-  sa-name: cacheevents
-  consumer-group: $Default
+  sa-name: cacheeventslocal
+  consumer-group: nodo-dei-pagamenti-cache-sync-rx-local
   consumer:
     ##permette di abilitare/disabilitare il consumer
-    enabled: 'false'
+    enabled: 'true'
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
-    pagopa-postgres: 'true'
+    pagopa-postgres: 'false'
     nexi-postgres: 'false'
     nexi-oracle: 'false'
 

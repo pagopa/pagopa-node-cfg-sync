@@ -111,7 +111,7 @@ api-config-cache:
   consumer-group: nodo-dei-pagamenti-cache-sync-rx
   consumer:
     ##permette di abilitare/disabilitare il consumer
-    enabled: 'true'
+    enabled: ${EH_CACHE_CONSUMER_ENABLED:'true'}
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED:'true'}
