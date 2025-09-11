@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.19"
+    tag: "0.1.19-1-opt-cache-consumer"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -90,7 +90,7 @@ microservice-chart:
     DB_PAGOPA_POSTGRES_CONNECTION_TIMEOUT: "15000"
     DB_PAGOPA_POSTGRES_MAX_LIFETIME: "30000"
     DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED: "true" # write cache
-    EH_CACHE_CONSUMER_ENABLED: "true"  # enable evh message consuming
+    EH_CACHE_CONSUMER_ENABLED: "true" # enable evh message consuming
     API_CONFIG_CACHE_URL: "https://api.dev.platform.pagopa.it/api-config-cache/p/v1/stakeholders/node/cache/schemas/v1"
     STAND_IN_MANAGER_URL: "https://api.dev.platform.pagopa.it/stand-in-manager/api/v1"
     # enable/disable stand-in writing to various databases
