@@ -37,6 +37,7 @@ public class ApiConfigCacheService {
             log.info("Done sync cache [{}]", LocalDateTime.now());
             return response;
         } catch (ExecutionException | InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new AppException(AppError.CACHE_UNPROCESSABLE, "Cache not ready to be saved after retries");
         }
     }

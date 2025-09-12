@@ -5,13 +5,11 @@ import feign.Response;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
-import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheFetchService;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCachePersistenceService;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.util.Collection;

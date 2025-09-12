@@ -50,7 +50,7 @@ public class ApiConfigCacheFetchService {
     }
 
     private CompletableFuture<Response> fetchWithRetry(int retryLeft, int attempt) {
-        log.info("Fetching cache with {} attempt(s) in {} sec", attempt, Math.pow(2, attempt-1));
+        log.info("Fetching cache with {} attempt(s) in {} sec", attempt, Math.pow(2, attempt-1d));
         return CompletableFuture.supplyAsync(() -> apiConfigCacheClient.getCache(apiConfigCacheSubscriptionKey))
                 .thenCompose(response -> {
                     if (response.status() == HttpStatus.OK.value()) {

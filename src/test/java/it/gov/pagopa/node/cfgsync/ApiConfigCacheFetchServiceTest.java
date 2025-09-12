@@ -2,7 +2,6 @@ package it.gov.pagopa.node.cfgsync;
 
 import feign.Response;
 import it.gov.pagopa.node.cfgsync.client.ApiConfigCacheClient;
-import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.service.ApiConfigCacheFetchService;
 import org.junit.jupiter.api.Assertions;
