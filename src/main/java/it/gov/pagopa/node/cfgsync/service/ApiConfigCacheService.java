@@ -1,5 +1,6 @@
 package it.gov.pagopa.node.cfgsync.service;
 
+import it.gov.pagopa.node.cfgsync.client.AppInsightTelemetryClient;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
@@ -24,6 +25,7 @@ public class ApiConfigCacheService {
 
     private final ApiConfigCacheFetchService fetchService;
     private final ApiConfigCachePersistenceService persistenceService;
+    private final AppInsightTelemetryClient telemetryClient;
 
     public Map<String, SyncStatusEnum> syncCache() {
         if( !apiConfigCacheServiceEnabled) {
@@ -37,8 +39,13 @@ public class ApiConfigCacheService {
             log.info("Done sync cache [{}]", LocalDateTime.now());
             return response;
         } catch (ExecutionException | InterruptedException e) {
+            telemetryClient.createCustomEventForAlert(AppError.CACHE_UNPROCESSABLE, "Cache not ready to be saved after retries", e);
             Thread.currentThread().interrupt();
             throw new AppException(AppError.CACHE_UNPROCESSABLE, "Cache not ready to be saved after retries");
         }
+    }
+
+    public void customEvent() {
+        telemetryClient.createCustomEventForAlert(AppError.FAKE, "Test details " + LocalDateTime.now(), null);
     }
 }

@@ -136,6 +136,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- Azure Application Insights -->
+    <dependency>
+      <groupId>com.microsoft.azure</groupId>
+      <artifactId>applicationinsights-core</artifactId>
+      <version>2.6.4</version>
+    </dependency>
+
     <!-- Swagger/OpenAPI -->
     <dependency>
       <groupId>org.springdoc</groupId>

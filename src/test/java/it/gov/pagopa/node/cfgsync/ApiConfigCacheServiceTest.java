@@ -2,6 +2,7 @@ package it.gov.pagopa.node.cfgsync;
 
 import feign.Request;
 import feign.Response;
+import it.gov.pagopa.node.cfgsync.client.AppInsightTelemetryClient;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
@@ -41,7 +42,8 @@ class ApiConfigCacheServiceTest {
     void setUp() {
         fetchService = mock(ApiConfigCacheFetchService.class);
         persistenceService = mock(ApiConfigCachePersistenceService.class);
-        service = new ApiConfigCacheService(fetchService, persistenceService);
+        AppInsightTelemetryClient telemetryClient = mock(AppInsightTelemetryClient.class);
+        service = new ApiConfigCacheService(fetchService, persistenceService, telemetryClient);
         service.setApiConfigCacheServiceEnabled(true);
     }
 
