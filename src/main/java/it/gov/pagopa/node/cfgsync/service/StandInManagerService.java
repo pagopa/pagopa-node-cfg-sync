@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Feign;
 import feign.FeignException;
 import feign.Response;
+import it.gov.pagopa.node.cfgsync.client.AppInsightTelemetryClient;
 import it.gov.pagopa.node.cfgsync.client.StandInManagerClient;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
@@ -56,6 +57,8 @@ public class StandInManagerService extends CommonCacheService {
     @Autowired(required = false)
     private NexiStandInOracleRepository nexiStandInOracleRepository;
 
+    private final AppInsightTelemetryClient telemetryClient;
+
     @PostConstruct
     private void setStandInManagerClient() {
         standInManagerClient = Feign.builder().target(StandInManagerClient.class, standInManagerUrl);
@@ -86,11 +89,14 @@ public class StandInManagerService extends CommonCacheService {
             return composeSyncStatusMapResult(TargetRefreshEnum.standin.label, syncStatusMap);
         } catch (FeignException fEx) {
             log.error("[{}] error: {}", TargetRefreshEnum.standin.label, fEx.getMessage(), fEx);
+            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Feign exception", fEx);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         } catch (AppException appException) {
+            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "App exception", appException);
             throw appException;
         } catch (Exception ex) {
             log.error("[{}][ALERT] Generic Error: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
+            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Generic exception", ex);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
     }
