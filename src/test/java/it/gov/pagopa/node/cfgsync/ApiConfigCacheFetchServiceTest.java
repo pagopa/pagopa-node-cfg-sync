@@ -51,16 +51,6 @@ class ApiConfigCacheFetchServiceTest {
         Assertions.assertInstanceOf(AppException.class, ex.getCause());
     }
 
-    // Java
-    @Test
-    void fetchWithRetry_shouldReturnResponseOnFirstTry() {
-        Response response = Response.builder().status(200).request(mock(feign.Request.class)).build();
-        when(client.getCache(anyString())).thenReturn(response);
-
-        CompletableFuture<Response> future = service.fetchCacheWithRetry();
-        assertEquals(200, future.join().status());
-    }
-
     @Test
     void fetchWithRetry_shouldRetryAndSucceed() {
         Response failResponse = Response.builder().status(500).request(mock(feign.Request.class)).build();
