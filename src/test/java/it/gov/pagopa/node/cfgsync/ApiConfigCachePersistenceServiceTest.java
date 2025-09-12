@@ -28,7 +28,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class ApiConfigCachePersistenceServiceTest {
+class ApiConfigCachePersistenceServiceTest {
 
     @Mock
     private PagoPACachePostgresRepository pagoPACachePostgresRepository;
@@ -40,9 +40,9 @@ public class ApiConfigCachePersistenceServiceTest {
     @InjectMocks
     private ApiConfigCachePersistenceService service;
 
-    private static final String pagopaID = "PAGOPAID";
-    private static final String nexiPostgresID = "NEXIOID";
-    private static final String nexiOracleID = "NEXIPID";
+    private static final String PAGOPA_ID = "PAGOPAID";
+    private static final String NEXI_POSTGRES_ID = "NEXIOID";
+    private static final String NEXI_ORACLE_ID = "NEXIPID";
 
     private static final Map<String, Collection<String>> headers;
     static {
@@ -60,17 +60,17 @@ public class ApiConfigCachePersistenceServiceTest {
         service.setApiConfigCacheWriteNexiOracle(true);
         service.setApiConfigCacheWriteNexiPostgres(true);
 
-        ReflectionTestUtils.setField(service, "pagopaPostgresServiceIdentifier", pagopaID);
-        ReflectionTestUtils.setField(service, "nexiPostgresServiceIdentifier", nexiPostgresID);
-        ReflectionTestUtils.setField(service, "nexiOracleServiceIdentifier", nexiOracleID);
+        ReflectionTestUtils.setField(service, "pagopaPostgresServiceIdentifier", PAGOPA_ID);
+        ReflectionTestUtils.setField(service, "nexiPostgresServiceIdentifier", NEXI_POSTGRES_ID);
+        ReflectionTestUtils.setField(service, "nexiOracleServiceIdentifier", NEXI_ORACLE_ID);
     }
 
     @Test
     void saveCache_success() {
         Map<String, SyncStatusEnum> expected = Map.of(
-                pagopaID, SyncStatusEnum.DONE,
-                nexiPostgresID, SyncStatusEnum.DONE,
-                nexiOracleID, SyncStatusEnum.DONE
+                PAGOPA_ID, SyncStatusEnum.DONE,
+                NEXI_POSTGRES_ID, SyncStatusEnum.DONE,
+                NEXI_ORACLE_ID, SyncStatusEnum.DONE
         );
 
         Response response = Response.builder()
@@ -155,39 +155,39 @@ public class ApiConfigCachePersistenceServiceTest {
         return Stream.of(
                 // Caso: PagoPA lancia eccezione
                 Arguments.of(true, true, true, true, false, false, Map.of(
-                        pagopaID, SyncStatusEnum.ERROR,
-                        nexiPostgresID, SyncStatusEnum.ROLLBACK,
-                        nexiOracleID, SyncStatusEnum.ROLLBACK
+                        PAGOPA_ID, SyncStatusEnum.ERROR,
+                        NEXI_POSTGRES_ID, SyncStatusEnum.ROLLBACK,
+                        NEXI_ORACLE_ID, SyncStatusEnum.ROLLBACK
                 )),
                 // Caso: PagoPA disabilitato
                 Arguments.of(false, true, true, false, false, false, Map.of(
-                        pagopaID, SyncStatusEnum.DISABLED,
-                        nexiPostgresID, SyncStatusEnum.DONE,
-                        nexiOracleID, SyncStatusEnum.DONE
+                        PAGOPA_ID, SyncStatusEnum.DISABLED,
+                        NEXI_POSTGRES_ID, SyncStatusEnum.DONE,
+                        NEXI_ORACLE_ID, SyncStatusEnum.DONE
                 )),
                 // Caso: Nexi Oracle lancia eccezione
                 Arguments.of(true, true, true, false, true, false, Map.of(
-                        pagopaID, SyncStatusEnum.ROLLBACK,
-                        nexiOracleID, SyncStatusEnum.ERROR,
-                        nexiPostgresID, SyncStatusEnum.ROLLBACK
+                        PAGOPA_ID, SyncStatusEnum.ROLLBACK,
+                        NEXI_ORACLE_ID, SyncStatusEnum.ERROR,
+                        NEXI_POSTGRES_ID, SyncStatusEnum.ROLLBACK
                 )),
                 // Caso: Nexi Oracle disabilitato
                 Arguments.of(true, false, true, false, false, false, Map.of(
-                        pagopaID, SyncStatusEnum.DONE,
-                        nexiOracleID, SyncStatusEnum.DISABLED,
-                        nexiPostgresID, SyncStatusEnum.DONE
+                        PAGOPA_ID, SyncStatusEnum.DONE,
+                        NEXI_ORACLE_ID, SyncStatusEnum.DISABLED,
+                        NEXI_POSTGRES_ID, SyncStatusEnum.DONE
                 )),
                 // Caso: Nexi Postgres lancia eccezione
                 Arguments.of(true, true, true, false, false, true, Map.of(
-                        pagopaID, SyncStatusEnum.ROLLBACK,
-                        nexiOracleID, SyncStatusEnum.ROLLBACK,
-                        nexiPostgresID, SyncStatusEnum.ERROR
+                        PAGOPA_ID, SyncStatusEnum.ROLLBACK,
+                        NEXI_ORACLE_ID, SyncStatusEnum.ROLLBACK,
+                        NEXI_POSTGRES_ID, SyncStatusEnum.ERROR
                 )),
                 // Caso: Nexi Postgres disabilitato
                 Arguments.of(true, true, false, false, false, false, Map.of(
-                        pagopaID, SyncStatusEnum.DONE,
-                        nexiOracleID, SyncStatusEnum.DONE,
-                        nexiPostgresID, SyncStatusEnum.DISABLED
+                        PAGOPA_ID, SyncStatusEnum.DONE,
+                        NEXI_ORACLE_ID, SyncStatusEnum.DONE,
+                        NEXI_POSTGRES_ID, SyncStatusEnum.DISABLED
                 ))
         );
     }
