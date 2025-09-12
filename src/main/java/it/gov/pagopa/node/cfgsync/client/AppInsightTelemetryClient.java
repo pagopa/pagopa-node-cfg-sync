@@ -3,12 +3,12 @@ package it.gov.pagopa.node.cfgsync.client;
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.TelemetryConfiguration;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 /** Azure Application Insight Telemetry client */
-@Component
+@Service
 public class AppInsightTelemetryClient {
 
   private final String connectionString = System.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING");
@@ -19,10 +19,6 @@ public class AppInsightTelemetryClient {
     TelemetryConfiguration aDefault = TelemetryConfiguration.createDefault();
     aDefault.setConnectionString(connectionString);
     this.telemetryClient = new TelemetryClient(aDefault);
-  }
-
-  AppInsightTelemetryClient(TelemetryClient telemetryClient) {
-    this.telemetryClient = telemetryClient;
   }
 
   /**
