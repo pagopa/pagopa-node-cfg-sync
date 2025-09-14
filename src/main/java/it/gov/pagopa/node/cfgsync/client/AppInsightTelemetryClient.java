@@ -29,7 +29,11 @@ public class AppInsightTelemetryClient {
    * @param e exception added to the custom event
    */
   public void createCustomEventForAlert(AppError errorCode, String details, Exception e) {
-    Map<String, String> props =
+    String errorMessage = null;
+      if (e != null) {
+          errorMessage = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+      }
+      Map<String, String> props =
         Map.of(
             "type",
             errorCode.getTitle(),
@@ -38,7 +42,7 @@ public class AppInsightTelemetryClient {
             "details",
             details,
             "cause",
-            e != null ? e.getCause() != null ? e.getCause().getMessage() : e.getMessage() : "N/A");
+            e != null ? errorMessage: "N/A");
     this.telemetryClient.trackEvent("NODE_CFG_SYNC", props, null);
   }
 }
