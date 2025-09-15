@@ -107,6 +107,8 @@ api-config-cache:
     subscriptionKey: ''
     #permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'
+    retryLeft: 2
+    attemptDelay: 1
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
   sa-name: cacheevents
   consumer-group: $Default

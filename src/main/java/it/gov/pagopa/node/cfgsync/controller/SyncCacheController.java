@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -146,6 +147,50 @@ public class SyncCacheController {
 
         return ResponseEntity.ok()
                 .body(syncStatusResponseList);
+    }
+
+    @Operation(
+            summary = "Force to send a custom event to Application Insight",
+            security = {@SecurityRequirement(name = "ApiKey")},
+            tags = {
+                    "Support",
+            })
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request",
+                            content =
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ProblemJson.class))),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())),
+                    @ApiResponse(
+                            responseCode = "429",
+                            description = "Too many requests",
+                            content = @Content(schema = @Schema())),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Service unavailable",
+                            content =
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ProblemJson.class)))
+            })
+    @GetMapping(
+            value = "/custom-event",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SyncStatusResponse>> customEvent() {
+        log.debug("[NODE-CFG-SYNC] Force {} custom event", TargetRefreshEnum.cache.label);
+
+        apiConfigCacheService.customEvent();
+        return ResponseEntity.ok().build();
     }
 
 }

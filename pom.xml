@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa.node</groupId>
   <artifactId>cfg-sync</artifactId>
-  <version>0.1.19</version>
+  <version>0.1.19-2-opt-cache-consumer</version>
   <description>Microservice to update configuration schema of Nodo dei Pagamenti</description>
 
   <properties>
@@ -134,6 +134,13 @@
       <artifactId>mockito-inline</artifactId>
       <version>2.13.0</version>
       <scope>test</scope>
+    </dependency>
+
+    <!-- Azure Application Insights -->
+    <dependency>
+      <groupId>com.microsoft.azure</groupId>
+      <artifactId>applicationinsights-core</artifactId>
+      <version>2.6.4</version>
     </dependency>
 
     <!-- Swagger/OpenAPI -->

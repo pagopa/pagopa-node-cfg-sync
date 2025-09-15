@@ -106,12 +106,14 @@ api-config-cache:
     subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'
+    retryLeft: ${API_CONFIG_CACHE_RETRY_LEFT:5}
+    attemptDelay: ${API_CONFIG_CACHE_ATTEMPT_DELAY:1} # seconds (exponential backoff: 1 2 4 8 16)
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
   sa-name: cacheevents
   consumer-group: nodo-dei-pagamenti-cache-sync-rx
   consumer:
     ##permette di abilitare/disabilitare il consumer
-    enabled: 'true'
+    enabled: ${EH_CACHE_CONSUMER_ENABLED:'true'}
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED:'true'}
