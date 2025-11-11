@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-node-cfg-sync
-    tag: "0.1.20"
+    tag: "0.1.20-1-nexi-switch-to-uat"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -75,11 +75,11 @@ microservice-chart:
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp.u.db-nodo-pagamenti.com:5444/ndpspca?prepareThreshold=0&currentSchema=NODO4_CFG"
-#    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp-prf.u.db-nodo-pagamenti.com:5444/ndpspcq?prepareThreshold=0&currentSchema=NODO4_CFG"
+    #    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp-prf.u.db-nodo-pagamenti.com:5444/ndpspcq?prepareThreshold=0&currentSchema=NODO4_CFG"
     DB_NEXI_POSTGRES_USER: "pp_nodo4_cfg"
     DB_NEXI_POSTGRES_ENABLED: "true" # connect to datasource
     DB_NEXI_POSTGRES_SERVICE_IDENTIFIER: "NDP004UAT"
-#    DB_NEXI_POSTGRES_SERVICE_IDENTIFIER: "NDP004PRF"
+    #    DB_NEXI_POSTGRES_SERVICE_IDENTIFIER: "NDP004PRF"
     DB_NEXI_POSTGRES_CONNECTION_TIMEOUT: "15000"
     DB_NEXI_POSTGRES_MAX_LIFETIME: "30000"
     DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED: "true" # write cache
