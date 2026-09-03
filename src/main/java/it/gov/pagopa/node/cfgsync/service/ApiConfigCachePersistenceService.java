@@ -76,7 +76,7 @@ public class ApiConfigCachePersistenceService extends CommonCacheService {
 
             Map<String, SyncStatusEnum> resultMap = composeSyncStatusMapResult(TargetRefreshEnum.cache.label, syncStatusMap);
             if (resultMap.containsValue(SyncStatusEnum.ERROR)) {
-                log.warn("Setting transaction rollback");
+                log.warn("[CACHE] Setting transaction rollback");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             }
 
