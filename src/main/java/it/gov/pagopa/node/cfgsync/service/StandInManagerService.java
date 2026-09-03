@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.PostConstruct;
 import java.util.LinkedHashMap;
@@ -86,7 +87,13 @@ public class StandInManagerService extends CommonCacheService {
             saveNexiPostgres(syncStatusMap, stationsEntities);
             saveNexiOracle(syncStatusMap, stationsEntities);
 
-            return composeSyncStatusMapResult(TargetRefreshEnum.standin.label, syncStatusMap);
+            Map<String, SyncStatusEnum> resultMap = composeSyncStatusMapResult(TargetRefreshEnum.standin.label, syncStatusMap);
+            if (resultMap.containsValue(SyncStatusEnum.ERROR)) {
+                log.warn("[STAND-IN] Setting transaction rollback");
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            }
+
+            return resultMap;
         } catch (FeignException fEx) {
             log.error("[{}] error: {}", TargetRefreshEnum.standin.label, fEx.getMessage(), fEx);
             telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Feign exception", fEx);
