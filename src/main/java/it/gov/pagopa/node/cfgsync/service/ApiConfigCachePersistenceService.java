@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -73,7 +74,13 @@ public class ApiConfigCachePersistenceService extends CommonCacheService {
             saveNexiPostgres(syncStatusMap, configCache);
             saveNexiOracle(syncStatusMap, configCache);
 
-            return composeSyncStatusMapResult(TargetRefreshEnum.cache.label, syncStatusMap);
+            Map<String, SyncStatusEnum> resultMap = composeSyncStatusMapResult(TargetRefreshEnum.cache.label, syncStatusMap);
+            if (resultMap.containsValue(SyncStatusEnum.ERROR)) {
+                log.warn("Setting transaction rollback");
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            }
+
+            return resultMap;
 
         } catch (Exception e) {
             throw new AppException(AppError.INTERNAL_SERVER_ERROR, e);
