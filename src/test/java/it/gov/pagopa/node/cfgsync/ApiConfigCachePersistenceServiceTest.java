@@ -21,8 +21,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.time.Instant;
 import java.util.*;
@@ -145,7 +148,13 @@ class ApiConfigCachePersistenceServiceTest {
         service.setApiConfigCacheWriteNexiOracle(writeNexiOracle);
         service.setApiConfigCacheWriteNexiPostgres(writeNexiPostgres);
 
-        Map<String, SyncStatusEnum> result = service.saveCache(response);
+        Map<String, SyncStatusEnum> result;
+        try (MockedStatic<TransactionAspectSupport> transactionAspectSupport = mockStatic(TransactionAspectSupport.class)) {
+            TransactionStatus transactionStatus = mock(TransactionStatus.class);
+            transactionAspectSupport.when(TransactionAspectSupport::currentTransactionStatus).thenReturn(transactionStatus);
+
+            result = service.saveCache(response);
+        }
 
         assertNotNull(result);
         assertEquals(expected, result);
