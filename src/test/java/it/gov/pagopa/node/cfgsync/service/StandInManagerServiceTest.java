@@ -1,6 +1,7 @@
 package it.gov.pagopa.node.cfgsync.service;
 
 import feign.FeignException;
+import it.gov.pagopa.node.cfgsync.client.AppInsightTelemetryClient;
 import it.gov.pagopa.node.cfgsync.client.StandInManagerClient;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.StationsResponse;
@@ -8,9 +9,9 @@ import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -34,19 +35,39 @@ class StandInManagerServiceTest {
     private static final String NEXIORACLE_SI = "NEXIORACLE";
     private static final List<String> stations = List.of("1234567890", "9876543210");
 
-    @InjectMocks
     private StandInManagerService standInManagerService;
 
-    @Mock
-    private StandInManagerClient standInManagerClient;
+    @Mock private StandInManagerClient standInManagerClient;
+    @Mock private PagoPAStandInPostgresRepository pagoPAStandInPostgresRepository;
+    @Mock private NexiStandInPostgresRepository nexiStandInPostgresRepository;
+    @Mock private NexiStandInOracleRepository nexiStandInOracleRepository;
+    @Mock private AppInsightTelemetryClient telemetryClient;
+
+    @BeforeEach
+    void setUp() {
+        standInManagerService = new StandInManagerService(
+                true,  // standInManagerEnabled
+                true,  // standInManagerWritePagoPa
+                true,  // standInManagerWriteNexiOracle
+                true,  // standInManagerWriteNexiPostgres
+                standInManagerClient,
+                pagoPAStandInPostgresRepository,
+                nexiStandInPostgresRepository,
+                nexiStandInOracleRepository,
+                telemetryClient
+        );
+        ReflectionTestUtils.setField(standInManagerService, "pagopaPostgresServiceIdentifier", PAGOPAPOSTGRES_SI);
+        ReflectionTestUtils.setField(standInManagerService, "nexiPostgresServiceIdentifier", NEXIPOSTGRES_SI);
+        ReflectionTestUtils.setField(standInManagerService, "nexiOracleServiceIdentifier", NEXIORACLE_SI);
+    }
 
     @Test
-    void error422() {
+    void error400() {
         ReflectionTestUtils.setField(standInManagerService, "standInManagerEnabled", false);
 
         AppException e = assertThrows(AppException.class, () -> standInManagerService.syncStandIn());
 
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, e.getHttpStatus());
+        assertEquals(HttpStatus.BAD_REQUEST, e.getHttpStatus());
         assertEquals("Target service disabled", e.getTitle());
         assertEquals("Target service stand-in-manager disabled", e.getMessage());
 
