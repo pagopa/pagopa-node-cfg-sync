@@ -4,6 +4,10 @@ info:
 cors:
   configuration: '{"origins": ["*"], "methods": ["*"]}'
 
+azure:
+  application-insights:
+    connection-string: ${APPLICATION_INSIGHTS_CONNECTION_STRING}
+
 app:
   identifiers:
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}

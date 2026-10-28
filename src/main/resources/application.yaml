@@ -32,6 +32,11 @@ management:
     health:
       probes:
         enabled: 'true'
+
+azure:
+    application-insights:
+      connection-string: ${APPLICATION_INSIGHTS_CONNECTION_STRING}
+
 app:
   identifiers:
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}
