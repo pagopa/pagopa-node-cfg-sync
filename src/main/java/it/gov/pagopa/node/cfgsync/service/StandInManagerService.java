@@ -1,9 +1,6 @@
 package it.gov.pagopa.node.cfgsync.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.Feign;
 import feign.FeignException;
-import feign.Response;
 import it.gov.pagopa.node.cfgsync.client.AppInsightTelemetryClient;
 import it.gov.pagopa.node.cfgsync.client.StandInManagerClient;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
@@ -16,20 +13,15 @@ import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.PostConstruct;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @Slf4j
@@ -69,12 +61,15 @@ public class StandInManagerService extends CommonCacheService {
 
     @Transactional(rollbackFor = {SyncDbStatusException.class})
     public Map<String, SyncStatusEnum> syncStandIn() {
-        Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
+        if (!standInManagerEnabled) {
+            AppException appException = new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.standin.label);
+            telemetryClient.createCustomEventForAlert(AppError.SERVICE_DISABLED, "App exception", appException);
+            throw appException;
+        }
+
+        StationsResponse stations = getStations();
         try {
-            if (!standInManagerEnabled) {
-                throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.standin.label);
-            }
-            StationsResponse stations = getStations();
+            Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
             List<StandInStations> stationsEntities = stations.getStations().stream().map(StandInStations::new).toList();
 
             savePagoPA(syncStatusMap, stationsEntities);
@@ -82,13 +77,6 @@ public class StandInManagerService extends CommonCacheService {
             saveNexiOracle(syncStatusMap, stationsEntities);
 
             return composeSyncStatusMapResult(TargetRefreshEnum.standin.label, syncStatusMap);
-        } catch (FeignException fEx) {
-            log.error("[{}] error: {}", TargetRefreshEnum.standin.label, fEx.getMessage(), fEx);
-            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Feign exception", fEx);
-            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
-        } catch (AppException appException) {
-            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "App exception", appException);
-            throw appException;
         } catch (Exception ex) {
             log.error("[{}][ALERT] Generic Error: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
             telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Generic exception", ex);
@@ -101,7 +89,8 @@ public class StandInManagerService extends CommonCacheService {
         try {
             stations = standInManagerClient.getStations();
         } catch (FeignException e) {
-            log.error("[{}] error - result: httpStatusCode[{}]", TargetRefreshEnum.standin.label, e.status());
+            log.error("[{}] error: {}", TargetRefreshEnum.standin.label, e.getMessage(), e);
+            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Feign exception", e);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
         log.info("[{}] response successful. {} stations found", TargetRefreshEnum.standin.label, stations.getStations().size());
