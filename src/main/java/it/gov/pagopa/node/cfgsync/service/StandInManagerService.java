@@ -17,7 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -43,9 +42,9 @@ public class StandInManagerService extends CommonCacheService {
             @Value("${stand-in-manager.write.nexi-oracle}") boolean standInManagerWriteNexiOracle,
             @Value("${stand-in-manager.write.nexi-postgres}") boolean standInManagerWriteNexiPostgres,
             StandInManagerClient standInManagerClient,
-             @Autowired(required = false) PagoPAStandInPostgresRepository pagoPAStandInPostgresRepository,
-             @Autowired(required = false) NexiStandInPostgresRepository nexiStandInPostgresRepository,
-             @Autowired(required = false) NexiStandInOracleRepository nexiStandInOracleRepository,
+            @Autowired(required = false) PagoPAStandInPostgresRepository pagoPAStandInPostgresRepository,
+            @Autowired(required = false) NexiStandInPostgresRepository nexiStandInPostgresRepository,
+            @Autowired(required = false) NexiStandInOracleRepository nexiStandInOracleRepository,
             AppInsightTelemetryClient telemetryClient
     ) {
         this.standInManagerEnabled = standInManagerEnabled;
@@ -61,15 +60,14 @@ public class StandInManagerService extends CommonCacheService {
 
     @Transactional(rollbackFor = {SyncDbStatusException.class})
     public Map<String, SyncStatusEnum> syncStandIn() {
-        if (!standInManagerEnabled) {
-            AppException appException = new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.standin.label);
-            telemetryClient.createCustomEventForAlert(AppError.SERVICE_DISABLED, "App exception", appException);
-            throw appException;
-        }
-
-        StationsResponse stations = getStations();
+        Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
         try {
-            Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
+            if (!standInManagerEnabled) {
+                throw new AppException(AppError.SERVICE_DISABLED, TargetRefreshEnum.standin.label);
+            }
+
+            StationsResponse stations = standInManagerClient.getStations();
+            log.info("[{}] response successful. {} stations found", TargetRefreshEnum.standin.label, stations.getStations().size());
             List<StandInStations> stationsEntities = stations.getStations().stream().map(StandInStations::new).toList();
 
             savePagoPA(syncStatusMap, stationsEntities);
@@ -77,24 +75,18 @@ public class StandInManagerService extends CommonCacheService {
             saveNexiOracle(syncStatusMap, stationsEntities);
 
             return composeSyncStatusMapResult(TargetRefreshEnum.standin.label, syncStatusMap);
+        } catch (FeignException fEx) {
+            log.error("[{}] error: {}", TargetRefreshEnum.standin.label, fEx.getMessage(), fEx);
+            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Feign exception", fEx);
+            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+        } catch (AppException appException) {
+            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "App exception", appException);
+            throw appException;
         } catch (Exception ex) {
             log.error("[{}][ALERT] Generic Error: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
             telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Generic exception", ex);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private @NonNull StationsResponse getStations() {
-        StationsResponse stations;
-        try {
-            stations = standInManagerClient.getStations();
-        } catch (FeignException e) {
-            log.error("[{}] error: {}", TargetRefreshEnum.standin.label, e.getMessage(), e);
-            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Feign exception", e);
-            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
-        }
-        log.info("[{}] response successful. {} stations found", TargetRefreshEnum.standin.label, stations.getStations().size());
-        return stations;
     }
 
     private void savePagoPA(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
