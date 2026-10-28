@@ -33,7 +33,7 @@ public class CommonCacheService {
         return new ConfigCache(cacheId, timestamp, Utils.zipContent(cache), version);
     }
 
-    protected Object getHeaderParameter(String target, Map<String, Collection<String>> headers, String key) {
+    protected Object getHeaderParameter(String target, Map<String, ? extends Collection<String>> headers, String key) {
         List<String> valueList = headers.get(key).stream().toList();
         if(valueList.isEmpty()) {
             log.error("[NODE-CFG-SYNC] {} get cache error - empty parameter '{}'", target, key);

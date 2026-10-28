@@ -1,11 +1,10 @@
 package it.gov.pagopa.node.cfgsync.service;
 
-import feign.Response;
 import it.gov.pagopa.node.cfgsync.client.ApiConfigCacheClient;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
@@ -20,15 +19,15 @@ public class ApiConfigCacheFetchService {
         this.apiConfigCacheClient = apiConfigCacheClient;
     }
 
-    public CompletableFuture<Response> fetchCacheWithRetry() {
+    public CompletableFuture<ResponseEntity<byte[]>> fetchCacheWithRetry() {
         return CompletableFuture.supplyAsync(apiConfigCacheClient::getCache)
                 .handle((response, ex) -> {
-                    if (response != null && response.status() == HttpStatus.OK.value()) {
+                    if (ex == null && response != null && response.getStatusCode().is2xxSuccessful()) {
                         return CompletableFuture.completedFuture(response);
                     }
-                    log.error("Fetching cache returned non-OK status={} and will not be retried", response != null ? response.status() : null, ex);
-                    return CompletableFuture.failedFuture(new AppException(AppError.CACHE_UNPROCESSABLE));
+                    log.error("Fetching cache failed after retries", ex);
+                    return CompletableFuture.<ResponseEntity<byte[]>>failedFuture(new AppException(AppError.CACHE_UNPROCESSABLE));
                 })
-                .thenCompose(future -> (CompletableFuture<Response>) future);
+                .thenCompose(future -> future);
     }
 }

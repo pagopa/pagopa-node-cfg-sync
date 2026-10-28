@@ -1,6 +1,5 @@
 package it.gov.pagopa.node.cfgsync.service;
 
-import feign.Response;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.exception.SyncDbStatusException;
@@ -13,11 +12,12 @@ import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepositor
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -53,11 +53,11 @@ public class ApiConfigCachePersistenceService extends CommonCacheService {
     }
 
     @Transactional(rollbackFor = {SyncDbStatusException.class})
-    public Map<String, SyncStatusEnum> saveCache(Response response) {
+    public Map<String, SyncStatusEnum> saveCache(ResponseEntity<byte[]> response) {
         Map<String, SyncStatusEnum> syncStatusMap = new LinkedHashMap<>();
 
         try {
-            Map<String, Collection<String>> headers = response.headers();
+            HttpHeaders headers = response.getHeaders();
             if (headers.isEmpty()) {
                 throw new AppException(AppError.INTERNAL_SERVER_ERROR, "empty headers");
             }
@@ -70,7 +70,7 @@ public class ApiConfigCachePersistenceService extends CommonCacheService {
                     cacheId,
                     ZonedDateTime.parse(cacheTimestamp),
                     cacheVersion,
-                    response.body().asInputStream().readAllBytes()
+                    response.getBody()
             );
 
             savePagoPA(syncStatusMap, configCache);
