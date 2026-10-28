@@ -35,12 +35,4 @@ class ApplicationTest {
     assertEquals("X-CACHE-TIMESTAMP", Constants.HEADER_CACHE_TIMESTAMP);
     assertEquals("X-CACHE-VERSION", Constants.HEADER_CACHE_VERSION);
   }
-
-  @Test
-  void constantsHelperTest() {
-    assertEquals("NEXIORACLE", ConstantsHelper.NEXIORACLE_SI);
-    assertEquals("NEXIPOSTGRES", ConstantsHelper.NEXIPOSTGRES_SI);
-    assertEquals("PAGOPAPOSTGRES", ConstantsHelper.PAGOPAPOSTGRES_SI);
-  }
-
 }

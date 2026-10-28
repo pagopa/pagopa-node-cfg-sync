@@ -1,8 +1,4 @@
-package it.gov.pagopa.node.cfgsync;
-
-import static it.gov.pagopa.node.cfgsync.util.Constants.*;
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+package it.gov.pagopa.node.cfgsync.service;
 
 import feign.Request;
 import feign.Response;
@@ -13,21 +9,33 @@ import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
-import it.gov.pagopa.node.cfgsync.service.ApiConfigCachePersistenceService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
+import static it.gov.pagopa.node.cfgsync.util.Constants.HEADER_CACHE_ID;
+import static it.gov.pagopa.node.cfgsync.util.Constants.HEADER_CACHE_TIMESTAMP;
+import static it.gov.pagopa.node.cfgsync.util.Constants.HEADER_CACHE_VERSION;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+@ExtendWith({MockitoExtension.class})
 class ApiConfigCachePersistenceServiceTest {
 
     @Mock
@@ -37,7 +45,6 @@ class ApiConfigCachePersistenceServiceTest {
     @Mock
     private NexiCacheOracleRepository nexiCacheOracleRepository;
 
-    @InjectMocks
     private ApiConfigCachePersistenceService service;
 
     private static final String PAGOPA_ID = "PAGOPAID";
@@ -45,6 +52,7 @@ class ApiConfigCachePersistenceServiceTest {
     private static final String NEXI_ORACLE_ID = "NEXIPID";
 
     private static final Map<String, Collection<String>> headers;
+
     static {
         headers = Map.of(
                 HEADER_CACHE_ID, List.of(String.valueOf(System.currentTimeMillis())),
@@ -53,20 +61,20 @@ class ApiConfigCachePersistenceServiceTest {
         );
     }
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        service.setApiConfigCacheWritePagoPa(true);
-        service.setApiConfigCacheWriteNexiOracle(true);
-        service.setApiConfigCacheWriteNexiPostgres(true);
-
+    @Test
+    void saveCache_success() {
+        service = new ApiConfigCachePersistenceService(
+                true,
+                true,
+                true,
+                pagoPACachePostgresRepository,
+                nexiCachePostgresRepository,
+                nexiCacheOracleRepository
+        );
         ReflectionTestUtils.setField(service, "pagopaPostgresServiceIdentifier", PAGOPA_ID);
         ReflectionTestUtils.setField(service, "nexiPostgresServiceIdentifier", NEXI_POSTGRES_ID);
         ReflectionTestUtils.setField(service, "nexiOracleServiceIdentifier", NEXI_ORACLE_ID);
-    }
 
-    @Test
-    void saveCache_success() {
         Map<String, SyncStatusEnum> expected = Map.of(
                 PAGOPA_ID, SyncStatusEnum.DONE,
                 NEXI_POSTGRES_ID, SyncStatusEnum.DONE,
@@ -95,6 +103,18 @@ class ApiConfigCachePersistenceServiceTest {
 
     @Test
     void saveCache_emptyHeadersThrowsException() {
+        service = new ApiConfigCachePersistenceService(
+                true,
+                true,
+                true,
+                pagoPACachePostgresRepository,
+                nexiCachePostgresRepository,
+                nexiCacheOracleRepository
+        );
+        ReflectionTestUtils.setField(service, "pagopaPostgresServiceIdentifier", PAGOPA_ID);
+        ReflectionTestUtils.setField(service, "nexiPostgresServiceIdentifier", NEXI_POSTGRES_ID);
+        ReflectionTestUtils.setField(service, "nexiOracleServiceIdentifier", NEXI_ORACLE_ID);
+
         Response response = mock(Response.class);
         when(response.headers()).thenReturn(Collections.emptyMap());
 
@@ -113,6 +133,18 @@ class ApiConfigCachePersistenceServiceTest {
             boolean nexiPostgresThrows,
             Map<String, SyncStatusEnum> expected
     ) {
+        service = new ApiConfigCachePersistenceService(
+                writePagoPa,
+                writeNexiOracle,
+                writeNexiPostgres,
+                pagoPACachePostgresRepository,
+                nexiCachePostgresRepository,
+                nexiCacheOracleRepository
+        );
+        ReflectionTestUtils.setField(service, "pagopaPostgresServiceIdentifier", PAGOPA_ID);
+        ReflectionTestUtils.setField(service, "nexiPostgresServiceIdentifier", NEXI_POSTGRES_ID);
+        ReflectionTestUtils.setField(service, "nexiOracleServiceIdentifier", NEXI_ORACLE_ID);
+
         Response response = Response.builder()
                 .status(200)
                 .reason("Mocked")
@@ -123,27 +155,29 @@ class ApiConfigCachePersistenceServiceTest {
 
         ConfigCache mockConfigCache = new ConfigCache();
 
-        if (pagoPaThrows) {
-            when(pagoPACachePostgresRepository.save(any(ConfigCache.class))).thenThrow(new RuntimeException("DB error"));
-        } else {
-            when(pagoPACachePostgresRepository.save(any(ConfigCache.class))).thenReturn(mockConfigCache);
+        if (writePagoPa) {
+            if (pagoPaThrows) {
+                when(pagoPACachePostgresRepository.save(any(ConfigCache.class))).thenThrow(new RuntimeException("DB error"));
+            } else {
+                when(pagoPACachePostgresRepository.save(any(ConfigCache.class))).thenReturn(mockConfigCache);
+            }
         }
 
-        if (nexiOracleThrows) {
-            when(nexiCacheOracleRepository.save(any(ConfigCache.class))).thenThrow(new RuntimeException("DB error"));
-        } else {
-            when(nexiCacheOracleRepository.save(any(ConfigCache.class))).thenReturn(mockConfigCache);
+        if (writeNexiOracle) {
+            if (nexiOracleThrows) {
+                when(nexiCacheOracleRepository.save(any(ConfigCache.class))).thenThrow(new RuntimeException("DB error"));
+            } else {
+                when(nexiCacheOracleRepository.save(any(ConfigCache.class))).thenReturn(mockConfigCache);
+            }
         }
 
-        if (nexiPostgresThrows) {
-            when(nexiCachePostgresRepository.save(any(ConfigCache.class))).thenThrow(new RuntimeException("DB error"));
-        } else {
-            when(nexiCachePostgresRepository.save(any(ConfigCache.class))).thenReturn(mockConfigCache);
+        if (writeNexiPostgres) {
+            if (nexiPostgresThrows) {
+                when(nexiCachePostgresRepository.save(any(ConfigCache.class))).thenThrow(new RuntimeException("DB error"));
+            } else {
+                when(nexiCachePostgresRepository.save(any(ConfigCache.class))).thenReturn(mockConfigCache);
+            }
         }
-
-        service.setApiConfigCacheWritePagoPa(writePagoPa);
-        service.setApiConfigCacheWriteNexiOracle(writeNexiOracle);
-        service.setApiConfigCacheWriteNexiPostgres(writeNexiPostgres);
 
         Map<String, SyncStatusEnum> result = service.saveCache(response);
 
