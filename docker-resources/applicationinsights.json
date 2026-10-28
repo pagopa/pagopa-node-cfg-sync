@@ -1,0 +1,56 @@
+{
+  "selfDiagnostics": {
+    "destination": "console",
+    "level": "INFO"
+  },
+  "instrumentation": {
+    "azureSdk": {
+      "enabled": false
+    },
+    "jms": {
+      "enabled": false
+    },
+    "micrometer": {
+      "enabled": false
+    }
+  },
+  "sampling": {
+    "percentage": 5,
+    "overrides": [
+      {
+        "telemetryType": "dependency",
+        "percentage": 5
+      },
+      {
+        "telemetryType": "trace",
+        "percentage": 5
+      },
+      {
+        "telemetryType": "exception",
+        "percentage": 100
+      },
+      {
+        "telemetryType": "request",
+        "percentage": 0,
+        "attributes": [
+          {
+            "key": "http.url",
+            "value": ".*/actuator/health/.*",
+            "matchType": "regexp"
+          }
+        ]
+      },
+      {
+        "telemetryType": "request",
+        "percentage": 100,
+        "attributes": [
+          {
+            "key": "http.url",
+            "value": ".*",
+            "matchType": "regexp"
+          }
+        ]
+      }
+    ]
+  }
+}

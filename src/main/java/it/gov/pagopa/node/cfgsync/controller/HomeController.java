@@ -48,7 +48,7 @@ public class HomeController {
     if (!basePath.endsWith("/")) {
       path += "/";
     }
-    return new RedirectView(path + "swagger-ui.html");
+    return new RedirectView(path + "swagger-ui/index.html");
   }
 
   /**

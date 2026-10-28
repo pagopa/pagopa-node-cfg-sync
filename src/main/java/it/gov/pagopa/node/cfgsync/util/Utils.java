@@ -3,7 +3,7 @@ package it.gov.pagopa.node.cfgsync.util;
 import it.gov.pagopa.node.cfgsync.exception.SyncDbStatusException;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.Column;
+import jakarta.persistence.Column;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
