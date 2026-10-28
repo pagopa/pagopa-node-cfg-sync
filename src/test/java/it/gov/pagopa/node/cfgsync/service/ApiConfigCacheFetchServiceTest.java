@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -33,20 +34,18 @@ class ApiConfigCacheFetchServiceTest {
 
     @Test
     void fetchCacheWithRetry_success() throws Exception {
-        Response response = Response.builder().status(200).request(mock(Request.class)).build();
-        when(client.getCache()).thenReturn(response);
+        when(client.getCache()).thenReturn(ResponseEntity.ok(new byte[0]));
 
-        CompletableFuture<Response> future = service.fetchCacheWithRetry();
+        CompletableFuture<ResponseEntity<byte[]>> future = service.fetchCacheWithRetry();
 
-        assertEquals(200, future.get(5, TimeUnit.SECONDS).status());
+        assertEquals(200, future.get(5, TimeUnit.SECONDS).getStatusCode().value());
     }
 
     @Test
     void fetchCacheWithRetry_nonOkStatus_failsWithAppException() {
-        Response response = Response.builder().status(500).request(mock(Request.class)).build();
-        when(client.getCache()).thenReturn(response);
+        when(client.getCache()).thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        CompletableFuture<Response> future = service.fetchCacheWithRetry();
+        CompletableFuture<ResponseEntity<byte[]>> future = service.fetchCacheWithRetry();
 
         ExecutionException ex = assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
         AppException appException = assertInstanceOf(AppException.class, ex.getCause());
@@ -59,7 +58,7 @@ class ApiConfigCacheFetchServiceTest {
         FeignException feign503 = FeignException.errorStatus("getCache", failResponse);
         when(client.getCache()).thenThrow(feign503);
 
-        CompletableFuture<Response> future = service.fetchCacheWithRetry();
+        CompletableFuture<ResponseEntity<byte[]>> future = service.fetchCacheWithRetry();
 
         ExecutionException ex = assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
         AppException appException = assertInstanceOf(AppException.class, ex.getCause());

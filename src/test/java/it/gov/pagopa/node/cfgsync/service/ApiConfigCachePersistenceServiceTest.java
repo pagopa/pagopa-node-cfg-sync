@@ -1,7 +1,5 @@
 package it.gov.pagopa.node.cfgsync.service;
 
-import feign.Request;
-import feign.Response;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
@@ -16,12 +14,12 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -51,14 +49,12 @@ class ApiConfigCachePersistenceServiceTest {
     private static final String NEXI_POSTGRES_ID = "NEXIOID";
     private static final String NEXI_ORACLE_ID = "NEXIPID";
 
-    private static final Map<String, Collection<String>> headers;
-
-    static {
-        headers = Map.of(
-                HEADER_CACHE_ID, List.of(String.valueOf(System.currentTimeMillis())),
-                HEADER_CACHE_TIMESTAMP, List.of(Instant.now().toString()),
-                HEADER_CACHE_VERSION, List.of("v1.0.0")
-        );
+    private static ResponseEntity<byte[]> okResponse() {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HEADER_CACHE_ID, String.valueOf(System.currentTimeMillis()));
+        httpHeaders.add(HEADER_CACHE_TIMESTAMP, Instant.now().toString());
+        httpHeaders.add(HEADER_CACHE_VERSION, "v1.0.0");
+        return new ResponseEntity<>(new byte[0], httpHeaders, HttpStatus.OK);
     }
 
     @Test
@@ -81,13 +77,7 @@ class ApiConfigCachePersistenceServiceTest {
                 NEXI_ORACLE_ID, SyncStatusEnum.DONE
         );
 
-        Response response = Response.builder()
-                .status(200)
-                .reason("Mocked")
-                .headers(headers)
-                .request(mock(Request.class))
-                .body(new byte[0])
-                .build();
+        ResponseEntity<byte[]> response = okResponse();
 
         ConfigCache mockConfigCache = new ConfigCache();
 
@@ -115,8 +105,8 @@ class ApiConfigCachePersistenceServiceTest {
         ReflectionTestUtils.setField(service, "nexiPostgresServiceIdentifier", NEXI_POSTGRES_ID);
         ReflectionTestUtils.setField(service, "nexiOracleServiceIdentifier", NEXI_ORACLE_ID);
 
-        Response response = mock(Response.class);
-        when(response.headers()).thenReturn(Collections.emptyMap());
+        ResponseEntity<byte[]> response = mock(ResponseEntity.class);
+        when(response.getHeaders()).thenReturn(new HttpHeaders());
 
         AppException ex = assertThrows(AppException.class, () -> service.saveCache(response));
         assertEquals(AppError.INTERNAL_SERVER_ERROR.getHttpStatus(), ex.getHttpStatus());
@@ -145,13 +135,7 @@ class ApiConfigCachePersistenceServiceTest {
         ReflectionTestUtils.setField(service, "nexiPostgresServiceIdentifier", NEXI_POSTGRES_ID);
         ReflectionTestUtils.setField(service, "nexiOracleServiceIdentifier", NEXI_ORACLE_ID);
 
-        Response response = Response.builder()
-                .status(200)
-                .reason("Mocked")
-                .headers(headers)
-                .request(mock(Request.class))
-                .body(new byte[0])
-                .build();
+        ResponseEntity<byte[]> response = okResponse();
 
         ConfigCache mockConfigCache = new ConfigCache();
 

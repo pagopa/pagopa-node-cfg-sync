@@ -2,64 +2,53 @@ package it.gov.pagopa.node.cfgsync.service;
 
 import feign.FeignException;
 import it.gov.pagopa.node.cfgsync.client.StandInManagerClient;
-import it.gov.pagopa.node.cfgsync.model.ProblemJson;
+import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.StationsResponse;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
-import it.gov.pagopa.node.cfgsync.model.SyncStatusResponse;
 import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.annotation.Import;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-@WebMvcTest
-@Import({StandInManagerService.class})
+@ExtendWith(MockitoExtension.class)
 class StandInManagerServiceTest {
 
-    private static final String STANDIN_URL = "/ndp/stand-in";
     private static final String PAGOPAPOSTGRES_SI = "PAGOPAPOSTGRES";
     private static final String NEXIPOSTGRES_SI = "NEXIPOSTGRES";
     private static final String NEXIORACLE_SI = "NEXIORACLE";
     private static final List<String> stations = List.of("1234567890", "9876543210");
 
-    @Autowired
+    @InjectMocks
     private StandInManagerService standInManagerService;
-    @Autowired
-    private TestRestTemplate restTemplate;
 
-    @LocalServerPort
-    private int port;
-
-    @MockBean
-    StandInManagerClient standInManagerClient;
+    @Mock
+    private StandInManagerClient standInManagerClient;
 
     @Test
-    void error400() {
+    void error422() {
         ReflectionTestUtils.setField(standInManagerService, "standInManagerEnabled", false);
 
-        ResponseEntity<ProblemJson> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, ProblemJson.class);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(400, response.getBody().getStatus());
-        assertEquals("Target service disabled", response.getBody().getTitle());
-        assertEquals("Target service stand-in-manager disabled", response.getBody().getDetail());
+        AppException e = assertThrows(AppException.class, () -> standInManagerService.syncStandIn());
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, e.getHttpStatus());
+        assertEquals("Target service disabled", e.getTitle());
+        assertEquals("Target service stand-in-manager disabled", e.getMessage());
 
         ReflectionTestUtils.setField(standInManagerService, "standInManagerEnabled", true);
     }
@@ -68,23 +57,20 @@ class StandInManagerServiceTest {
     void error500() {
         when(standInManagerClient.getStations()).thenReturn(null);
 
-        ResponseEntity<ProblemJson> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, ProblemJson.class);
+        AppException e = assertThrows(AppException.class, () -> standInManagerService.syncStandIn());
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(500, response.getBody().getStatus());
-        assertEquals("Internal Server Error", response.getBody().getTitle());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getHttpStatus());
+        assertEquals("Internal Server Error", e.getTitle());
     }
 
     @Test
     void error500StandInManagerException() {
         when(standInManagerClient.getStations()).thenThrow(FeignException.class);
 
-        ResponseEntity<ProblemJson> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, ProblemJson.class);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(500, response.getBody().getStatus());
-        assertEquals("Internal Server Error", response.getBody().getTitle());
+        AppException e = assertThrows(AppException.class, () -> standInManagerService.syncStandIn());
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getHttpStatus());
+        assertEquals("Internal Server Error", e.getTitle());
     }
 
     @Test
@@ -94,18 +80,17 @@ class StandInManagerServiceTest {
         StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
         when(standInManagerClient.getStations()).thenReturn(stationsResponse);
 
-        ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {
-        });
+        Map<String, SyncStatusEnum> stringSyncStatusEnumMap = assertDoesNotThrow(() -> standInManagerService.syncStandIn());
 
-        assertNotNull(response.getBody());
-        assertFalse(response.getBody().isEmpty());
-        assertEquals(3, response.getBody().size());
-        assertEquals(PAGOPAPOSTGRES_SI, response.getBody().get(0).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.DISABLED, response.getBody().get(0).getStatus());
-        assertEquals(NEXIPOSTGRES_SI, response.getBody().get(1).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.DONE, response.getBody().get(1).getStatus());
-        assertEquals(NEXIORACLE_SI, response.getBody().get(2).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.DONE, response.getBody().get(2).getStatus());
+        assertNotNull(stringSyncStatusEnumMap);
+        assertFalse(stringSyncStatusEnumMap.isEmpty());
+        assertEquals(3, stringSyncStatusEnumMap.size());
+        assertNotNull(stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.DISABLED, stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.DONE, stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIORACLE_SI));
+        assertEquals(SyncStatusEnum.DONE, stringSyncStatusEnumMap.get(NEXIORACLE_SI));
 
         ReflectionTestUtils.setField(standInManagerService, "standInManagerWritePagoPa", true);
     }
@@ -117,21 +102,17 @@ class StandInManagerServiceTest {
         StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
         when(standInManagerClient.getStations()).thenReturn(stationsResponse);
 
-        ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {
-        });
+        Map<String, SyncStatusEnum> stringSyncStatusEnumMap = assertDoesNotThrow(() -> standInManagerService.syncStandIn());
 
-        assertNotNull(response.getBody());
-        List<SyncStatusResponse> syncStatusResponseList = response.getBody();
-
-        assertNotNull(syncStatusResponseList);
-        assertFalse(syncStatusResponseList.isEmpty());
-        assertEquals(3, syncStatusResponseList.size());
-        assertEquals(PAGOPAPOSTGRES_SI, response.getBody().get(0).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.DONE, response.getBody().get(0).getStatus());
-        assertEquals(NEXIPOSTGRES_SI, response.getBody().get(1).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.DONE, response.getBody().get(1).getStatus());
-        assertEquals(NEXIORACLE_SI, response.getBody().get(2).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.DISABLED, response.getBody().get(2).getStatus());
+        assertNotNull(stringSyncStatusEnumMap);
+        assertFalse(stringSyncStatusEnumMap.isEmpty());
+        assertEquals(3, stringSyncStatusEnumMap.size());
+        assertNotNull(stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.DONE, stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.DONE, stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIORACLE_SI));
+        assertEquals(SyncStatusEnum.DISABLED, stringSyncStatusEnumMap.get(NEXIORACLE_SI));
 
         ReflectionTestUtils.setField(standInManagerService, "standInManagerWriteNexiOracle", true);
     }
@@ -143,21 +124,17 @@ class StandInManagerServiceTest {
         StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
         when(standInManagerClient.getStations()).thenReturn(stationsResponse);
 
-        ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {
-        });
+        Map<String, SyncStatusEnum> stringSyncStatusEnumMap = assertDoesNotThrow(() -> standInManagerService.syncStandIn());
 
-        assertNotNull(response.getBody());
-        List<SyncStatusResponse> syncStatusResponseList = response.getBody();
-
-        assertNotNull(syncStatusResponseList);
-        assertFalse(syncStatusResponseList.isEmpty());
-        assertEquals(3, syncStatusResponseList.size());
-        assertEquals(PAGOPAPOSTGRES_SI, response.getBody().get(0).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.DONE, response.getBody().get(0).getStatus());
-        assertEquals(NEXIPOSTGRES_SI, response.getBody().get(1).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.DISABLED, response.getBody().get(1).getStatus());
-        assertEquals(NEXIORACLE_SI, response.getBody().get(2).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.DONE, response.getBody().get(2).getStatus());
+        assertNotNull(stringSyncStatusEnumMap);
+        assertFalse(stringSyncStatusEnumMap.isEmpty());
+        assertEquals(3, stringSyncStatusEnumMap.size());
+        assertNotNull(stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.DONE, stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.DISABLED, stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIORACLE_SI));
+        assertEquals(SyncStatusEnum.DONE, stringSyncStatusEnumMap.get(NEXIORACLE_SI));
 
         ReflectionTestUtils.setField(standInManagerService, "standInManagerWriteNexiPostgres", true);
     }
@@ -170,21 +147,18 @@ class StandInManagerServiceTest {
         StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
         when(standInManagerClient.getStations()).thenReturn(stationsResponse);
 
-        ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {
-        });
 
-        assertNotNull(response.getBody());
-        List<SyncStatusResponse> syncStatusResponseList = response.getBody();
+        Map<String, SyncStatusEnum> stringSyncStatusEnumMap = assertDoesNotThrow(() -> standInManagerService.syncStandIn());
 
-        assertNotNull(syncStatusResponseList);
-        assertFalse(syncStatusResponseList.isEmpty());
-        assertEquals(3, syncStatusResponseList.size());
-        assertEquals(PAGOPAPOSTGRES_SI, response.getBody().get(0).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.ERROR, response.getBody().get(0).getStatus());
-        assertEquals(NEXIPOSTGRES_SI, response.getBody().get(1).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.ROLLBACK, response.getBody().get(1).getStatus());
-        assertEquals(NEXIORACLE_SI, response.getBody().get(2).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.ROLLBACK, response.getBody().get(2).getStatus());
+        assertNotNull(stringSyncStatusEnumMap);
+        assertFalse(stringSyncStatusEnumMap.isEmpty());
+        assertEquals(3, stringSyncStatusEnumMap.size());
+        assertNotNull(stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.ERROR, stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.ROLLBACK, stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIORACLE_SI));
+        assertEquals(SyncStatusEnum.ROLLBACK, stringSyncStatusEnumMap.get(NEXIORACLE_SI));
 
         ReflectionTestUtils.setField(standInManagerService, "pagoPAStandInPostgresRepository", repository);
     }
@@ -197,21 +171,17 @@ class StandInManagerServiceTest {
         StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
         when(standInManagerClient.getStations()).thenReturn(stationsResponse);
 
-        ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {
-        });
+        Map<String, SyncStatusEnum> stringSyncStatusEnumMap = assertDoesNotThrow(() -> standInManagerService.syncStandIn());
 
-        assertNotNull(response.getBody());
-        List<SyncStatusResponse> syncStatusResponseList = response.getBody();
-
-        assertNotNull(syncStatusResponseList);
-        assertFalse(syncStatusResponseList.isEmpty());
-        assertEquals(3, syncStatusResponseList.size());
-        assertEquals(PAGOPAPOSTGRES_SI, response.getBody().get(0).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.ROLLBACK, response.getBody().get(0).getStatus());
-        assertEquals(NEXIPOSTGRES_SI, response.getBody().get(1).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.ERROR, response.getBody().get(1).getStatus());
-        assertEquals(NEXIORACLE_SI, response.getBody().get(2).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.ROLLBACK, response.getBody().get(2).getStatus());
+        assertNotNull(stringSyncStatusEnumMap);
+        assertFalse(stringSyncStatusEnumMap.isEmpty());
+        assertEquals(3, stringSyncStatusEnumMap.size());
+        assertNotNull(stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.ROLLBACK, stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.ERROR, stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIORACLE_SI));
+        assertEquals(SyncStatusEnum.ROLLBACK, stringSyncStatusEnumMap.get(NEXIORACLE_SI));
 
         ReflectionTestUtils.setField(standInManagerService, "nexiStandInPostgresRepository", repository);
     }
@@ -224,21 +194,17 @@ class StandInManagerServiceTest {
         StationsResponse stationsResponse = StationsResponse.builder().stations(stations).build();
         when(standInManagerClient.getStations()).thenReturn(stationsResponse);
 
-        ResponseEntity<List<SyncStatusResponse>> response = restTemplate.exchange(STANDIN_URL, HttpMethod.PUT, null, new ParameterizedTypeReference<>() {
-        });
+        Map<String, SyncStatusEnum> stringSyncStatusEnumMap = assertDoesNotThrow(() -> standInManagerService.syncStandIn());
 
-        assertNotNull(response.getBody());
-        List<SyncStatusResponse> syncStatusResponseList = response.getBody();
-
-        assertNotNull(syncStatusResponseList);
-        assertFalse(syncStatusResponseList.isEmpty());
-        assertEquals(3, syncStatusResponseList.size());
-        assertEquals(PAGOPAPOSTGRES_SI, response.getBody().get(0).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.ROLLBACK, response.getBody().get(0).getStatus());
-        assertEquals(NEXIPOSTGRES_SI, response.getBody().get(1).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.ROLLBACK, response.getBody().get(1).getStatus());
-        assertEquals(NEXIORACLE_SI, response.getBody().get(2).getServiceIdentifier());
-        assertEquals(SyncStatusEnum.ERROR, response.getBody().get(2).getStatus());
+        assertNotNull(stringSyncStatusEnumMap);
+        assertFalse(stringSyncStatusEnumMap.isEmpty());
+        assertEquals(3, stringSyncStatusEnumMap.size());
+        assertNotNull(stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.ROLLBACK, stringSyncStatusEnumMap.get(PAGOPAPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertEquals(SyncStatusEnum.ROLLBACK, stringSyncStatusEnumMap.get(NEXIPOSTGRES_SI));
+        assertNotNull(stringSyncStatusEnumMap.get(NEXIORACLE_SI));
+        assertEquals(SyncStatusEnum.ERROR, stringSyncStatusEnumMap.get(NEXIORACLE_SI));
 
         ReflectionTestUtils.setField(standInManagerService, "nexiStandInOracleRepository", repository);
     }
