@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppInsightTelemetryClientConfig {
 
-    @Value("${azure.application-insight.connection-string}")
+    @Value("${azure.application-insights.connection-string}")
     private String connectionString;
 
     @Bean
