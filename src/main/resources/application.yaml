@@ -87,7 +87,7 @@ stand-in-manager:
   rx-connection-string: ${STAND_IN_MANAGER_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-stand-in
   service:
-    host: ${STAND_IN_MANAGER_URL}
+    base-url: ${STAND_IN_MANAGER_URL}
     subscriptionKey: ${STAND_IN_MANAGER_SUBSCRIPTION_KEY}
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'
@@ -107,7 +107,7 @@ api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-cache
   service:
-    host: ${API_CONFIG_CACHE_URL}
+    base-url: ${API_CONFIG_CACHE_URL}
     subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'

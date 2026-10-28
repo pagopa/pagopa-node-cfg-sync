@@ -91,7 +91,7 @@ stand-in-manager:
   service:
     subscriptionKey: ''
     enabled: true
-    host: http://localhost:1080
+    base-url: http://localhost:1080
   sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
   sa-name: standinevents
   consumer-group: $Default
@@ -108,7 +108,7 @@ api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-cache
   service:
-    host: http://localhost:1080
+    base-url: http://localhost:1080
     subscriptionKey: ''
     #permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: true

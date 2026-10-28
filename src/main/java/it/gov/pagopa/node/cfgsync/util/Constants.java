@@ -7,6 +7,7 @@ public class Constants {
   }
 
   public static final String HEADER_REQUEST_ID = "X-Request-Id";
+  public static final String APIM_SUBSCRIPTION_KEY = "Ocp-Apim-Subscription-Key";
 
   public static final String HEADER_CACHE_ID = "X-CACHE-ID";
   public static final String HEADER_CACHE_TIMESTAMP = "X-CACHE-TIMESTAMP";
