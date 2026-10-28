@@ -19,7 +19,7 @@ import javax.annotation.PostConstruct;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "api-config-cache.consumer", name = "enabled")
+@ConditionalOnProperty(prefix = "api-config-cache.consumer", name = "enabled", havingValue = "true")
 public class ApiConfigCacheEhConsumer {
 
     @Value("${api-config-cache.rx-connection-string}")

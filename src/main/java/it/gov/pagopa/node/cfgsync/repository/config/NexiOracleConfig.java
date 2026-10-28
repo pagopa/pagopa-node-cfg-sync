@@ -24,7 +24,7 @@ import javax.sql.DataSource;
         entityManagerFactoryRef = "nexiOracleEntityManagerFactory",
         transactionManagerRef = "nexiOracleTransactionManager"
 )
-@ConditionalOnProperty(prefix = "spring.datasource.nexi.oracle", name = "enabled")
+@ConditionalOnProperty(prefix = "spring.datasource.nexi.oracle", name = "enabled", havingValue = "true")
 public class NexiOracleConfig {
 
     @Bean

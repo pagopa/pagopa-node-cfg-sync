@@ -51,7 +51,7 @@ spring:
         username: ${DB_PAGOPA_POSTGRES_USER}
         password: ${DB_PAGOPA_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
-        enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
+        enabled: ${DB_PAGOPA_POSTGRES_ENABLED:false}
         connection-test-query: select 1
         connectionTimeout: ${DB_PAGOPA_POSTGRES_CONNECTION_TIMEOUT}
         keepaliveTime: 30000
@@ -62,7 +62,7 @@ spring:
         username: ${DB_NEXI_ORACLE_USER}
         password: ${DB_NEXI_ORACLE_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
-        enabled: ${DB_NEXI_ORACLE_ENABLED:'false'}
+        enabled: ${DB_NEXI_ORACLE_ENABLED:false}
         connection-test-query: select 1 from dual
         connectionTimeout: ${DB_NEXI_ORACLE_CONNECTION_TIMEOUT}
         maxLifetime: ${DB_NEXI_ORACLE_MAX_LIFETIME}
@@ -71,7 +71,7 @@ spring:
         username: ${DB_NEXI_POSTGRES_USER}
         password: ${DB_NEXI_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
-        enabled: ${DB_NEXI_POSTGRES_ENABLED:'false'}
+        enabled: ${DB_NEXI_POSTGRES_ENABLED:false}
         connection-test-query: select 1
         connectionTimeout: ${DB_NEXI_POSTGRES_CONNECTION_TIMEOUT}
         maxLifetime: ${DB_NEXI_POSTGRES_MAX_LIFETIME}
@@ -118,12 +118,12 @@ api-config-cache:
   consumer-group: nodo-dei-pagamenti-cache-sync-rx
   consumer:
     ##permette di abilitare/disabilitare il consumer
-    enabled: ${EH_CACHE_CONSUMER_ENABLED:'true'}
+    enabled: ${EH_CACHE_CONSUMER_ENABLED:true}
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
-    pagopa-postgres: ${DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED:'true'}
-    nexi-postgres: ${DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED:'false'}
-    nexi-oracle: ${DB_NEXI_ORACLE_WRITE_CACHE_ENABLED:'true'}
+    pagopa-postgres: ${DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED:true}
+    nexi-postgres: ${DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED:false}
+    nexi-oracle: ${DB_NEXI_ORACLE_WRITE_CACHE_ENABLED:true}
 
 timezone: ${TIMEZONE:Europe/Rome}
 

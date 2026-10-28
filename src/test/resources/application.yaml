@@ -52,20 +52,20 @@ spring:
         username: sa
         password:
         #permette di abilitare/disabilitare il datasource al db Postgres PagoPA
-        enabled: 'true'
+        enabled: true
     nexi:
       oracle:
         url: jdbc:h2:mem:nexi_oracle;DB_CLOSE_ON_EXIT=FALSE
         username: sa
         password:
         #permette di abilitare/disabilitare il datasource al db Oracle Nexi
-        enabled: 'true'
+        enabled: true
       postgres:
         url: jdbc:h2:mem:nexi_postgres;DB_CLOSE_ON_EXIT=FALSE
         username: sa
         password:
         #permette di abilitare/disabilitare il datasource al db Postgres Nexi
-        enabled: 'true'
+        enabled: true
   jpa:
     database: default
     generate-ddl: true
@@ -90,19 +90,19 @@ stand-in-manager:
   rx-name: nodo-dei-pagamenti-stand-in
   service:
     subscriptionKey: ''
-    enabled: 'true'
+    enabled: true
     host: http://localhost:1080
   sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
   sa-name: standinevents
   consumer-group: $Default
   consumer:
     #permette di abilitare/disabilitare il consumer
-    enabled: 'false'
+    enabled: false
   write:
     #permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
-    pagopa-postgres: 'true'
-    nexi-postgres: 'true'
-    nexi-oracle: 'true'
+    pagopa-postgres: true
+    nexi-postgres: true
+    nexi-oracle: true
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
@@ -111,7 +111,7 @@ api-config-cache:
     host: http://localhost:1080
     subscriptionKey: ''
     #permette di abilitare/disabilitare la chiamata al servizio tramite API
-    enabled: 'true'
+    enabled: true
     retryLeft: 2
     attemptDelay: 1
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
@@ -119,12 +119,12 @@ api-config-cache:
   consumer-group: $Default
   consumer:
     #permette di abilitare/disabilitare il consumer
-    enabled: 'false'
+    enabled: false
   write:
     #permettono di abilitare/disabilitare la scrittura di cache sui vari database
-    pagopa-postgres: 'true'
-    nexi-postgres: 'true'
-    nexi-oracle: 'true'
+    pagopa-postgres: true
+    nexi-postgres: true
+    nexi-oracle: true
 riversamento:
   enabled: true
   source: pagopa-postgres

@@ -19,7 +19,7 @@ import javax.annotation.PostConstruct;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "stand-in-manager.consumer", name = "enabled")
+@ConditionalOnProperty(prefix = "stand-in-manager.consumer", name = "enabled", havingValue = "true")
 public class StandInManagerEhConsumer {
 
     @Value("${stand-in-manager.rx-connection-string}")

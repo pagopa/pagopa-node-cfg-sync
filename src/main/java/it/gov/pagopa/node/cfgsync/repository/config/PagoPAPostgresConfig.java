@@ -25,7 +25,7 @@ import javax.sql.DataSource;
         entityManagerFactoryRef = "pagopaPostgresEntityManagerFactory",
         transactionManagerRef = "pagopaPostgresTransactionManager"
 )
-@ConditionalOnProperty(prefix = "spring.datasource.pagopa.postgres", name = "enabled")
+@ConditionalOnProperty(prefix = "spring.datasource.pagopa.postgres", name = "enabled", havingValue = "true")
 public class PagoPAPostgresConfig {
 
     @Primary

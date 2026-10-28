@@ -24,7 +24,7 @@ import javax.sql.DataSource;
         entityManagerFactoryRef = "nexiPostgresEntityManagerFactory",
         transactionManagerRef = "nexiPostgresTransactionManager"
 )
-@ConditionalOnProperty(prefix = "spring.datasource.nexi.postgres", name = "enabled")
+@ConditionalOnProperty(prefix = "spring.datasource.nexi.postgres", name = "enabled", havingValue = "true")
 public class NexiPostgresConfig {
 
     @Bean

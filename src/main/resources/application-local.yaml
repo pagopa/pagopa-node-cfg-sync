@@ -23,7 +23,7 @@ spring:
         username: cfg
         password: ${DB_PAGOPA_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
-        enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
+        enabled: false
         connectionTimeout: 15000
         maxLifetime: 20000
         connection-test-query: select 1
@@ -33,7 +33,7 @@ spring:
         username: cfg
         password: ${DB_NEXI_ORACLE_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
-        enabled: ${DB_NEXI_ORACLE_ENABLED:'false'}
+        enabled: false
         connectionTimeout: 15000
         maxLifetime: 20000
         connection-test-query: select 1 from dual
@@ -42,7 +42,7 @@ spring:
         username: cfg
         password: ${DB_NEXI_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
-        enabled: ${DB_NEXI_POSTGRES_ENABLED:'false'}
+        enabled: ${DB_NEXI_POSTGRES_ENABLED:false}
         connectionTimeout: 15000
         maxLifetime: 20000
         connection-test-query: select 1
@@ -56,18 +56,18 @@ stand-in-manager:
     host: https://api.dev.platform.pagopa.it/stand-in-manager/api/v1
     subscriptionKey: ${STAND_IN_MANAGER_SUBSCRIPTION_KEY}
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
-    enabled: 'true'
+    enabled: false
   sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
   sa-name: standineventslocal
   consumer-group: $Default
   consumer:
     ##permette di abilitare/disabilitare il consumer
-    enabled: 'false'
+    enabled: false
   write:
     ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
-    pagopa-postgres: 'true'
-    nexi-postgres: 'false'
-    nexi-oracle: 'false'
+    pagopa-postgres: false
+    nexi-postgres: false
+    nexi-oracle: false
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
@@ -76,18 +76,18 @@ api-config-cache:
     host: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
     subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
-    enabled: 'true'
+    enabled: true
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
   sa-name: cacheeventslocal
   consumer-group: nodo-dei-pagamenti-cache-sync-rx-local
   consumer:
     ##permette di abilitare/disabilitare il consumer
-    enabled: 'true'
+    enabled: false
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
-    pagopa-postgres: 'false'
-    nexi-postgres: 'false'
-    nexi-oracle: 'false'
+    pagopa-postgres: false
+    nexi-postgres: false
+    nexi-oracle: false
 
 logging:
   level:
