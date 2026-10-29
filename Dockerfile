@@ -13,6 +13,13 @@ RUN java -Djarmode=layertools -jar application.jar extract
 FROM eclipse-temurin@sha256:227118764cccd3c3294617061aaa93a08309c63a395eefa83e6b35032992ea99
 
 RUN addgroup spring && useradd -g spring spring
+
+# Use a dedicated working directory so the extracted Spring Boot layers are NOT
+# written to the container root "/". Otherwise Hibernate/Jandex resolves the
+# persistence-unit root to "/" and scans the whole filesystem at startup,
+# failing with "java.io.IOException: Invalid Magic" (crash loop on AKS).
+WORKDIR /home/spring/app
+RUN chown -R spring:spring /home/spring/app
 USER spring:spring
 
 # https://github.com/microsoft/ApplicationInsights-Java/releases
