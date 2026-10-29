@@ -35,7 +35,7 @@ management:
 
 azure:
     application-insights:
-      connection-string: ${APPLICATION_INSIGHTS_CONNECTION_STRING}
+      connection-string: ${APPLICATIONINSIGHTS_CONNECTION_STRING}
 
 app:
   identifiers:
