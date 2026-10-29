@@ -10,6 +10,10 @@ public enum AppError {
             "Something was wrong"),
     CACHE_UNPROCESSABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Cache not ready to be saved",
             "Problem to retrieve cache"),
+    CACHE_SAVE_PROBLEM(HttpStatus.UNPROCESSABLE_ENTITY, "Cache not saved",
+            "Problem to save cache on one or more databases"),
+    CACHE_ROLLBACK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Cache rollback failed",
+            "Compensating rollback failed: databases may be inconsistent, manual reconciliation required"),
     STANDIN_PROBLEM(HttpStatus.UNPROCESSABLE_ENTITY, "Stand-in-Station not updated", "Problem to save stand-in"),
     FAKE(HttpStatus.I_AM_A_TEAPOT, "Fake custom error","No problem, only a test"),
     SERVICE_DISABLED(

@@ -112,6 +112,11 @@ api-config-cache:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED:true}
     nexi-postgres: ${DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED:false}
+  persistence:
+    ##numero massimo di tentativi di scrittura prima di innescare il rollback
+    save-max-attempts: ${DB_CACHE_SAVE_MAX_ATTEMPTS:3}
+    ##numero massimo di tentativi di rollback (delete compensativa) prima dell'alert critico
+    rollback-max-attempts: ${DB_CACHE_ROLLBACK_MAX_ATTEMPTS:3}
 
 timezone: ${TIMEZONE:Europe/Rome}
 

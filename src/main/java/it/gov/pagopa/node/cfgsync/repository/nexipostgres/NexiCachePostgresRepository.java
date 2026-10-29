@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@ConditionalOnProperty(name = "api-config-cache.write.nexi-postgres")
+@ConditionalOnProperty(name = "api-config-cache.write.nexi-postgres", havingValue = "true")
 public interface NexiCachePostgresRepository extends JpaRepository<ConfigCache, String> { }
