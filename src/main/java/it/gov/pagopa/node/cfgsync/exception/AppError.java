@@ -15,6 +15,8 @@ public enum AppError {
     CACHE_ROLLBACK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Cache rollback failed",
             "Compensating rollback failed: databases may be inconsistent, manual reconciliation required"),
     STANDIN_PROBLEM(HttpStatus.UNPROCESSABLE_ENTITY, "Stand-in-Station not updated", "Problem to save stand-in"),
+    STANDIN_ROLLBACK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Stand-in rollback failed",
+            "Compensating rollback failed: databases may be inconsistent, manual reconciliation required"),
     FAKE(HttpStatus.I_AM_A_TEAPOT, "Fake custom error","No problem, only a test"),
     SERVICE_DISABLED(
           HttpStatus.BAD_REQUEST,

@@ -57,6 +57,11 @@ stand-in-manager:
     ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
     pagopa-postgres: false
     nexi-postgres: false
+  persistence:
+    ##numero massimo di tentativi di scrittura prima di innescare il rollback
+    save-max-attempts: 1
+    ##numero massimo di tentativi di rollback (ripristino snapshot) prima dell'alert critico
+    rollback-max-attempts: 1
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}

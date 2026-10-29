@@ -15,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,10 +49,14 @@ class StandInManagerServiceTest {
                 true,  // standInManagerEnabled
                 true,  // standInManagerWritePagoPa
                 true,  // standInManagerWriteNexiPostgres
+                3,     // saveMaxAttempts
+                3,     // rollbackMaxAttempts
                 standInManagerClient,
                 pagoPAStandInPostgresRepository,
                 nexiStandInPostgresRepository,
-                telemetryClient
+                telemetryClient,
+                new TransactionTemplate(mock(PlatformTransactionManager.class)),
+                new TransactionTemplate(mock(PlatformTransactionManager.class))
         );
         ReflectionTestUtils.setField(standInManagerService, "pagopaPostgresServiceIdentifier", PAGOPAPOSTGRES_SI);
         ReflectionTestUtils.setField(standInManagerService, "nexiPostgresServiceIdentifier", NEXIPOSTGRES_SI);
