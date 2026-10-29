@@ -4,7 +4,6 @@ import it.gov.pagopa.node.cfgsync.exception.AppError;
 import it.gov.pagopa.node.cfgsync.exception.AppException;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
-import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiCacheOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiCachePostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPACachePostgresRepository;
 import org.junit.jupiter.api.Test;
@@ -40,14 +39,11 @@ class ApiConfigCachePersistenceServiceTest {
     private PagoPACachePostgresRepository pagoPACachePostgresRepository;
     @Mock
     private NexiCachePostgresRepository nexiCachePostgresRepository;
-    @Mock
-    private NexiCacheOracleRepository nexiCacheOracleRepository;
 
     private ApiConfigCachePersistenceService service;
 
     private static final String PAGOPA_ID = "PAGOPAID";
-    private static final String NEXI_POSTGRES_ID = "NEXIOID";
-    private static final String NEXI_ORACLE_ID = "NEXIPID";
+    private static final String NEXI_POSTGRES_ID = "NEXIPID";
 
     private static ResponseEntity<byte[]> okResponse() {
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -57,35 +53,32 @@ class ApiConfigCachePersistenceServiceTest {
         return new ResponseEntity<>(new byte[0], httpHeaders, HttpStatus.OK);
     }
 
+    private ApiConfigCachePersistenceService buildService(boolean writePagoPa, boolean writeNexiPostgres) {
+        ApiConfigCachePersistenceService svc = new ApiConfigCachePersistenceService(
+                writePagoPa,
+                writeNexiPostgres,
+                pagoPACachePostgresRepository,
+                nexiCachePostgresRepository
+        );
+        ReflectionTestUtils.setField(svc, "pagopaPostgresServiceIdentifier", PAGOPA_ID);
+        ReflectionTestUtils.setField(svc, "nexiPostgresServiceIdentifier", NEXI_POSTGRES_ID);
+        return svc;
+    }
+
     @Test
     void saveCache_success() {
-        service = new ApiConfigCachePersistenceService(
-                true,
-                true,
-                true,
-                pagoPACachePostgresRepository,
-                nexiCachePostgresRepository,
-                nexiCacheOracleRepository
-        );
-        ReflectionTestUtils.setField(service, "pagopaPostgresServiceIdentifier", PAGOPA_ID);
-        ReflectionTestUtils.setField(service, "nexiPostgresServiceIdentifier", NEXI_POSTGRES_ID);
-        ReflectionTestUtils.setField(service, "nexiOracleServiceIdentifier", NEXI_ORACLE_ID);
+        service = buildService(true, true);
 
         Map<String, SyncStatusEnum> expected = Map.of(
                 PAGOPA_ID, SyncStatusEnum.DONE,
-                NEXI_POSTGRES_ID, SyncStatusEnum.DONE,
-                NEXI_ORACLE_ID, SyncStatusEnum.DONE
+                NEXI_POSTGRES_ID, SyncStatusEnum.DONE
         );
 
-        ResponseEntity<byte[]> response = okResponse();
-
         ConfigCache mockConfigCache = new ConfigCache();
-
         when(pagoPACachePostgresRepository.save(any(ConfigCache.class))).thenReturn(mockConfigCache);
         when(nexiCachePostgresRepository.save(any(ConfigCache.class))).thenReturn(mockConfigCache);
-        when(nexiCacheOracleRepository.save(any(ConfigCache.class))).thenReturn(mockConfigCache);
 
-        Map<String, SyncStatusEnum> result = service.saveCache(response);
+        Map<String, SyncStatusEnum> result = service.saveCache(okResponse());
 
         assertNotNull(result);
         assertEquals(expected, result);
@@ -93,18 +86,9 @@ class ApiConfigCachePersistenceServiceTest {
 
     @Test
     void saveCache_emptyHeadersThrowsException() {
-        service = new ApiConfigCachePersistenceService(
-                true,
-                true,
-                true,
-                pagoPACachePostgresRepository,
-                nexiCachePostgresRepository,
-                nexiCacheOracleRepository
-        );
-        ReflectionTestUtils.setField(service, "pagopaPostgresServiceIdentifier", PAGOPA_ID);
-        ReflectionTestUtils.setField(service, "nexiPostgresServiceIdentifier", NEXI_POSTGRES_ID);
-        ReflectionTestUtils.setField(service, "nexiOracleServiceIdentifier", NEXI_ORACLE_ID);
+        service = buildService(true, true);
 
+        @SuppressWarnings("unchecked")
         ResponseEntity<byte[]> response = mock(ResponseEntity.class);
         when(response.getHeaders()).thenReturn(new HttpHeaders());
 
@@ -116,26 +100,12 @@ class ApiConfigCachePersistenceServiceTest {
     @MethodSource("provideSaveCacheScenarios")
     void saveCache_variousScenarios(
             boolean writePagoPa,
-            boolean writeNexiOracle,
             boolean writeNexiPostgres,
             boolean pagoPaThrows,
-            boolean nexiOracleThrows,
             boolean nexiPostgresThrows,
             Map<String, SyncStatusEnum> expected
     ) {
-        service = new ApiConfigCachePersistenceService(
-                writePagoPa,
-                writeNexiOracle,
-                writeNexiPostgres,
-                pagoPACachePostgresRepository,
-                nexiCachePostgresRepository,
-                nexiCacheOracleRepository
-        );
-        ReflectionTestUtils.setField(service, "pagopaPostgresServiceIdentifier", PAGOPA_ID);
-        ReflectionTestUtils.setField(service, "nexiPostgresServiceIdentifier", NEXI_POSTGRES_ID);
-        ReflectionTestUtils.setField(service, "nexiOracleServiceIdentifier", NEXI_ORACLE_ID);
-
-        ResponseEntity<byte[]> response = okResponse();
+        service = buildService(writePagoPa, writeNexiPostgres);
 
         ConfigCache mockConfigCache = new ConfigCache();
 
@@ -147,14 +117,6 @@ class ApiConfigCachePersistenceServiceTest {
             }
         }
 
-        if (writeNexiOracle) {
-            if (nexiOracleThrows) {
-                when(nexiCacheOracleRepository.save(any(ConfigCache.class))).thenThrow(new RuntimeException("DB error"));
-            } else {
-                when(nexiCacheOracleRepository.save(any(ConfigCache.class))).thenReturn(mockConfigCache);
-            }
-        }
-
         if (writeNexiPostgres) {
             if (nexiPostgresThrows) {
                 when(nexiCachePostgresRepository.save(any(ConfigCache.class))).thenThrow(new RuntimeException("DB error"));
@@ -163,7 +125,7 @@ class ApiConfigCachePersistenceServiceTest {
             }
         }
 
-        Map<String, SyncStatusEnum> result = service.saveCache(response);
+        Map<String, SyncStatusEnum> result = service.saveCache(okResponse());
 
         assertNotNull(result);
         assertEquals(expected, result);
@@ -172,39 +134,23 @@ class ApiConfigCachePersistenceServiceTest {
     private static Stream<Arguments> provideSaveCacheScenarios() {
         return Stream.of(
                 // Caso: PagoPA lancia eccezione
-                Arguments.of(true, true, true, true, false, false, Map.of(
+                Arguments.of(true, true, true, false, Map.of(
                         PAGOPA_ID, SyncStatusEnum.ERROR,
-                        NEXI_POSTGRES_ID, SyncStatusEnum.ROLLBACK,
-                        NEXI_ORACLE_ID, SyncStatusEnum.ROLLBACK
-                )),
-                // Caso: PagoPA disabilitato
-                Arguments.of(false, true, true, false, false, false, Map.of(
-                        PAGOPA_ID, SyncStatusEnum.DISABLED,
-                        NEXI_POSTGRES_ID, SyncStatusEnum.DONE,
-                        NEXI_ORACLE_ID, SyncStatusEnum.DONE
-                )),
-                // Caso: Nexi Oracle lancia eccezione
-                Arguments.of(true, true, true, false, true, false, Map.of(
-                        PAGOPA_ID, SyncStatusEnum.ROLLBACK,
-                        NEXI_ORACLE_ID, SyncStatusEnum.ERROR,
                         NEXI_POSTGRES_ID, SyncStatusEnum.ROLLBACK
                 )),
-                // Caso: Nexi Oracle disabilitato
-                Arguments.of(true, false, true, false, false, false, Map.of(
-                        PAGOPA_ID, SyncStatusEnum.DONE,
-                        NEXI_ORACLE_ID, SyncStatusEnum.DISABLED,
+                // Caso: PagoPA disabilitato
+                Arguments.of(false, true, false, false, Map.of(
+                        PAGOPA_ID, SyncStatusEnum.DISABLED,
                         NEXI_POSTGRES_ID, SyncStatusEnum.DONE
                 )),
                 // Caso: Nexi Postgres lancia eccezione
-                Arguments.of(true, true, true, false, false, true, Map.of(
+                Arguments.of(true, true, false, true, Map.of(
                         PAGOPA_ID, SyncStatusEnum.ROLLBACK,
-                        NEXI_ORACLE_ID, SyncStatusEnum.ROLLBACK,
                         NEXI_POSTGRES_ID, SyncStatusEnum.ERROR
                 )),
                 // Caso: Nexi Postgres disabilitato
-                Arguments.of(true, true, false, false, false, false, Map.of(
+                Arguments.of(true, false, false, false, Map.of(
                         PAGOPA_ID, SyncStatusEnum.DONE,
-                        NEXI_ORACLE_ID, SyncStatusEnum.DONE,
                         NEXI_POSTGRES_ID, SyncStatusEnum.DISABLED
                 ))
         );

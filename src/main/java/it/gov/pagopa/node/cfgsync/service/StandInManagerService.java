@@ -10,7 +10,6 @@ import it.gov.pagopa.node.cfgsync.model.StationsResponse;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.model.TargetRefreshEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.StandInStations;
-import it.gov.pagopa.node.cfgsync.repository.nexioracle.NexiStandInOracleRepository;
 import it.gov.pagopa.node.cfgsync.repository.nexipostgres.NexiStandInPostgresRepository;
 import it.gov.pagopa.node.cfgsync.repository.pagopa.PagoPAStandInPostgresRepository;
 import java.util.LinkedHashMap;
@@ -28,33 +27,27 @@ public class StandInManagerService extends CommonCacheService {
 
     private final boolean standInManagerEnabled;
     private final boolean standInManagerWritePagoPa;
-    private final boolean standInManagerWriteNexiOracle;
     private final boolean standInManagerWriteNexiPostgres;
     private final StandInManagerClient standInManagerClient;
     private final PagoPAStandInPostgresRepository pagoPAStandInPostgresRepository;
     private final NexiStandInPostgresRepository nexiStandInPostgresRepository;
-    private final NexiStandInOracleRepository nexiStandInOracleRepository;
     private final AppInsightTelemetryClient telemetryClient;
 
     public StandInManagerService(
             @Value("${stand-in-manager.service.enabled}") boolean standInManagerEnabled,
             @Value("${stand-in-manager.write.pagopa-postgres}") boolean standInManagerWritePagoPa,
-            @Value("${stand-in-manager.write.nexi-oracle}") boolean standInManagerWriteNexiOracle,
             @Value("${stand-in-manager.write.nexi-postgres}") boolean standInManagerWriteNexiPostgres,
             StandInManagerClient standInManagerClient,
             @Autowired(required = false) PagoPAStandInPostgresRepository pagoPAStandInPostgresRepository,
             @Autowired(required = false) NexiStandInPostgresRepository nexiStandInPostgresRepository,
-            @Autowired(required = false) NexiStandInOracleRepository nexiStandInOracleRepository,
             AppInsightTelemetryClient telemetryClient
     ) {
         this.standInManagerEnabled = standInManagerEnabled;
         this.standInManagerWritePagoPa = standInManagerWritePagoPa;
-        this.standInManagerWriteNexiOracle = standInManagerWriteNexiOracle;
         this.standInManagerWriteNexiPostgres = standInManagerWriteNexiPostgres;
         this.standInManagerClient = standInManagerClient;
         this.pagoPAStandInPostgresRepository = pagoPAStandInPostgresRepository;
         this.nexiStandInPostgresRepository = nexiStandInPostgresRepository;
-        this.nexiStandInOracleRepository = nexiStandInOracleRepository;
         this.telemetryClient = telemetryClient;
     }
 
@@ -72,7 +65,6 @@ public class StandInManagerService extends CommonCacheService {
 
             savePagoPA(syncStatusMap, stationsEntities);
             saveNexiPostgres(syncStatusMap, stationsEntities);
-            saveNexiOracle(syncStatusMap, stationsEntities);
 
             return composeSyncStatusMapResult(TargetRefreshEnum.standin.label, syncStatusMap);
         } catch (FeignException fEx) {
@@ -104,20 +96,6 @@ public class StandInManagerService extends CommonCacheService {
         }
     }
 
-    private void saveNexiOracle(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
-        try {
-            if (standInManagerWriteNexiOracle) {
-                nexiStandInOracleRepository.deleteAll();
-                nexiStandInOracleRepository.saveAll(stationsEntities);
-                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.DONE);
-            } else {
-                syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.DISABLED);
-            }
-        } catch (Exception ex) {
-            log.error("[{}][ALERT] Problem to dump cache on Nexi Oracle: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
-            syncStatusMap.put(nexiOracleServiceIdentifier, SyncStatusEnum.ERROR);
-        }
-    }
 
     private void saveNexiPostgres(Map<String, SyncStatusEnum> syncStatusMap, List<StandInStations> stationsEntities) {
         try {

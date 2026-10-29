@@ -25,8 +25,6 @@ public class CommonCacheService {
     protected String pagopaPostgresServiceIdentifier;
     @Value("${app.identifiers.nexi-postgres}")
     protected String nexiPostgresServiceIdentifier;
-    @Value("${app.identifiers.nexi-oracle}")
-    protected String nexiOracleServiceIdentifier;
 
     protected ConfigCache composeCache(String cacheId, ZonedDateTime timestamp, String cacheVersion, byte[] cache) throws IOException, SyncDbStatusException {
         String version = (String) Utils.trimValueColumn(ConfigCache.class, "version", cacheVersion);

@@ -12,7 +12,6 @@ app:
   identifiers:
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}
     nexi-postgres: ${DB_NEXI_POSTGRES_SERVICE_IDENTIFIER}
-    nexi-oracle: ${DB_NEXI_ORACLE_SERVICE_IDENTIFIER}
 
 spring:
   datasource:
@@ -28,15 +27,6 @@ spring:
         maxLifetime: 20000
         connection-test-query: select 1
     nexi:
-      oracle:
-        url: jdbc:oracle:thin:@//localhost:1521/cfg
-        username: cfg
-        password: ${DB_NEXI_ORACLE_PASSWORD}
-        ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
-        enabled: false
-        connectionTimeout: 15000
-        maxLifetime: 20000
-        connection-test-query: select 1 from dual
       postgres:
         url: jdbc:postgresql://localhost:5432/nodo?currentSchema=public
         username: cfg
@@ -67,7 +57,6 @@ stand-in-manager:
     ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
     pagopa-postgres: false
     nexi-postgres: false
-    nexi-oracle: false
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
@@ -87,7 +76,6 @@ api-config-cache:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
     pagopa-postgres: false
     nexi-postgres: false
-    nexi-oracle: false
 
 logging:
   level:

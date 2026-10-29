@@ -41,7 +41,6 @@ app:
   identifiers:
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}
     nexi-postgres: ${DB_NEXI_POSTGRES_SERVICE_IDENTIFIER}
-    nexi-oracle: ${DB_NEXI_ORACLE_SERVICE_IDENTIFIER}
 
 spring:
   datasource:
@@ -57,15 +56,6 @@ spring:
         keepaliveTime: 30000
         maxLifetime: ${DB_PAGOPA_POSTGRES_MAX_LIFETIME}
     nexi:
-      oracle:
-        url: ${DB_NEXI_ORACLE_URL}
-        username: ${DB_NEXI_ORACLE_USER}
-        password: ${DB_NEXI_ORACLE_PASSWORD}
-        ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
-        enabled: ${DB_NEXI_ORACLE_ENABLED:false}
-        connection-test-query: select 1 from dual
-        connectionTimeout: ${DB_NEXI_ORACLE_CONNECTION_TIMEOUT}
-        maxLifetime: ${DB_NEXI_ORACLE_MAX_LIFETIME}
       postgres:
         url: ${DB_NEXI_POSTGRES_URL}
         username: ${DB_NEXI_POSTGRES_USER}
@@ -101,7 +91,6 @@ stand-in-manager:
     ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
     pagopa-postgres: ${STAND_IN_MANAGER_WRITE_PAGOPA_POSTGRES:false}
     nexi-postgres: ${STAND_IN_MANAGER_WRITE_NEXI_POSTGRES:false}
-    nexi-oracle: ${STAND_IN_MANAGER_WRITE_NEXI_ORACLE:false}
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
@@ -123,7 +112,6 @@ api-config-cache:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED:true}
     nexi-postgres: ${DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED:false}
-    nexi-oracle: ${DB_NEXI_ORACLE_WRITE_CACHE_ENABLED:true}
 
 timezone: ${TIMEZONE:Europe/Rome}
 
