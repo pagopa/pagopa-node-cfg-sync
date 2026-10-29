@@ -14,12 +14,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "api-config-cache.consumer", name = "enabled")
+@ConditionalOnProperty(prefix = "api-config-cache.consumer", name = "enabled", havingValue = "true")
 public class ApiConfigCacheEhConsumer {
 
     @Value("${api-config-cache.rx-connection-string}")

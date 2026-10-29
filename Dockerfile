@@ -1,31 +1,43 @@
-#
-# Build
-#
-FROM maven:3.9.6-amazoncorretto-17-al2023@sha256:4c8bd9ec72b372f587f7b9d92564a307e4f5180b7ec08455fb346617bae1757e as buildtime
+# 3.9.9-amazoncorretto-21-al2023
+FROM maven@sha256:39f77b0b26ef8be4297b3cfdcedc1ed8ff7699fcd5c5181aed26e89ed2d4ef2b AS buildtime
 WORKDIR /build
 COPY . .
-RUN mvn clean package -DskipTests
+RUN mvn clean package -Dmaven.test.skip=true
 
-FROM amazoncorretto:17.0.10-alpine3.19@sha256:180e9c91bdbaad3599fedd2f492bf0d0335a9382835aa64669b2c2a8de7c9a22 as builder
-#WORKDIR /app
-#COPY --from=buildtime /build/target/*.jar /app/application.jar
-#RUN java -Djarmode=layertools -jar application.jar extract
+#amazoncorretto:21-alpine
+FROM amazoncorretto@sha256:d5a42afb372d2bf5d937d7e6fb65b39c21b62a3f2af3cbcef46848a2f8364c6f AS builder
 COPY --from=buildtime /build/target/*.jar application.jar
+RUN java -Djarmode=layertools -jar application.jar extract
 
-#FROM ghcr.io/pagopa/docker-base-springboot-openjdk17:v1.1.3@sha256:a4e970ef05ecf2081424a64707e7c20856bbc40ddb3e99b32a24cd74591817c4
-#COPY --chown=spring:spring --from=builder /app/dependencies/ ./
-#COPY --chown=spring:spring --from=builder /app/snapshot-dependencies/ ./
+# eclipse-temurin:21-jre
+FROM eclipse-temurin@sha256:227118764cccd3c3294617061aaa93a08309c63a395eefa83e6b35032992ea99
+
+RUN addgroup spring && useradd -g spring spring
+
+# Use a dedicated working directory so the extracted Spring Boot layers are NOT
+# written to the container root "/". Otherwise Hibernate/Jandex resolves the
+# persistence-unit root to "/" and scans the whole filesystem at startup,
+# failing with "java.io.IOException: Invalid Magic" (crash loop on AKS).
+WORKDIR /home/spring/app
+RUN chown -R spring:spring /home/spring/app
+USER spring:spring
+
+# https://github.com/microsoft/ApplicationInsights-Java/releases
+ADD --chown=spring:spring https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.19/applicationinsights-agent-3.4.19.jar /applicationinsights-agent.jar
+
+COPY --chown=spring:spring docker-resources/applicationinsights.json ./applicationinsights.json
+# ---- end inlined base ----
+
+COPY --chown=spring:spring  --from=builder dependencies/ ./
+COPY --chown=spring:spring  --from=builder snapshot-dependencies/ ./
 # https://github.com/moby/moby/issues/37965#issuecomment-426853382
-#RUN true
-#COPY --chown=spring:spring --from=builder /app/spring-boot-loader/ ./
-#COPY --chown=spring:spring --from=builder /app/application/ ./
-
-## https://github.com/microsoft/ApplicationInsights-Java/releases
-ADD --chown=spring:spring https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.19/applicationinsights-agent-3.4.19.jar applicationinsights-agent.jar
-COPY --chown=spring:spring docker/applicationinsights.json applicationinsights.json
-COPY --chown=spring:spring docker/run.sh run.sh
-RUN chmod +x ./run.sh
+RUN true
+COPY --chown=spring:spring  --from=builder spring-boot-loader/ ./
+COPY --chown=spring:spring  --from=builder application/ ./
 
 EXPOSE 8080
 
+
+COPY --chown=spring:spring docker-resources/run.sh ./run.sh
+RUN chmod +x ./run.sh
 ENTRYPOINT ["./run.sh"]

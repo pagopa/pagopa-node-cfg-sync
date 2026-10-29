@@ -14,12 +14,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "stand-in-manager.consumer", name = "enabled")
+@ConditionalOnProperty(prefix = "stand-in-manager.consumer", name = "enabled", havingValue = "true")
 public class StandInManagerEhConsumer {
 
     @Value("${stand-in-manager.rx-connection-string}")

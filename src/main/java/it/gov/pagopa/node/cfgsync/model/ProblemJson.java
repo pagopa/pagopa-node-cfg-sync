@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 /**
  * Object returned as response in case of an error.
- * <p> See {@link it.pagopa.microservice.exception.ErrorHandler}
+ * <p> See {@link it.gov.pagopa.node.cfgsync.exception.ErrorHandler}
  */
 @Data
 @Builder(toBuilder = true)

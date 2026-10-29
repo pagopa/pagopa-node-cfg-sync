@@ -87,7 +87,7 @@ public class SyncCacheController {
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
                 .stream()
                 .map(e -> SyncStatusResponse.builder().serviceIdentifier(e.getKey()).status(e.getValue()).build())
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok()
                 .body(syncStatusResponseList);
@@ -143,7 +143,7 @@ public class SyncCacheController {
         List<SyncStatusResponse> syncStatusResponseList = syncStatusEnumMap.entrySet()
                 .stream()
                 .map(e -> SyncStatusResponse.builder().serviceIdentifier(e.getKey()).status(e.getValue()).build())
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok()
                 .body(syncStatusResponseList);

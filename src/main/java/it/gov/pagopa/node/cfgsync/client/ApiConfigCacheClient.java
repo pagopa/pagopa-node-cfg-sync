@@ -1,18 +1,20 @@
 package it.gov.pagopa.node.cfgsync.client;
 
-import feign.Headers;
-import feign.Param;
-import feign.RequestLine;
-import feign.Response;
-import org.springframework.stereotype.Service;
+import feign.FeignException;
+import it.gov.pagopa.node.cfgsync.config.ApiConfigCacheFeignConfig;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.web.bind.annotation.GetMapping;
 
-@Service
+@FeignClient(name = "api-config-cache", url = "${api-config-cache.service.base-url}", configuration = ApiConfigCacheFeignConfig.class)
 public interface ApiConfigCacheClient {
 
-  @RequestLine("GET /")
-  @Headers({
-          "Ocp-Apim-Subscription-Key: {subscriptionKey}"
-  })
-  Response getCache(@Param String subscriptionKey);
-
+    @Retryable(
+            exclude = FeignException.FeignClientException.class,
+            maxAttemptsExpression = "${api-config-cache.service.retryLeft}",
+            backoff = @Backoff(delayExpression = "${api-config-cache.service.attemptDelay}"))
+    @GetMapping(value = "/stakeholders/node/cache/schemas/v1")
+    ResponseEntity<byte[]> getCache();
 }

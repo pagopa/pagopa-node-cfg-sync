@@ -32,11 +32,15 @@ management:
     health:
       probes:
         enabled: 'true'
+
+azure:
+    application-insights:
+      connection-string: ${APPLICATIONINSIGHTS_CONNECTION_STRING}
+
 app:
   identifiers:
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}
     nexi-postgres: ${DB_NEXI_POSTGRES_SERVICE_IDENTIFIER}
-    nexi-oracle: ${DB_NEXI_ORACLE_SERVICE_IDENTIFIER}
 
 spring:
   datasource:
@@ -46,27 +50,18 @@ spring:
         username: ${DB_PAGOPA_POSTGRES_USER}
         password: ${DB_PAGOPA_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
-        enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
+        enabled: ${DB_PAGOPA_POSTGRES_ENABLED:false}
         connection-test-query: select 1
         connectionTimeout: ${DB_PAGOPA_POSTGRES_CONNECTION_TIMEOUT}
         keepaliveTime: 30000
         maxLifetime: ${DB_PAGOPA_POSTGRES_MAX_LIFETIME}
     nexi:
-      oracle:
-        url: ${DB_NEXI_ORACLE_URL}
-        username: ${DB_NEXI_ORACLE_USER}
-        password: ${DB_NEXI_ORACLE_PASSWORD}
-        ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
-        enabled: ${DB_NEXI_ORACLE_ENABLED:'false'}
-        connection-test-query: select 1 from dual
-        connectionTimeout: ${DB_NEXI_ORACLE_CONNECTION_TIMEOUT}
-        maxLifetime: ${DB_NEXI_ORACLE_MAX_LIFETIME}
       postgres:
         url: ${DB_NEXI_POSTGRES_URL}
         username: ${DB_NEXI_POSTGRES_USER}
         password: ${DB_NEXI_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
-        enabled: ${DB_NEXI_POSTGRES_ENABLED:'false'}
+        enabled: ${DB_NEXI_POSTGRES_ENABLED:false}
         connection-test-query: select 1
         connectionTimeout: ${DB_NEXI_POSTGRES_CONNECTION_TIMEOUT}
         maxLifetime: ${DB_NEXI_POSTGRES_MAX_LIFETIME}
@@ -82,7 +77,7 @@ stand-in-manager:
   rx-connection-string: ${STAND_IN_MANAGER_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-stand-in
   service:
-    host: ${STAND_IN_MANAGER_URL}
+    base-url: ${STAND_IN_MANAGER_URL}
     subscriptionKey: ${STAND_IN_MANAGER_SUBSCRIPTION_KEY}
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'
@@ -96,13 +91,17 @@ stand-in-manager:
     ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
     pagopa-postgres: ${STAND_IN_MANAGER_WRITE_PAGOPA_POSTGRES:false}
     nexi-postgres: ${STAND_IN_MANAGER_WRITE_NEXI_POSTGRES:false}
-    nexi-oracle: ${STAND_IN_MANAGER_WRITE_NEXI_ORACLE:false}
+  persistence:
+    ##numero massimo di tentativi di scrittura prima di innescare il rollback
+    save-max-attempts: ${STANDIN_SAVE_MAX_ATTEMPTS:3}
+    ##numero massimo di tentativi di rollback (ripristino snapshot) prima dell'alert critico
+    rollback-max-attempts: ${STANDIN_ROLLBACK_MAX_ATTEMPTS:3}
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-cache
   service:
-    host: ${API_CONFIG_CACHE_URL}
+    base-url: ${API_CONFIG_CACHE_URL}
     subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
     enabled: 'true'
@@ -113,12 +112,16 @@ api-config-cache:
   consumer-group: nodo-dei-pagamenti-cache-sync-rx
   consumer:
     ##permette di abilitare/disabilitare il consumer
-    enabled: ${EH_CACHE_CONSUMER_ENABLED:'true'}
+    enabled: ${EH_CACHE_CONSUMER_ENABLED:true}
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
-    pagopa-postgres: ${DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED:'true'}
-    nexi-postgres: ${DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED:'false'}
-    nexi-oracle: ${DB_NEXI_ORACLE_WRITE_CACHE_ENABLED:'true'}
+    pagopa-postgres: ${DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED:true}
+    nexi-postgres: ${DB_NEXI_POSTGRES_WRITE_CACHE_ENABLED:false}
+  persistence:
+    ##numero massimo di tentativi di scrittura prima di innescare il rollback
+    save-max-attempts: ${DB_CACHE_SAVE_MAX_ATTEMPTS:3}
+    ##numero massimo di tentativi di rollback (delete compensativa) prima dell'alert critico
+    rollback-max-attempts: ${DB_CACHE_ROLLBACK_MAX_ATTEMPTS:3}
 
 timezone: ${TIMEZONE:Europe/Rome}
 

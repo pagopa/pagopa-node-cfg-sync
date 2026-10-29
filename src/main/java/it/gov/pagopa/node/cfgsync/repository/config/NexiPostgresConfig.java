@@ -14,6 +14,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 
@@ -24,7 +25,7 @@ import javax.sql.DataSource;
         entityManagerFactoryRef = "nexiPostgresEntityManagerFactory",
         transactionManagerRef = "nexiPostgresTransactionManager"
 )
-@ConditionalOnProperty(prefix = "spring.datasource.nexi.postgres", name = "enabled")
+@ConditionalOnProperty(prefix = "spring.datasource.nexi.postgres", name = "enabled", havingValue = "true")
 public class NexiPostgresConfig {
 
     @Bean
@@ -54,6 +55,12 @@ public class NexiPostgresConfig {
     public PlatformTransactionManager nexiPostgresTransactionManager(
             final @Qualifier("nexiPostgresEntityManagerFactory") LocalContainerEntityManagerFactoryBean nexiPostgresEntityManagerFactory) {
         return new JpaTransactionManager(nexiPostgresEntityManagerFactory.getObject());
+    }
+
+    @Bean(name = "nexiPostgresTransactionTemplate")
+    public TransactionTemplate nexiPostgresTransactionTemplate(
+            final @Qualifier("nexiPostgresTransactionManager") PlatformTransactionManager nexiPostgresTransactionManager) {
+        return new TransactionTemplate(nexiPostgresTransactionManager);
     }
 
 }
