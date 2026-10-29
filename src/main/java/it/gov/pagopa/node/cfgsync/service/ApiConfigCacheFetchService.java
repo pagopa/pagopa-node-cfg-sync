@@ -26,7 +26,7 @@ public class ApiConfigCacheFetchService {
                         return CompletableFuture.completedFuture(response);
                     }
                     log.error("Fetching cache failed after retries", ex);
-                    return CompletableFuture.<ResponseEntity<byte[]>>failedFuture(new AppException(AppError.CACHE_UNPROCESSABLE));
+                    return CompletableFuture.<ResponseEntity<byte[]>>failedFuture(new AppException(AppError.CACHE_UNPROCESSABLE, ex));
                 })
                 .thenCompose(future -> future);
     }

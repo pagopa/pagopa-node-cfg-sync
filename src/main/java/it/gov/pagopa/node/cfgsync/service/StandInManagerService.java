@@ -70,14 +70,14 @@ public class StandInManagerService extends CommonCacheService {
         } catch (FeignException fEx) {
             log.error("[{}] error: {}", TargetRefreshEnum.standin.label, fEx.getMessage(), fEx);
             telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Feign exception", fEx);
-            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+            throw new AppException(AppError.INTERNAL_SERVER_ERROR, fEx);
         } catch (AppException appException) {
             telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "App exception", appException);
             throw appException;
         } catch (Exception ex) {
             log.error("[{}][ALERT] Generic Error: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
             telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Generic exception", ex);
-            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+            throw new AppException(AppError.INTERNAL_SERVER_ERROR, ex);
         }
     }
 
