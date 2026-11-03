@@ -41,7 +41,7 @@ public class ApiConfigCacheService {
         } catch (ExecutionException | InterruptedException e) {
             telemetryClient.createCustomEventForAlert(AppError.CACHE_UNPROCESSABLE, "Cache not ready to be saved after retries", e);
             Thread.currentThread().interrupt();
-            throw new AppException(AppError.CACHE_UNPROCESSABLE, "Cache not ready to be saved after retries");
+            throw new AppException(AppError.CACHE_UNPROCESSABLE, e, "Cache not ready to be saved after retries");
         }
     }
 

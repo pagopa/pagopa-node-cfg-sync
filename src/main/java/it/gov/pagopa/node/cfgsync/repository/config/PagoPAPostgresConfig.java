@@ -15,6 +15,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 
@@ -25,7 +26,7 @@ import javax.sql.DataSource;
         entityManagerFactoryRef = "pagopaPostgresEntityManagerFactory",
         transactionManagerRef = "pagopaPostgresTransactionManager"
 )
-@ConditionalOnProperty(prefix = "spring.datasource.pagopa.postgres", name = "enabled")
+@ConditionalOnProperty(prefix = "spring.datasource.pagopa.postgres", name = "enabled", havingValue = "true")
 public class PagoPAPostgresConfig {
 
     @Primary
@@ -59,6 +60,13 @@ public class PagoPAPostgresConfig {
     public PlatformTransactionManager pagopaPostgresTransactionManager(
             final @Qualifier("pagopaPostgresEntityManagerFactory") LocalContainerEntityManagerFactoryBean pagopaPostgresEntityManagerFactory) {
         return new JpaTransactionManager(pagopaPostgresEntityManagerFactory.getObject());
+    }
+
+    @Primary
+    @Bean(name = "pagopaPostgresTransactionTemplate")
+    public TransactionTemplate pagopaPostgresTransactionTemplate(
+            final @Qualifier("pagopaPostgresTransactionManager") PlatformTransactionManager pagopaPostgresTransactionManager) {
+        return new TransactionTemplate(pagopaPostgresTransactionManager);
     }
 
 }

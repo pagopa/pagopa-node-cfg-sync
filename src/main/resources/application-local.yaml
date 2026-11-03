@@ -4,11 +4,14 @@ info:
 cors:
   configuration: '{"origins": ["*"], "methods": ["*"]}'
 
+azure:
+  application-insights:
+    connection-string: ${APPLICATIONINSIGHTS_CONNECTION_STRING}
+
 app:
   identifiers:
     pagopa-postgres: ${DB_PAGOPA_POSTGRES_SERVICE_IDENTIFIER}
     nexi-postgres: ${DB_NEXI_POSTGRES_SERVICE_IDENTIFIER}
-    nexi-oracle: ${DB_NEXI_ORACLE_SERVICE_IDENTIFIER}
 
 spring:
   datasource:
@@ -19,26 +22,17 @@ spring:
         username: cfg
         password: ${DB_PAGOPA_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres PagoPA
-        enabled: ${DB_PAGOPA_POSTGRES_ENABLED:'false'}
+        enabled: false
         connectionTimeout: 15000
         maxLifetime: 20000
         connection-test-query: select 1
     nexi:
-      oracle:
-        url: jdbc:oracle:thin:@//localhost:1521/cfg
-        username: cfg
-        password: ${DB_NEXI_ORACLE_PASSWORD}
-        ##permette di abilitare/disabilitare il datasource al db Oracle Nexi
-        enabled: ${DB_NEXI_ORACLE_ENABLED:'false'}
-        connectionTimeout: 15000
-        maxLifetime: 20000
-        connection-test-query: select 1 from dual
       postgres:
         url: jdbc:postgresql://localhost:5432/nodo?currentSchema=public
         username: cfg
         password: ${DB_NEXI_POSTGRES_PASSWORD}
         ##permette di abilitare/disabilitare il datasource al db Postgres Nexi
-        enabled: ${DB_NEXI_POSTGRES_ENABLED:'false'}
+        enabled: ${DB_NEXI_POSTGRES_ENABLED:false}
         connectionTimeout: 15000
         maxLifetime: 20000
         connection-test-query: select 1
@@ -49,41 +43,49 @@ stand-in-manager:
   rx-connection-string: ${STAND_IN_MANAGER_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-stand-in
   service:
-    host: https://api.dev.platform.pagopa.it/stand-in-manager/api/v1
+    base-url: https://api.dev.platform.pagopa.it/stand-in-manager/api/v1
     subscriptionKey: ${STAND_IN_MANAGER_SUBSCRIPTION_KEY}
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
-    enabled: 'true'
+    enabled: false
   sa-connection-string: ${STAND_IN_MANAGER_SA_CONNECTION_STRING}
   sa-name: standineventslocal
   consumer-group: $Default
   consumer:
     ##permette di abilitare/disabilitare il consumer
-    enabled: 'false'
+    enabled: false
   write:
     ##permettono di abilitare/disabilitare la scrittura di stand-in sui vari database
-    pagopa-postgres: 'true'
-    nexi-postgres: 'false'
-    nexi-oracle: 'false'
+    pagopa-postgres: false
+    nexi-postgres: false
+  persistence:
+    ##numero massimo di tentativi di scrittura prima di innescare il rollback
+    save-max-attempts: 1
+    ##numero massimo di tentativi di rollback (ripristino snapshot) prima dell'alert critico
+    rollback-max-attempts: 1
 
 api-config-cache:
   rx-connection-string: ${API_CONFIG_CACHE_RX_CONNECTION_STRING}
   rx-name: nodo-dei-pagamenti-cache
   service:
-    host: https://api.dev.platform.pagopa.it/api-config-cache/p/v1/stakeholders/node/cache/schemas/v1
+    base-url: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
     subscriptionKey: ${API_CONFIG_CACHE_SUBSCRIPTION_KEY}
     ##permette di abilitare/disabilitare la chiamata al servizio tramite API
-    enabled: 'true'
+    enabled: true
   sa-connection-string: ${API_CONFIG_CACHE_SA_CONNECTION_STRING}
   sa-name: cacheeventslocal
   consumer-group: nodo-dei-pagamenti-cache-sync-rx-local
   consumer:
     ##permette di abilitare/disabilitare il consumer
-    enabled: 'true'
+    enabled: false
   write:
     ##permettono di abilitare/disabilitare la scrittura di cache sui vari database
-    pagopa-postgres: 'false'
-    nexi-postgres: 'false'
-    nexi-oracle: 'false'
+    pagopa-postgres: false
+    nexi-postgres: false
+  persistence:
+    ##numero massimo di tentativi di scrittura prima di innescare il rollback
+    save-max-attempts: 1
+    ##numero massimo di tentativi di rollback (delete compensativa) prima dell'alert critico
+    rollback-max-attempts: 1
 
 logging:
   level:

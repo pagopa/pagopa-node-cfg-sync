@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@ConditionalOnProperty(name = "stand-in-manager.write.nexi-postgres")
+@ConditionalOnProperty(name = "stand-in-manager.write.nexi-postgres", havingValue = "true")
 public interface NexiStandInPostgresRepository extends JpaRepository<StandInStations, String> { }

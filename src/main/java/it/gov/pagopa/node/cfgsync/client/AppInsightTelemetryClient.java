@@ -1,7 +1,6 @@
 package it.gov.pagopa.node.cfgsync.client;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import com.microsoft.applicationinsights.TelemetryConfiguration;
 import it.gov.pagopa.node.cfgsync.exception.AppError;
 import org.springframework.stereotype.Service;
 
@@ -11,14 +10,10 @@ import java.util.Map;
 @Service
 public class AppInsightTelemetryClient {
 
-  private final String connectionString = System.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING");
-
   private final TelemetryClient telemetryClient;
 
-  public AppInsightTelemetryClient() {
-    TelemetryConfiguration aDefault = TelemetryConfiguration.createDefault();
-    aDefault.setConnectionString(connectionString);
-    this.telemetryClient = new TelemetryClient(aDefault);
+  public AppInsightTelemetryClient(TelemetryClient telemetryClient) {
+    this.telemetryClient = telemetryClient;
   }
 
   /**

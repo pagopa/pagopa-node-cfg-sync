@@ -10,8 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import java.util.Set;
 
 @Aspect
@@ -23,7 +23,7 @@ public class ResponseValidator {
 
 
   /**
-   * This method validates the response annotated with the {@link javax.validation.constraints}
+   * This method validates the response annotated with the {@link jakarta.validation.constraints}
    *
    * @param joinPoint not used
    * @param result    the response to validate
