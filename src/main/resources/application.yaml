@@ -69,6 +69,8 @@ spring:
     properties:
       hibernate:
         physical_naming_strategy: it.gov.pagopa.node.cfgsync.config.ViewNamingStrategy
+        timezone:
+          default_storage: NORMALIZE
         jdbc:
           batch_size: 100
     show-sql: 'false'
