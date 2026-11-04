@@ -90,6 +90,10 @@ microservice-chart:
     DB_PAGOPA_POSTGRES_CONNECTION_TIMEOUT: "15000"
     DB_PAGOPA_POSTGRES_MAX_LIFETIME: "30000"
     DB_PAGOPA_POSTGRES_WRITE_CACHE_ENABLED: "true" # write cache
+    DB_CACHE_SAVE_MAX_ATTEMPTS: "3"
+    DB_CACHE_ROLLBACK_MAX_ATTEMPTS: "3"
+    STANDIN_SAVE_MAX_ATTEMPTS: "3"
+    STANDIN_ROLLBACK_MAX_ATTEMPTS: "3"
     EH_CACHE_CONSUMER_ENABLED: "true" # enable evh message consuming
     API_CONFIG_CACHE_URL: "https://api.platform.pagopa.it/api-config-cache/p/v1"
     STAND_IN_MANAGER_URL: "https://api.platform.pagopa.it/stand-in-manager/api/v1"

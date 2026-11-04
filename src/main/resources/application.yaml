@@ -70,6 +70,7 @@ spring:
       hibernate:
         physical_naming_strategy: it.gov.pagopa.node.cfgsync.config.ViewNamingStrategy
         timezone:
+          # allow to keep the timezone of the JVM (Europe/Rome) for ZonedDateTime field and avoid the conversion to UTC (default behavior of Hibernate 6)
           default_storage: NORMALIZE
         jdbc:
           batch_size: 100
