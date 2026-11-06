@@ -12,6 +12,8 @@ public enum AppError {
             "Error processing retrieved cache headers: %s"),
     CACHE_UNPROCESSABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Cache not ready to be saved",
             "Problem to retrieve cache"),
+    CACHE_FETCH_ERROR(HttpStatus.BAD_GATEWAY, "Unable to retrieve cache",
+            "Problem to retrieve cache from Api Config Cache"),
     CACHE_SAVE_PROBLEM(HttpStatus.UNPROCESSABLE_ENTITY, "Cache not saved",
             "Problem to save cache on one or more databases"),
     CACHE_ROLLBACK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Cache rollback failed",
