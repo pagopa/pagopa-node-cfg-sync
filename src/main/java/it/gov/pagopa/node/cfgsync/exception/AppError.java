@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 public enum AppError {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
             "Something was wrong"),
+    INVALID_CACHE_HEADERS(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid cache headers",
+            "Error processing retrieved cache headers: %s"),
     CACHE_UNPROCESSABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Cache not ready to be saved",
             "Problem to retrieve cache"),
     CACHE_SAVE_PROBLEM(HttpStatus.UNPROCESSABLE_ENTITY, "Cache not saved",
