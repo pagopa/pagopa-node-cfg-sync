@@ -56,7 +56,7 @@ public class ApiConfigCacheEhConsumer {
         try {
             apiConfigCacheService.syncCache();
         } catch (Exception ex) {
-            log.error("[{}][ALERT] Generic Error on consumer: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
+            log.error("[{}] Generic Error on consumer: {}", TargetRefreshEnum.cache.label, ex.getMessage(), ex);
         }
 
     }

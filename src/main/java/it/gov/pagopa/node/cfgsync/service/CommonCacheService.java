@@ -35,7 +35,7 @@ public class CommonCacheService {
         List<String> valueList = headers.get(key).stream().toList();
         if(valueList.isEmpty()) {
             log.error("[NODE-CFG-SYNC] {} get cache error - empty parameter '{}'", target, key);
-            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+            throw new AppException(AppError.INVALID_CACHE_HEADERS, "Empty parameter '" + key + "' in cache headers");
         }
         return valueList.get(0);
     }

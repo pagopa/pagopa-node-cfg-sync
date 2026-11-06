@@ -49,7 +49,7 @@ class ApiConfigCacheFetchServiceTest {
 
         ExecutionException ex = assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
         AppException appException = assertInstanceOf(AppException.class, ex.getCause());
-        assertEquals(AppError.CACHE_UNPROCESSABLE.httpStatus, appException.getHttpStatus());
+        assertEquals(AppError.CACHE_FETCH_ERROR.httpStatus, appException.getHttpStatus());
     }
 
     @Test
@@ -62,6 +62,6 @@ class ApiConfigCacheFetchServiceTest {
 
         ExecutionException ex = assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
         AppException appException = assertInstanceOf(AppException.class, ex.getCause());
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, appException.getHttpStatus());
+        assertEquals(HttpStatus.BAD_GATEWAY, appException.getHttpStatus());
     }
 }
