@@ -95,14 +95,14 @@ jobs:
         run: echo "semver=${{env.SEMVER}}" >> $GITHUB_OUTPUT
 
       # Set Environment
-      - run: echo "ENVIRNOMENT=${{ inputs.environment}}" >> $GITHUB_ENV
+      - run: echo "ENVIRONMENT=${{ inputs.environment}}" >> $GITHUB_ENV
 
       - if: ${{ inputs.environment == null }}
-        run: echo "ENVIRNOMENT=dev" >> $GITHUB_ENV
+        run: echo "ENVIRONMENT=dev" >> $GITHUB_ENV
 
       - id: get_env
         name: Set Output
-        run: echo "environment=${{env.ENVIRNOMENT}}" >> $GITHUB_OUTPUT
+        run: echo "environment=${{env.ENVIRONMENT}}" >> $GITHUB_OUTPUT
 
   release:
     name: Create a New Release
@@ -114,7 +114,7 @@ jobs:
     steps:
       - name: Make Release
         id: release
-        uses: pagopa/github-actions-template/maven-release@4a4c25ce28feeec9e619b3132b5327f52023d441 # v1.14.2
+        uses: pagopa/github-actions-template/maven-release@1aa27ebf80b99501a9019d63ef27f3057d2a4b1d # 2.8.0
         with:
           semver: ${{ needs.setup.outputs.semver }}
           github_token: ${{ secrets.BOT_TOKEN_GITHUB }}
@@ -122,6 +122,8 @@ jobs:
           skip_ci: true
           prerelease: ${{  github.ref_name != 'main' }}
           only_tag: false
+          jdk_version: 21
+          maven_version: 3.9.9
 
   image:
     needs: [ setup, release ]
@@ -131,7 +133,7 @@ jobs:
     steps:
       - name: Build and Push
         id: semver
-        uses: pagopa/github-actions-template/ghcr-build-push@d91a1fd0b913c9830589be5d86cdb71c90813fae # v1.5.4
+        uses: pagopa/github-actions-template/ghcr-build-push@1aa27ebf80b99501a9019d63ef27f3057d2a4b1d # 2.8.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.release.outputs.version }}

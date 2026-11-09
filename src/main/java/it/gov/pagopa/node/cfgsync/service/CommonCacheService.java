@@ -6,8 +6,6 @@ import it.gov.pagopa.node.cfgsync.exception.SyncDbStatusException;
 import it.gov.pagopa.node.cfgsync.model.SyncStatusEnum;
 import it.gov.pagopa.node.cfgsync.repository.model.ConfigCache;
 import it.gov.pagopa.node.cfgsync.util.Utils;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,30 +18,24 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Getter
 @Component
-@RequiredArgsConstructor
 public class CommonCacheService {
 
     @Value("${app.identifiers.pagopa-postgres}")
-    private String pagopaPostgresServiceIdentifier;
-
+    protected String pagopaPostgresServiceIdentifier;
     @Value("${app.identifiers.nexi-postgres}")
-    private String nexiPostgresServiceIdentifier;
-
-    @Value("${app.identifiers.nexi-oracle}")
-    private String nexiOracleServiceIdentifier;
+    protected String nexiPostgresServiceIdentifier;
 
     protected ConfigCache composeCache(String cacheId, ZonedDateTime timestamp, String cacheVersion, byte[] cache) throws IOException, SyncDbStatusException {
         String version = (String) Utils.trimValueColumn(ConfigCache.class, "version", cacheVersion);
         return new ConfigCache(cacheId, timestamp, Utils.zipContent(cache), version);
     }
 
-    protected Object getHeaderParameter(String target, Map<String, Collection<String>> headers, String key) {
+    protected Object getHeaderParameter(String target, Map<String, ? extends Collection<String>> headers, String key) {
         List<String> valueList = headers.get(key).stream().toList();
         if(valueList.isEmpty()) {
             log.error("[NODE-CFG-SYNC] {} get cache error - empty parameter '{}'", target, key);
-            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
+            throw new AppException(AppError.INVALID_CACHE_HEADERS, "Empty parameter '" + key + "' in cache headers");
         }
         return valueList.get(0);
     }
@@ -65,5 +57,4 @@ public class CommonCacheService {
             return syncStatusMap;
         }
     }
-
 }

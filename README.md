@@ -15,7 +15,7 @@ See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubuserc
 
 ## Technology Stack
 
-- Java 17
+- Java 21
 - Spring Boot
 - Spring Web
 - Hibernate
@@ -45,7 +45,7 @@ from `./docker` directory
 
 - git
 - maven
-- jdk-17
+- jdk-21
 
 ### Run the project
 
