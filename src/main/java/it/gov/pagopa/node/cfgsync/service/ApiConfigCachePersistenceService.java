@@ -93,7 +93,7 @@ public class ApiConfigCachePersistenceService extends CommonCacheService {
         try {
             HttpHeaders headers = response.getHeaders();
             if (headers.isEmpty()) {
-                throw new AppException(AppError.INTERNAL_SERVER_ERROR, "empty headers");
+                throw new AppException(AppError.INVALID_CACHE_HEADERS, "Empty headers");
             }
 
             String cacheId = (String) getHeaderParameter(TargetRefreshEnum.cache.label, headers, HEADER_CACHE_ID);

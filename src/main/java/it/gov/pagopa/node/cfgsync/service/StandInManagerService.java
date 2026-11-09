@@ -111,10 +111,9 @@ public class StandInManagerService extends CommonCacheService {
             return persistWithSaga(steps, stationsEntities, syncStatusMap);
         } catch (FeignException fEx) {
             log.error("[{}] error: {}", TargetRefreshEnum.standin.label, fEx.getMessage(), fEx);
-            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "Feign exception", fEx);
+            telemetryClient.createCustomEventForAlert(AppError.STANDIN_FETCH_STATIONS_ERROR, "Feign exception", fEx);
             throw new AppException(AppError.INTERNAL_SERVER_ERROR, fEx);
         } catch (AppException appException) {
-            telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM, "App exception", appException);
             throw appException;
         } catch (Exception ex) {
             log.error("[{}][ALERT] Generic Error: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
@@ -187,7 +186,7 @@ public class StandInManagerService extends CommonCacheService {
                 log.error("[{}][ALERT] Save attempt {}/{} failed on {}: {}",
                         TargetRefreshEnum.standin.label, attempt, saveMaxAttempts, step.serviceId(), ex.getMessage(), ex);
                 if (attempt == saveMaxAttempts) {
-                    telemetryClient.createCustomEventForAlert(AppError.STANDIN_PROBLEM,
+                    telemetryClient.createCustomEventForAlert(AppError.STANDIN_SAVE_PROBLEM,
                             "Stand-in save failed on " + step.serviceId() + " after " + saveMaxAttempts + " attempts", ex);
                     return null;
                 }

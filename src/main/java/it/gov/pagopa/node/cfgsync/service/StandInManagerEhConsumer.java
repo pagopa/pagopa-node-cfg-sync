@@ -55,7 +55,7 @@ public class StandInManagerEhConsumer {
         try {
             standInManagerService.syncStandIn();
         } catch (Exception ex) {
-            log.error("[{}][ALERT] Generic Error on consumer: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
+            log.error("[{}] Generic Error on consumer: {}", TargetRefreshEnum.standin.label, ex.getMessage(), ex);
         }
     }
 

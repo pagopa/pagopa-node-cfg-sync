@@ -20,12 +20,13 @@ class ApiConfigCacheServiceTest {
     private ApiConfigCacheFetchService fetchService;
     private ApiConfigCachePersistenceService persistenceService;
     private ApiConfigCacheService service;
+    private AppInsightTelemetryClient telemetryClient;
 
     @BeforeEach
     void setUp() {
         fetchService = mock(ApiConfigCacheFetchService.class);
         persistenceService = mock(ApiConfigCachePersistenceService.class);
-        AppInsightTelemetryClient telemetryClient = mock(AppInsightTelemetryClient.class);
+        telemetryClient = mock(AppInsightTelemetryClient.class);
         service = new ApiConfigCacheService(fetchService, persistenceService, telemetryClient);
         service.setApiConfigCacheServiceEnabled(true);
     }
@@ -59,5 +60,36 @@ class ApiConfigCacheServiceTest {
         AppException ex = assertThrows(AppException.class, service::syncCache);
         assertEquals(AppError.CACHE_UNPROCESSABLE.httpStatus, ex.getHttpStatus());
         assertEquals(AppError.CACHE_UNPROCESSABLE.title, ex.getTitle());
+        verify(telemetryClient).createCustomEventForAlert(eq(AppError.CACHE_UNPROCESSABLE), anyString(), any(ExecutionException.class));
+        assertFalse(Thread.currentThread().isInterrupted());
+    }
+
+    @Test
+    void syncCache_saveThrowsAppException_propagatesOriginal() {
+        ResponseEntity<byte[]> response = ResponseEntity.ok(new byte[0]);
+        AppException original = new AppException(AppError.INTERNAL_SERVER_ERROR, "empty headers");
+
+        when(fetchService.fetchCacheWithRetry()).thenReturn(CompletableFuture.completedFuture(response));
+        when(persistenceService.saveCache(any())).thenThrow(original);
+
+        AppException ex = assertThrows(AppException.class, service::syncCache);
+        assertSame(original, ex);
+        verify(telemetryClient).createCustomEventForAlert(eq(AppError.CACHE_UNPROCESSABLE), anyString(), any(ExecutionException.class));
+        assertFalse(Thread.currentThread().isInterrupted());
+    }
+
+    @Test
+    void syncCache_interrupted_restoresInterruptFlag() {
+        // never-completing future: get() throws InterruptedException because the flag is already set
+        when(fetchService.fetchCacheWithRetry()).thenReturn(new CompletableFuture<>());
+        Thread.currentThread().interrupt();
+        try {
+            AppException ex = assertThrows(AppException.class, service::syncCache);
+            assertEquals(AppError.CACHE_UNPROCESSABLE.title, ex.getTitle());
+            assertTrue(Thread.currentThread().isInterrupted());
+            verify(telemetryClient).createCustomEventForAlert(eq(AppError.CACHE_UNPROCESSABLE), anyString(), any(InterruptedException.class));
+        } finally {
+            Thread.interrupted(); // clear flag for other tests
+        }
     }
 }

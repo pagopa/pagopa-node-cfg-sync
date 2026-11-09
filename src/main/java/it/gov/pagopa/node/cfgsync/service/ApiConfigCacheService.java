@@ -20,6 +20,8 @@ import java.util.concurrent.*;
 @Slf4j
 @RequiredArgsConstructor
 public class ApiConfigCacheService {
+    private static final String CACHE_UNPROCESSABLE_DETAILS = "Cache not ready to be saved after retries";
+
     @Value("${api-config-cache.service.enabled}")
     private boolean apiConfigCacheServiceEnabled;
 
@@ -38,10 +40,18 @@ public class ApiConfigCacheService {
                     .thenApply(persistenceService::saveCache).get();
             log.info("Done sync cache [{}]", LocalDateTime.now());
             return response;
-        } catch (ExecutionException | InterruptedException e) {
-            telemetryClient.createCustomEventForAlert(AppError.CACHE_UNPROCESSABLE, "Cache not ready to be saved after retries", e);
+        } catch (InterruptedException e) {
+            telemetryClient.createCustomEventForAlert(AppError.CACHE_UNPROCESSABLE, CACHE_UNPROCESSABLE_DETAILS, e);
             Thread.currentThread().interrupt();
-            throw new AppException(AppError.CACHE_UNPROCESSABLE, e, "Cache not ready to be saved after retries");
+            throw new AppException(AppError.CACHE_UNPROCESSABLE, e, CACHE_UNPROCESSABLE_DETAILS);
+        } catch (ExecutionException e) {
+            telemetryClient.createCustomEventForAlert(AppError.CACHE_UNPROCESSABLE, CACHE_UNPROCESSABLE_DETAILS, e);
+            Throwable cause = e.getCause();
+            if (cause instanceof AppException appException) {
+                // propagate the original error (fetch or save) without masking its status/title
+                throw appException;
+            }
+            throw new AppException(AppError.CACHE_UNPROCESSABLE, cause != null ? cause : e, CACHE_UNPROCESSABLE_DETAILS);
         }
     }
 
