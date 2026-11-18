@@ -68,6 +68,7 @@ microservice-chart:
     #          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
     #          value: "75"
   envConfig:
+    JAVA_OPTS: "-XX:-UseBASE64Intrinsics"
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync'
     ENV: 'dev'
     APP_LOGGING_LEVEL: 'INFO'
