@@ -151,5 +151,5 @@ microservice-chart:
         repository: ghcr.io/pagopa/pagopa-node-cfg-sync
         tag: "0.0.0"
         pullPolicy: Always
-      envConfig: {JAVA_OPTS: "-XX:-UseBASE64Intrinsics"}
+      envConfig: {}
       envSecret: {}
