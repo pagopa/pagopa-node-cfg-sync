@@ -68,13 +68,12 @@ microservice-chart:
     #          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
     #          value: "75"
   envConfig:
-    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync' # required to show cloud role name in application insights
     ENV: 'prod'
     APP_LOGGING_LEVEL: 'INFO'
     HIKARI_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
-    JAVA_OPTS: "-XX:MaxHeapSize=2g"
+    JAVA_OPTS: "-XX:MaxHeapSize=2g -XX:-UseBASE64Intrinsics"
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     #    DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp-1.p.db-nodo-pagamenti.com:6432,db-postgres-ndp-2.p.db-nodo-pagamenti.com:6432/ndpspcp"
     DB_NEXI_POSTGRES_URL: "jdbc:postgresql://db-postgres-ndp.p.db-nodo-pagamenti.com:6432/ndpspcp"
@@ -152,5 +151,5 @@ microservice-chart:
         repository: ghcr.io/pagopa/pagopa-node-cfg-sync
         tag: "0.0.0"
         pullPolicy: Always
-      envConfig: {}
+      envConfig: {JAVA_OPTS: "-XX:-UseBASE64Intrinsics"}
       envSecret: {}

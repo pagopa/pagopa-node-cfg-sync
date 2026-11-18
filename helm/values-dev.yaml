@@ -68,7 +68,7 @@ microservice-chart:
     #          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
     #          value: "75"
   envConfig:
-    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
+    JAVA_OPTS: "-XX:-UseBASE64Intrinsics"
     WEBSITE_SITE_NAME: 'pagopa-node-cfg-sync'
     ENV: 'dev'
     APP_LOGGING_LEVEL: 'INFO'
@@ -150,5 +150,5 @@ microservice-chart:
         repository: ghcr.io/pagopa/pagopa-node-cfg-sync
         tag: "0.0.0"
         pullPolicy: Always
-      envConfig: {}
+      envConfig: {JAVA_OPTS: "-XX:-UseBASE64Intrinsics"}
       envSecret: {}
